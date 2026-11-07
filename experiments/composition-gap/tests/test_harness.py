@@ -55,6 +55,14 @@ def patch(monkeypatch, seq):
     return calls
 
 
+def test_openrouter_turn_records_served_model(monkeypatch):
+    r = Resp({"choices": [{"message": {"content": "PASS"}}], "usage": {"cost": 0.01}, "model": "vendor/m-2026"})
+    patch(monkeypatch, [r, ok("PASS")])
+    tl = h.Turns(h.OpenRouter("vendor/m", key="k"))
+    tl("worker", "w0", 0, "s", "u"); tl("worker", "w1", 1, "s", "u")
+    assert [t["model"] for t in tl.log] == [["vendor/m-2026"], None]
+
+
 def test_openrouter_parses(monkeypatch):
     calls = patch(monkeypatch, [ok(" POST: x ", 0.02)])
     llm = h.OpenRouter("a/b", key="k")

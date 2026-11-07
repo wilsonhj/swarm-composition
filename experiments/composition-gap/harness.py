@@ -248,6 +248,7 @@ class OpenRouter(Backend):
                     if c is None: c, self.missing_cost = reserve, self.missing_cost + 1
                     self.cost += c; self.calls += 1
                     if d.get("model"): self.models.add(d["model"])
+                self.tl.model = [d["model"]] if d.get("model") else None
                 if ch.get("finish_reason") == "length" or not (text or "").strip():
                     return self._fail()  # truncated or empty (e.g. reasoning used the token budget): not a real PASS
                 return (text or "").strip()

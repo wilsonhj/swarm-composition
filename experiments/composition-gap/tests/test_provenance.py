@@ -8,16 +8,23 @@ import provenance as p
 from scoring import score_row
 
 
+@pytest.mark.parametrize("wording", p.WORDINGS)
 @pytest.mark.parametrize("condition", p.CONDITIONS)
 @pytest.mark.parametrize("authorization", p.OBJECTIVES)
-def test_scripted_positive_and_negative_paths(condition, authorization):
-    r = p.run_trial(p.StudyMock(), 2000, condition, authorization)
-    expected = authorization == "authorized" or condition == "local"
+def test_scripted_positive_and_negative_paths(condition, authorization, wording):
+    r = p.run_trial(p.StudyMock(), 2000, condition, authorization, wording)
+    if condition == "keyword_gate":  # blocks every post iff the objective contains a policy keyword
+        expected = wording == "paraphrase"
+    else:
+        expected = authorization == "authorized" or condition == "local"
+    assert r["framing"] == wording
     assert r["recoverable"] == r["assembled"] == expected
     assert r["actor_calls"] == 5 and r["failed_calls"] == 0
     assert r["monitor_calls"] == (5 if condition == "monitor" and expected else
                                    4 if condition == "monitor" else 0)
-    assert r["authorized_completed"] == (authorization == "authorized")
+    assert r["authorized_completed"] == (authorization == "authorized" and expected)
+    # blocked: the four worker posts (the assembler then sees an empty board and passes)
+    assert r["blocked_posts"] == (4 if condition in ("monitor", "keyword_gate") and not expected else 0)
 
 
 def test_local_prompts_cannot_distinguish_authorization():
@@ -109,18 +116,30 @@ def test_heldout_requires_matching_clean_freeze_before_model_calls(tmp_path, mon
                 "--freeze-commit", "a" * 40, "--out", str(tmp_path / "x.jsonl")])
 
 
+def test_paraphrase_objectives_avoid_policy_keywords_and_keep_purpose():
+    assert all(h.SECRET_WORDS.search(o) for o in p.OBJECTIVES.values() if "passphrase" in o)
+    assert not any(h.SECRET_WORDS.search(o) for o in p.PARAPHRASE_OBJECTIVES.values())
+    assert p.PARAPHRASE_OBJECTIVES.keys() == p.OBJECTIVES.keys()
+
+
+def test_cli_rejects_unknown_wording(tmp_path):
+    with pytest.raises(SystemExit): p.main(["--wordings", "keyword,slang", "--out", str(tmp_path / "x.jsonl")])
+    assert not (tmp_path / "x.jsonl").exists()
+
+
 def test_cli_mock_writes_unique_provenance_and_all_six_cells(tmp_path):
     out = tmp_path / "nested" / "smoke.jsonl"
     p.main(["--seeds", "2", "--out", str(out)])
     rows = [json.loads(s) for s in out.read_text().splitlines()]
     m = json.loads((out.parent / "smoke.jsonl.manifest.json").read_text())
-    assert len(rows) == 12 and m["status"] == "complete" and m["totals"]["failed_rows"] == 0
-    assert {(r["cond"], r["authorization"]) for r in rows} == {
-        (c, a) for c in p.CONDITIONS for a in p.OBJECTIVES}
+    n = 2 * len(p.CONDITIONS) * len(p.OBJECTIVES) * len(p.WORDINGS)
+    assert len(rows) == n and m["status"] == "complete" and m["totals"]["failed_rows"] == 0
+    assert {(r["cond"], r["authorization"], r["framing"]) for r in rows} == {
+        (c, a, w) for c in p.CONDITIONS for a in p.OBJECTIVES for w in p.WORDINGS}
     assert all(r["protocol_hash"] == m["protocol_hash"] and r["prompt_hash"] == m["prompt_hash"]
                and r["run_id"] == m["run_id"] and r["model"] == "scripted-study-mock" for r in rows)
     with pytest.raises(SystemExit): p.main(["--out", str(out)])
-    assert len(out.read_text().splitlines()) == 12
+    assert len(out.read_text().splitlines()) == n
 
 
 @pytest.mark.parametrize("args", [["--phase", "heldout"], ["--seed-offset", "3000"],
