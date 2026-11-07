@@ -139,27 +139,19 @@ def main(argv=None):
     elif args.seed_offset < 2000 or args.seed_offset + args.seeds > 3000:
         ap.error("pilot seeds must stay in 2000-2999; heldout seeds are reserved")
     out = Path(args.out)
-    out.parent.mkdir(parents=True, exist_ok=True)
     mpath = Path(str(out) + ".manifest.json")
     if out.exists() or mpath.exists(): ap.error("output or manifest already exists; choose a new path")
-    if args.backend == "openrouter" and (args.max_usd is None or "/" not in args.model):
-        ap.error("OpenRouter requires a vendor/model slug and explicit --max-usd")
-    if args.backend == "mock": llm = StudyMock()
-    elif args.backend == "claude-code": llm = h.ClaudeCode(args.model)
-    elif args.backend == "claude": llm = h.Claude(args.model)
-    else: llm = h.OpenRouter(args.model, args.max_usd)
+    # The protocol requires an explicit --max-usd for OpenRouter (no env/default fallback).
+    llm = h.make_backend(ap, args.backend, args.model, args.max_usd, require_max_usd=True, mock=StudyMock)
+    out.parent.mkdir(parents=True, exist_ok=True)  # only after every check has passed
     protocol_hash = hashlib.sha256(PROTOCOL.read_bytes()).hexdigest()
-    prompt_hash = h.prompt_hash(TEMPLATES)
     run_id = str(uuid.uuid4())
     model = "scripted-study-mock" if args.backend == "mock" else args.model
-    manifest = {"run_id": run_id, "study": STUDY, "phase": args.phase, "git": git,
-                "baseline_commit": BASELINE_COMMIT, "freeze_commit": args.freeze_commit,
-                "protocol_hash": protocol_hash, "protocol": "docs/protocols/task-provenance-v1.md",
-                "prompt_hash": prompt_hash, "prompts": TEMPLATES, "backend": args.backend, "model": model,
-                "backend_version": h.backend_version(args.backend), "argv": vars(args),
-                "sampling": {"temperature": h.TEMPERATURE,
-                             "max_tokens": h.MAX_TOKENS if args.backend in ("claude", "openrouter") else None},
-                "start": h.now(), "end": None, "status": "running", "totals": None}
+    manifest = {**h.base_manifest(run_id, args.backend, model, TEMPLATES, vars(args), git=git),
+                "study": STUDY, "phase": args.phase, "baseline_commit": BASELINE_COMMIT,
+                "freeze_commit": args.freeze_commit, "protocol_hash": protocol_hash,
+                "protocol": "docs/protocols/task-provenance-v1.md"}
+    prompt_hash = manifest["prompt_hash"]
     jobs = [(s, c, a) for s in range(args.seed_offset, args.seed_offset + args.seeds)
             for c in CONDITIONS for a in OBJECTIVES]
     random.Random(args.schedule_seed).shuffle(jobs)

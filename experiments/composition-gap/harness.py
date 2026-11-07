@@ -532,6 +532,33 @@ def manifest_path(out, append, run_id):
     return p
 
 
+def make_backend(ap, backend, model, max_usd=None, reserve_usd=None, require_max_usd=False, mock=None):
+    """Build the selected backend; bad OpenRouter settings become argparse usage errors (exit 2).
+    Without --max-usd, OpenRouter uses env OPENROUTER_BUDGET_USD, else 250, unless require_max_usd."""
+    if backend == "mock": return (mock or Mock)()
+    if backend == "claude": return Claude(model)
+    if backend == "claude-code": return ClaudeCode(model)
+    if "/" not in model: ap.error("--model must be an OpenRouter slug like <vendor>/<model> (see https://openrouter.ai/models)")
+    if max_usd is None:
+        if require_max_usd: ap.error("OpenRouter requires an explicit --max-usd (an estimated threshold, not a hard cap)")
+        load_env()
+        max_usd = os.environ.get("OPENROUTER_BUDGET_USD", 250)
+    try:
+        return OpenRouter(model, float(max_usd), reserve_usd=reserve_usd)
+    except ValueError as e:
+        ap.error(f"invalid OpenRouter budget: {e}")
+
+
+def base_manifest(run_id, backend, model, templates, argv, git=None):
+    """Manifest fields shared by harness.py and provenance.py runs; callers add their own study fields."""
+    return {"run_id": run_id, "argv": argv, "git": git or git_info(), "prompt_hash": prompt_hash(templates),
+            "prompts": templates, "backend": backend, "backend_version": backend_version(backend), "model": model,
+            # claude -p has no max-tokens flag, so only the API backends apply MAX_TOKENS
+            "sampling": {"max_tokens": MAX_TOKENS if backend in ("claude", "openrouter") else None,
+                         "temperature": TEMPERATURE},
+            "start": now(), "end": None, "status": "running", "totals": None}
+
+
 def summarize(res):
     """Table over valid rows only (failed_calls == 0); failed rows are counted separately, never in denominators."""
     lines = [f"{'condition':18s} {'failed':>6s} {'joined':>8s} {'all parts':>10s} {'mean parts':>11s}"]
@@ -586,30 +613,19 @@ def main(argv=None):
     out = Path(a.out)
     if out.exists() and not a.append:
         ap.error(f"--out {out} already exists; pass --append to add rows to it, or choose a new file name")
-    if a.backend == "openrouter":
-        if "/" not in a.model: ap.error("--model must be an OpenRouter slug like <vendor>/<model> (see https://openrouter.ai/models)")
-        load_env()
-        if a.max_usd is None: a.max_usd = float(os.environ.get("OPENROUTER_BUDGET_USD", 250))
+    llm = make_backend(ap, a.backend, a.model, a.max_usd, a.reserve_usd)
+    if a.backend == "openrouter": a.max_usd = llm.max_usd  # resolved env/default budget
     SYS = make_sys(a.policy)
     FRAME = FRAMES[a.framing]
-    if a.backend == "mock": llm = Mock()
-    elif a.backend == "claude": llm = Claude(a.model)
-    elif a.backend == "claude-code": llm = ClaudeCode(a.model)
-    else: llm = OpenRouter(a.model, a.max_usd, reserve_usd=a.reserve_usd)
 
     run_id = str(uuid.uuid4())
     templates = prompt_templates(a.design, a.policy, a.framing)
-    manifest = {"run_id": run_id, "design": a.design, "argv": sys.argv if argv is None else ["harness.py", *argv],
-                "git": git_info(), "prompt_hash": prompt_hash(templates), "prompts": templates,
-                "backend": a.backend, "backend_version": backend_version(a.backend), "model": a.model,
-                "resolved_model": None, "python": platform.python_version(), "policy": a.policy,
-                "framing": a.framing, "conds": list(conds),
-                # claude -p has no max-tokens flag, so only the API backends apply MAX_TOKENS
-                "sampling": {"max_tokens": MAX_TOKENS if a.backend in ("claude", "openrouter") else None,
-                             "temperature": TEMPERATURE},
+    manifest = {**base_manifest(run_id, a.backend, a.model, templates,
+                                sys.argv if argv is None else ["harness.py", *argv]),
+                "design": a.design, "resolved_model": None, "python": platform.python_version(),
+                "policy": a.policy, "framing": a.framing, "conds": list(conds),
                 "seeds": {"offset": a.seed_offset, "count": a.seeds, "range": [a.seed_offset, a.seed_offset + a.seeds - 1]},
-                "max_usd": a.max_usd, "reserve_usd": a.reserve_usd, "out": str(out),
-                "start": now(), "end": None, "status": "running", "totals": None}
+                "max_usd": a.max_usd, "reserve_usd": a.reserve_usd, "out": str(out)}
     mpath = manifest_path(out, a.append, run_id)
     write_json(mpath, manifest)
 
