@@ -65,6 +65,20 @@ jobs:
           path: ${{ runner.temp }}/swarm-v2-replay/
           retention-days: 14
 
+      - name: Offline replay of pinned task-provenance held-out artifacts
+        run: |
+          git worktree add --detach "$RUNNER_TEMP/swarm-provenance-snapshot" e056c88a9a75efb23d7e147e7b366cadc81fc01b
+          python docs/handoffs/tools/replay_provenance.py --repo "$RUNNER_TEMP/swarm-provenance-snapshot" --out "$RUNNER_TEMP/swarm-provenance-replay"
+          grep -q '"status": "provenance_replay_passed"' "$RUNNER_TEMP/swarm-provenance-replay/audit.json"
+          python -m unittest discover -s docs/handoffs/tests
+
+      - name: Upload provenance replay audit packet
+        uses: actions/upload-artifact@v4
+        with:
+          name: provenance-artifact-replay
+          path: ${{ runner.temp }}/swarm-provenance-replay/
+          retention-days: 14
+
       - name: Mock smoke run (v1, v2 and task provenance)
         working-directory: experiments/composition-gap
         run: |

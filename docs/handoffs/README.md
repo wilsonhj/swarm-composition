@@ -24,11 +24,14 @@ Use Python 3.11 and a new output directory. The command verifies pinned inputs a
 analysis sources, checks all 1,040 v2 rows against stored legacy scores, and writes
 three separate analysis reports plus an audit summary and checksums. It uses no
 network, API credentials, model downloads, or GPU. It preserves the original
-results and keeps the Sonnet rerun separate. See the contract for its limits and
-the additional provenance-study replay still to implement.
+results and keeps the Sonnet rerun separate. See the contract for its limits.
 
-CI also runs this replay against a separate checkout of the pinned artifact
-snapshot and uploads `v2-artifact-replay`. Future study-code changes therefore do
+A second replay, `tools/replay_provenance.py`, rebuilds and rescores all 800
+held-out task-provenance trials against a pinned snapshot; see
+[verification](verification.md#provenance-held-out-replay).
+
+CI also runs both replays against a separate checkout of the pinned artifact
+snapshot and uploads `v2-artifact-replay` and `provenance-artifact-replay`. Future study-code changes therefore do
 not silently change this historical audit's analysis source.
 
 Templates to copy into the new study, then complete and validate:

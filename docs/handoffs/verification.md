@@ -46,48 +46,66 @@ These checks establish input integrity and deterministic local replay. They do
 not recover unlogged historical retries or promise future hosted-model behavior.
 Archived reports are preserved; generated reports use the pinned analysis source.
 
-## Provenance held-out artifact check
+## Provenance held-out replay
 
-The inspected PR #1 snapshot is `a5258393ac6baf718b3a2b0042dae195b90f90bd`.
-Preparing a separate checkout may need network access once:
-
-```bash
-git fetch origin a5258393ac6baf718b3a2b0042dae195b90f90bd
-git worktree add --detach /tmp/swarm-provenance-audit a5258393ac6baf718b3a2b0042dae195b90f90bd
-```
-
-Once prepared, the following analysis uses only the standard library and archived
-data; it requires no credentials or network:
+From the repository root, against a clean worktree of the merged PR #1 snapshot
+(the replay also reads the freeze commit from git history, so use a full clone):
 
 ```bash
-cd /tmp/swarm-provenance-audit/experiments/composition-gap
-python3 analyze.py results/task-provenance/heldout-haiku.jsonl --baseline local --md /tmp/provenance-replay.md
+git worktree add --detach /tmp/swarm-provenance-snapshot e056c88a9a75efb23d7e147e7b366cadc81fc01b
+python3 docs/handoffs/tools/replay_provenance.py --repo /tmp/swarm-provenance-snapshot --out /tmp/swarm-provenance-replay-1
+python3 docs/handoffs/tools/replay_provenance.py --repo /tmp/swarm-provenance-snapshot --out /tmp/swarm-provenance-replay-2
+diff -r /tmp/swarm-provenance-replay-1 /tmp/swarm-provenance-replay-2
+cd /tmp/swarm-provenance-replay-1 && sha256sum -c SHA256SUMS
 ```
 
-Independent checks on that snapshot found:
+Observed on 7 November 2026 under CPython 3.11.16 and 3.12.14: **800 trials (16
+cells × seeds 3000–3049), 4,795 logged turns, all 800 trials rebuilt from their
+logged replies and rescored, 0 malformed monitor verdicts, 0 non-protocol
+replies.** Output is `provenance_replay_passed` only for a clean checkout of the
+snapshot; otherwise `provenance_replay_passed_noncanonical_checkout`.
+
+The replay checks 9 files in the checkout and 4 files at freeze commit `435d20d`
+against pinned SHA256 values ([`provenance-inputs.json`](provenance-inputs.json))
+and asserts every expected count listed there:
 
 | Field | Verified value |
 |---|---|
 | Run ID | `4c134cfd-0a87-49f2-ba16-a4cba153a701` |
-| Collection commit | `435d20d4d0d8e7bf24a391d077649b98e6d526ae`, manifest says clean |
+| Collection commit | `435d20d4d0d8e7bf24a391d077649b98e6d526ae`, clean; ancestor of the snapshot |
 | Raw SHA256 | `066b505a69e545f682562117a0ae0c43aacce37014b80effb044996e10e44933` |
-| Protocol SHA256 | `5a8659fea984ee3203f380476e06cdc72829e4b574e88edbbcfbda5800ead978` |
-| Trials | 800; four conditions × two authorizations × two wordings × 50 seeds |
-| Failure | One worker turn, seed 3010, authorized/paraphrase/provenance trial |
-| Calls | 4,795 raw turn records, of which one failed; manifest backend count 4,794 |
-| Stored scores | `assembled`, `recoverable`, `identified_parts`, `exposed_parts`, `assembled_exact` reproduce in all 800 rows |
-| Model identity | Manifest resolved-model list contains `claude-haiku-5-5`; failed worker turn has no served ID |
+| Protocol SHA256 | `5a8659fea984ee3203f380476e06cdc72829e4b574e88edbbcfbda5800ead978` (equals manifest `protocol_hash` and the file at the freeze commit) |
+| Prompts | manifest `prompt_hash` recomputed from `provenance.py` templates |
+| Served model | `claude-haiku-5-5` on all 4,794 successful turns; the failed turn records none |
+| Failure | 1 trial: provenance / authorized / paraphrase, seed 3010, worker1; excluded (valid n 49); all-trial bounds assembled 66–68%, recoverable 94–96% |
+| Calls | 4,795 logged turns = manifest `calls` 4,794 + `errors` 1 |
+| Monitor | 795 proposals: 792 BLOCK, 3 ALLOW (authorized/paraphrase), 0 malformed |
+| Rebuild | every trial re-run through `provenance.run_trial` from its logged replies equals the stored row (except per-turn `ms`, the later `fail_reason` turn field and run metadata); all 15 `score_row` fields reproduce |
+| Cells and contrasts | all 16 cell tallies and the four provenance-vs-local contrasts in `provenance-heldout.md` |
 
-The fresh report reproduces the archived estimates/intervals and adds full paired
-tables plus interpretation notes from newer analysis code. Its Markdown therefore
-differs from the archived report. This is why collection and analysis commits must
-be recorded separately. The missing failed-call identity and historical counter
-difference remain disclosed gaps. They must not be silently repaired in raw data.
+**Call counter.** In the collection harness, `ClaudeCode` incremented `calls` only
+on a successful logical call; a call that exhausted its three attempts incremented
+`errors` instead. Logged turns therefore equal `calls + errors`. Transport retries
+inside a call, and their cost and served model, were not recorded (changed after
+the freeze in `57d13c3`). This is a disclosed gap, not a repair.
 
-The current one-command v2 tool does **not** package this provenance check.
-Agent A is assigned to add manifest validation, score/paired-table checks and
-claim-ledger export for these provenance artifacts. The command above already
-recreates their analysis; a complete presentation bundle still needs that work.
+**Committed analysis.** `heldout-haiku.jsonl.analysis.md` was generated by the
+analyzer at the freeze commit. The replay regenerates it byte-identically from
+those hash-pinned sources (`analysis_collection.md`). The snapshot analyzer's
+report (`analysis_snapshot.md`, also pinned) adds two paired-count columns and a
+longer contrast note; the replay asserts that these are the only differences.
+Both report hashes match under CPython 3.11 and 3.12.
+
+Negative-path checks (`python -m unittest discover -s docs/handoffs/tests`)
+passed: a modified raw file fails its hash before any output is created; a score
+tampered with in a raw row with a re-pinned hash fails the rebuild; existing or
+in-checkout `--out` paths are refused; a failure after hashing (a wrong pinned
+report hash) leaves no output or partial directory; an untracked `random.py` or
+`json.py` beside the sources is not imported.
+
+These checks establish integrity and deterministic local replay of one archived
+run. They do not recover unlogged retries or the failed turn's model, verify the
+reported cost, or say anything about future hosted-model behaviour.
 
 ## Repository and document checks
 
