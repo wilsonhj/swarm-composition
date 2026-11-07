@@ -21,7 +21,7 @@ Commit timestamps record repository history, not independent proof of when each 
 
 > Repository history records scaffolding and v2 implementation on Friday 6 November 2026 after the published LA kickoff. The v2 run manifests record execution during the sprint. The provenance study is a later, separately versioned development study. These records do not establish the authoring date of every asset; any genuinely pre-sprint code or results must be disclosed individually. Earlier pilots were used for design selection and are exploratory, irrespective of their eligibility classification.
 
-Before submission, the team must confirm any assets created before the sprint. Do not substitute either an unverified “none existed” statement or an unsupported blanket “all existing work was pre-sprint” statement. Keep per-cell source commits and manifest timestamps: the v2 cells were not all executed at one source commit.
+**Confirmed 7 November 2026 by the author (Hirokazu James, team HJ):** there are no pre-sprint assets. All code, pilots, runs and documents were produced during the two-day sprint that began on Friday evening, 6 November. Keep per-cell source commits and manifest timestamps: the v2 cells were not all executed at one source commit.
 
 ## Study boundaries
 

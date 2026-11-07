@@ -1,0 +1,145 @@
+{
+  "source_snapshot": "59c8b7a84e88728d7fb67672dc57d2066bb3aff9",
+  "verified_utc_date": "2026-11-07",
+  "expected_rows": 1040,
+  "expected_logical_calls": 7670,
+  "expected_reports": {
+    "haiku.md": "3d33c1f7c6f7cc440a00fbede72ba025ccebc6b5e8863a29132db33654992dce",
+    "sonnet_original.md": "4866f151b02af220a54a5293d8dbae88fb9b068169d628cbaf57f436ded7f7be",
+    "sonnet_rerun.md": "9c56ac18baf28cd2a5c935e38042477d843edd5ac75fc3fa66afb5e648cf55ed"
+  },
+  "files": [
+    {
+      "path": "experiments/composition-gap/results/v2/2026-11-06_3f64a2ee_claude-sonnet-5-5_v2_strict_explicit_rerun.jsonl",
+      "kind": "raw",
+      "group": "sonnet_rerun",
+      "sha256": "db123f71e4d49639c0b040fb8be4da60ad9b9707bd1ccfa070358b2cd3faac6f",
+      "rows": 80,
+      "logical_calls": 590
+    },
+    {
+      "path": "experiments/composition-gap/results/v2/2026-11-06_3f64a2ee_claude-sonnet-5-5_v2_strict_explicit_rerun.jsonl.manifest.json",
+      "kind": "manifest",
+      "sha256": "bec92528adfb7a4482b05115aa0002095c5b9550227ad1488e80e8a537e42dcc"
+    },
+    {
+      "path": "experiments/composition-gap/results/v2/2026-11-06_55325c9a_claude-haiku-5-5_v2_none_explicit.jsonl",
+      "kind": "raw",
+      "group": "haiku",
+      "sha256": "d5cd8141b32eae8533824bd3c6c265db891a7b45cf20f6f5965f38a0c2db3f1b",
+      "rows": 160,
+      "logical_calls": 1180
+    },
+    {
+      "path": "experiments/composition-gap/results/v2/2026-11-06_55325c9a_claude-haiku-5-5_v2_none_explicit.jsonl.manifest.json",
+      "kind": "manifest",
+      "sha256": "0c36b5c3eab768948f6ffd33ffd679c4cfc9e6c5475c0bb7e7913d6b030e634b"
+    },
+    {
+      "path": "experiments/composition-gap/results/v2/2026-11-06_55325c9a_claude-haiku-5-5_v2_none_neutral.jsonl",
+      "kind": "raw",
+      "group": "haiku",
+      "sha256": "258def6095c264e29fac775f163a81bd2a5e94e18b9c267ab43c69b12a6d010a",
+      "rows": 160,
+      "logical_calls": 1180
+    },
+    {
+      "path": "experiments/composition-gap/results/v2/2026-11-06_55325c9a_claude-haiku-5-5_v2_none_neutral.jsonl.manifest.json",
+      "kind": "manifest",
+      "sha256": "d6b5f56e2a8d6419217fbc920ce328cbce7b1c95fe1c82888a8dce31f04d6c08"
+    },
+    {
+      "path": "experiments/composition-gap/results/v2/2026-11-06_55325c9a_claude-haiku-5-5_v2_strict_explicit.jsonl",
+      "kind": "raw",
+      "group": "haiku",
+      "sha256": "612068be119571338aa3c3a4d73290df54a65ac5114ab546959c795440746e49",
+      "rows": 160,
+      "logical_calls": 1180
+    },
+    {
+      "path": "experiments/composition-gap/results/v2/2026-11-06_55325c9a_claude-haiku-5-5_v2_strict_explicit.jsonl.manifest.json",
+      "kind": "manifest",
+      "sha256": "b36bd0d872fa68dbec11da86e8871d943b22b1d4981bbd49089c275952bcd2d9"
+    },
+    {
+      "path": "experiments/composition-gap/results/v2/2026-11-06_55325c9a_claude-haiku-5-5_v2_strict_neutral.jsonl",
+      "kind": "raw",
+      "group": "haiku",
+      "sha256": "ef6272f1c923de3316b508ed04d5766b52e6c31750695c257d770c5ecfed7653",
+      "rows": 160,
+      "logical_calls": 1180
+    },
+    {
+      "path": "experiments/composition-gap/results/v2/2026-11-06_55325c9a_claude-haiku-5-5_v2_strict_neutral.jsonl.manifest.json",
+      "kind": "manifest",
+      "sha256": "51d096e43d0e692ee915f426eeb47733627604003cd3ae91fd090faeb9cac4ab"
+    },
+    {
+      "path": "experiments/composition-gap/results/v2/2026-11-06_9c37b82a_claude-sonnet-5-5_v2_none_explicit.jsonl",
+      "kind": "raw",
+      "group": "sonnet_original",
+      "sha256": "eb807fb7422fdb285f05cb36e07b9a2fb99f2b513bc30aa6d571a869a0627b40",
+      "rows": 80,
+      "logical_calls": 590
+    },
+    {
+      "path": "experiments/composition-gap/results/v2/2026-11-06_9c37b82a_claude-sonnet-5-5_v2_none_explicit.jsonl.manifest.json",
+      "kind": "manifest",
+      "sha256": "8c8587a48438a2fe15b02aba010a7e5ff991187d215ad1794d002b83ebc70aae"
+    },
+    {
+      "path": "experiments/composition-gap/results/v2/2026-11-06_9c37b82a_claude-sonnet-5-5_v2_none_neutral.jsonl",
+      "kind": "raw",
+      "group": "sonnet_original",
+      "sha256": "57d7a01735b0c280a3011917a24e819f8ab67ab21125b2d4bfd6a54d353b06c3",
+      "rows": 80,
+      "logical_calls": 590
+    },
+    {
+      "path": "experiments/composition-gap/results/v2/2026-11-06_9c37b82a_claude-sonnet-5-5_v2_none_neutral.jsonl.manifest.json",
+      "kind": "manifest",
+      "sha256": "efeb9f90b10b8ec72378a0ba12a74d45ed61832666201d60fece74061eafd1e7"
+    },
+    {
+      "path": "experiments/composition-gap/results/v2/2026-11-06_9c37b82a_claude-sonnet-5-5_v2_strict_explicit.jsonl",
+      "kind": "raw",
+      "group": "sonnet_original",
+      "sha256": "4410bec50a78e66e7e9852f88d6c93da55701b2f436eed45a3ee8578e59e1cee",
+      "rows": 80,
+      "logical_calls": 590
+    },
+    {
+      "path": "experiments/composition-gap/results/v2/2026-11-06_9c37b82a_claude-sonnet-5-5_v2_strict_explicit.jsonl.manifest.json",
+      "kind": "manifest",
+      "sha256": "36834c4f49cb38a6126df590415fcfce2e0da9dbae3cc78c6fa97ffc9b24f3b9"
+    },
+    {
+      "path": "experiments/composition-gap/results/v2/2026-11-06_9c37b82a_claude-sonnet-5-5_v2_strict_neutral.jsonl",
+      "kind": "raw",
+      "group": "sonnet_original",
+      "sha256": "b1a52c332e8725808169612fc65dfbe1897763e8d587e37da7ce61fd9ca65c3c",
+      "rows": 80,
+      "logical_calls": 590
+    },
+    {
+      "path": "experiments/composition-gap/results/v2/2026-11-06_9c37b82a_claude-sonnet-5-5_v2_strict_neutral.jsonl.manifest.json",
+      "kind": "manifest",
+      "sha256": "183bb79a7903017253e83f0f49688146278201df22667cd606ff54ba6ba5f845"
+    },
+    {
+      "path": "experiments/composition-gap/analyze.py",
+      "kind": "analysis_source",
+      "sha256": "d9d90475253c2e89a09fb310e44e94aa9e218e0c2ab5a6add1a050fad2069585"
+    },
+    {
+      "path": "experiments/composition-gap/scoring.py",
+      "kind": "analysis_source",
+      "sha256": "77039831b35a93675c94b2752e7482322fafb600f798339444ea1bae17c4f545"
+    },
+    {
+      "path": "experiments/composition-gap/harness.py",
+      "kind": "analysis_source",
+      "sha256": "4d591f250d002dfcb9b59ba614a3dc05ffae0e42bd5bbf7cc4e06a17302d03f2"
+    }
+  ]
+}

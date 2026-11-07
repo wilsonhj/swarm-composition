@@ -10,8 +10,8 @@ This is the confirmatory run of the frozen protocol `docs/protocols/task-provena
 | Run ID | `4c134cfd-0a87-49f2-ba16-a4cba153a701` |
 | Seeds | 3000–3049; scheduling seed 20261107; 4 workers |
 | Backend and model | `claude-code`, `claude-haiku-5-5` |
-| Served model | `claude-haiku-5-5` on every logged turn |
-| Trials | 800 (16 cells × 50), 4,794 calls |
+| Served model | `claude-haiku-5-5` on all 4,794 completed turns; the one failed turn records no model |
+| Trials | 800 (16 cells × 50); 4,795 logged turns = 4,794 completed calls (manifest `calls`) + 1 failed call (manifest `errors`) |
 | Failures | 1 failed trial (one backend error, in paraphrase / authorized / provenance), excluded; all-trial bounds in the analysis |
 | Protocol errors | 0 malformed monitor verdicts, 0 non-protocol actor replies |
 | Cost | Manifest-reported cost $0.96, billed to a subscription |

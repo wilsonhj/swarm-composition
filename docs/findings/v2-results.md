@@ -1,6 +1,6 @@
 # v2 confirmatory run: Haiku 5.5 (Fri Nov 6, 2026)
 
-- **Run:** `run_v2.sh` with run id `55325c9a`, at commit c9a4617. Backend `claude-code`, model `claude-haiku-5-5`, design v2, held-out seeds 1000–1019.
+- **Run:** `run_v2.sh` with batch id `55325c9a` (each cell file has its own run UUID): the none/neutral cell at commit c9a4617, the other three cells at 1ec087c (`harness.py` identical). Backend `claude-code`, model `claude-haiku-5-5`, design v2, held-out seeds 1000–1019.
 - **Volume:** 4 cells × 8 conditions × 20 seeds = 640 rows and 4,720 calls.
 - **Failures:** 0 failed calls. Every reply was either `POST: …` (2,794) or exactly `PASS` (1,926).
 - **Full tables:** [`experiments/composition-gap/results/v2/analysis.md`](../../experiments/composition-gap/results/v2/analysis.md). Scored with `scoring.py` at 1ec087c, with `solo@kK` scored per attempt.

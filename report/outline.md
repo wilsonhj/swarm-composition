@@ -4,6 +4,8 @@ Track 2: The Science of Agent Networks. Swarm Alignment Hackathon, Nov 6-8 2026.
 
 Constraints (from https://apartresearch.com/sprints/swarm-alignment-2026): PDF on Apart's template; max 8 pages NOT counting references and appendices; abstract 150-250 words; authors and affiliations; REQUIRED appendix "Limitations and Dual-Use / Ethical Considerations". Pre-sprint work must be marked as preexisting in README and report (see 3.6). Page budget below totals 8.0.
 
+**Status (Sat Nov 7): superseded by `draft.md` for structure.** The report now presents two studies with separate protocols and evidence, never pooled: Study 1 = the frozen v2 composition study below (Sections 3–4 of the draft); Study 2 = the held-out task-provenance study (`docs/protocols/task-provenance-v1.md`, `docs/findings/provenance-heldout.md`; draft Section 5), whose development pilot is cited only as design-selection evidence. Discussion and Conclusion are Sections 6–7. Figures used: fig1 topologies, fig2 v2 heatmap, fig4 provenance held-out (shown as Figure 3); no swarm-size figure, because frozen v2 has only swarm@n4. The SAE sender study is unimplemented future work. The section skeleton below is the original Study 1 plan.
+
 Conventions: `[RESULT: ...]` = number to fill from the full run. `[PILOT: ...]` = pilot observation (n=3-10 seeds), to be replaced by the full run and never reported as a result. `[FIG]`/`[TAB]` = planned figure/table. Do not write any pilot value in the final text, and do not describe pilot findings as anything but exploratory.
 
 ---
@@ -75,7 +77,7 @@ Structure, one to two sentences each:
 ### 3.6 Models, infrastructure, provenance, pre-sprint disclosure (0.3 p)
 - Haiku 5.5 via Claude Code (primary); optional Sonnet 5.5 and OpenRouter cross-model runs [RESULT: which completed; else say not run].
 - Run manifests (run id, commit, prompt hash, CLI version) and per-turn logs. Provider defaults and CLI versions are not pinned beyond what the manifest records.
-- Pre-sprint disclosure: use [the recorded UTC/Pacific timeline](../docs/findings/development-timeline.md) and confirm assets individually with the team. Earlier repository work is not automatically pre-sprint; commit dates do not certify every authoring date.
+- Pre-sprint disclosure: use [the recorded UTC/Pacific timeline](../docs/findings/development-timeline.md) and the author confirmed there are no pre-sprint assets.
 ### 3.7 Pilot -> design changes (0.25 p)
 - Exploratory pilots (2-10 seeds per cell, seeds 0-19) showed that disclosure was sensitive to policy wording and framing, that the neutral solo baseline already succeeded, and that the v1 relay changed policy and knowledge together and used non-uniform parsing and a buggy request metric. Consequently the frozen v2 design (i) crosses policy with framing, (ii) adds opportunity-matched solo@k baselines, (iii) applies uniform `POST:` parsing, (iv) replaces the legacy metrics with four outcome measures, (v) records failed calls and provenance, and (vi) evaluates on held-out seeds 1000-1019. The design was selected after seeing pilot seeds; no pilot number is reported as a result. The v1 full run (strict, seeds 0-19) is reported as an exploratory replication of the framing effect.
 
