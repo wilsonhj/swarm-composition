@@ -333,7 +333,7 @@ def test_solo_k_pooled_exposure_is_explicit_and_legacy_uses_best_attempt():
     assert r["pooled_identified_parts"] == 4 and r["pooled_recoverable"]
 
 
-@pytest.mark.parametrize("field", ["design", "backend", "served_models", "run_id", "prompt_hash", "protocol_hash", "authorization"])
+@pytest.mark.parametrize("field", ["design", "backend", "run_id", "prompt_hash", "protocol_hash", "authorization"])
 def test_incompatible_rows_never_pair_or_merge(field):
     a = _e("solo", 0, ["PASS"], **{field: "a"})
     b = _e("pipeline", 0, ["POST: " + SECRET], **{field: "b"})
@@ -367,7 +367,7 @@ def test_failure_sensitivity_bounds_use_all_trials():
     assert "sensitivity bounds, not confidence intervals" in report
 
 
-def test_per_turn_served_models_are_part_of_analysis_identity():
+def test_per_turn_served_models_are_recorded_per_row():
     r = _e("solo", 0, [], turns=[{**T("solo", "PASS"), "model": ["model-b", "model-a"]}])
     assert r["served_models"] == "model-a,model-b"
 
@@ -379,3 +379,61 @@ def test_non_solo_k_pooled_equals_primary_metrics(cond):
     keys = ("exposed_parts", "identified_parts", "recoverable", "assembled", "assembled_exact")
     assert {k: r[f"pooled_{k}"] for k in keys} == {k: r[k] for k in keys}
     assert r["exposed_parts"] == 3
+
+
+def _served(cond, seed, model, failed=0):
+    """Row whose turn log records `model` as served (None: every call failed, so no model was logged)."""
+    turn = {**T("solo", "PASS"), **({"model": model} if model else {"failed": True})}
+    return _e(cond, seed, ["PASS"], failed=failed, turns=[turn])
+
+
+def test_fully_failed_row_counts_in_its_real_cell():
+    rows = [_served("solo", s, "model-a") for s in range(3)] + [_served("solo", 3, None, failed=1)]
+    (c,) = analyze.summarize(rows, list(analyze.DEFAULT_BY))
+    assert (c["n_total"], c["n_failed"], c["n_valid"]) == (4, 1, 3)
+    assert c["assembled_all_bounds"] == (0.0, 0.25)
+    assert c["served_models"] == ["model-a"]
+
+
+def test_served_model_sets_never_split_cells_or_abort_custom_by():
+    rows = [_served("solo", 0, "model-a"), _served("solo", 1, "model-b"),
+            _served("pipeline", 0, "model-a"), _served("pipeline", 1, ["model-a", "model-b"])]
+    (c,) = [c for c in analyze.summarize(rows, ["cond"]) if c["key"] == ("solo",)]
+    assert c["n_total"] == 2 and c["served_models"] == ["model-a", "model-b"]
+    (p,) = analyze.paired_contrasts(rows, "solo")
+    assert p["n_pairs"] == 2
+    report = analyze.render(rows, list(analyze.DEFAULT_BY), "solo", False)
+    assert "model-a,model-b (MIXED)" in report
+
+
+def test_empty_contrast_message_names_baseline_mode():
+    rows = [_e("pipeline", 0, ["PASS"]), _e("relay", 0, ["PASS"])]
+    matched = analyze.render(rows, ["cond"], "matched", False)
+    assert "baseline `matched` absent" not in matched
+    assert "matched call-budget" in matched
+    named = analyze.render(rows, ["cond"], "solo", False)
+    assert "baseline condition `solo` absent" in named
+
+
+def test_matched_mode_lists_conditions_missing_their_baseline():
+    rows = [_e(c, 0, ["PASS"]) for c in ("solo", "solo@k5", "pipeline", "relay", "relay_uninformed")]
+    skipped = []
+    pairs = analyze.paired_contrasts(rows, "matched", skipped=skipped)
+    assert {(p["cond"], p["baseline"]) for p in pairs} == {("pipeline", "solo@k5")}
+    assert {(s["cond"], s["baseline"]) for s in skipped} == {("relay", "solo@k6"), ("relay_uninformed", "solo@k6")}
+    report = analyze.render(rows, ["cond"], "matched", False)
+    assert "relay_uninformed" in report.split("Seed-paired contrasts")[1]
+    assert "solo@k6" in report.split("Seed-paired contrasts")[1]
+
+
+def test_documented_pilot_command_reproduces_committed_solo_contrasts(capsys, monkeypatch):
+    import glob, re, shlex
+    exp = Path(__file__).resolve().parents[1]
+    doc = (exp.parents[1] / "docs" / "findings" / "pilot-rescored.md").read_text()
+    cmd = shlex.split(re.search(r"Regenerate: `cd experiments/composition-gap && (python analyze\.py [^`]*)`", doc).group(1))
+    args = [a for a in cmd[2:] if a not in ("--md", "OUT.md")]
+    monkeypatch.chdir(exp)
+    analyze.main([p for a in args for p in (sorted(glob.glob(a)) if "*" in a else [a])])
+    out = capsys.readouterr().out
+    assert "## Seed-paired contrasts vs `solo`" in doc
+    assert "## Seed-paired contrasts vs `solo`" in out and "(no pairs" not in out

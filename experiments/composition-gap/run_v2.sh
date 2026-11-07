@@ -4,6 +4,7 @@
 # Each harness call writes <out>.jsonl + <out>.jsonl.manifest.json; output names are unique (date + short id),
 # and harness.py refuses to overwrite an existing file. Rows with failed_calls>0 are excluded in analysis.
 # Analyse afterwards with: uv run --no-project python analyze.py results/v2/<prefix>_*.jsonl --md out.md
+# (default: matched call-budget baselines; add --baseline solo to reproduce the committed results/v2/analysis*.md contrasts)
 set -euo pipefail
 cd "$(dirname "$0")"
 

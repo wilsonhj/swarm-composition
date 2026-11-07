@@ -1,7 +1,7 @@
 """Cell summaries and seed-paired contrasts for composition-gap result files.
 
   python analyze.py FILE.jsonl [FILE...] [--md OUT.md] [--by model,policy,framing,cond]
-                    [--baseline solo] [--include-superseded] [--include-unknown] [--legacy-check]
+                    [--baseline matched|solo|COND] [--include-superseded] [--include-unknown] [--legacy-check]
 
 Denominators: only VALID rows (failed_calls == 0) count. Rows with failed_calls > 0 are "failed" and rows
 without the field are "unknown"; both are reported separately. --include-unknown treats unknown rows as valid
@@ -18,7 +18,9 @@ B = 2000
 BOOT_SEED = 20261106
 # Runs are independent replications. Pair only within a compatible run; old rows
 # without provenance retain explicit missing values rather than borrowing metadata.
-IDENTITY = ("study", "design", "backend", "model", "served_models", "authorization", "policy", "framing",
+# Served models come from per-row turn logs (a fully failed trial logs none), so they are
+# reported as cell metadata, not identity: they must not split a run's cells or pairs.
+IDENTITY = ("study", "design", "backend", "model", "authorization", "policy", "framing",
             "run_id", "prompt_hash", "protocol_hash")
 DEFAULT_BY = (*IDENTITY, "cond")
 
@@ -122,8 +124,8 @@ def cell_key(r, by):
     return tuple(str(r.get(k)) if r.get(k) is not None else "-" for k in by)
 
 
-def summarize(rows, by, include_unknown=False):
-    validate_rows(rows, by)
+def summarize(rows, by, include_unknown=False, validate=True):
+    if validate: validate_rows(rows, by)
     cells = defaultdict(list)
     for r in rows:
         cells[cell_key(r, by)].append(r)
@@ -133,7 +135,8 @@ def summarize(rows, by, include_unknown=False):
         v = [r for r in rs if is_valid(r, include_unknown)]
         n = len(v)
         cell = {"key": key, "n_total": len(rs), "n_failed": sum(r["valid"] is False for r in rs),
-                "n_unknown": sum(r["valid"] == "unknown" for r in rs), "n_valid": n}
+                "n_unknown": sum(r["valid"] == "unknown" for r in rs), "n_valid": n,
+                "served_models": sorted({m for r in rs if r.get("served_models") for m in r["served_models"].split(",")})}
         for m in ("assembled", "recoverable"):
             k = sum(bool(r[m]) for r in v)
             cell[m] = (k, n, wilson(k, n))
@@ -147,10 +150,11 @@ def summarize(rows, by, include_unknown=False):
     return out
 
 
-def paired_contrasts(rows, baseline="solo", include_unknown=False):
+def paired_contrasts(rows, baseline="solo", include_unknown=False, validate=True, skipped=None):
     """Seed-paired contrasts within compatible runs; never silently pick a duplicate.
-    `matched` selects call-budget baselines for v2 topologies, skipping absent baselines."""
-    validate_rows(rows)
+    `matched` selects call-budget baselines for v2 topologies, skipping absent baselines;
+    pass a list as `skipped` to collect the conditions omitted that way."""
+    if validate: validate_rows(rows)
     groups = defaultdict(lambda: defaultdict(dict))
     for r in rows:
         if is_valid(r, include_unknown):
@@ -160,10 +164,12 @@ def paired_contrasts(rows, baseline="solo", include_unknown=False):
         conds = groups[g]
         for c in sorted(conds):
             reference = matched_baseline(c) if baseline == "matched" else baseline
-            if not reference or reference not in conds or c == reference:
+            if not reference or c == reference:
                 continue
-            seeds = sorted(set(conds[c]) & set(conds[reference]))
+            seeds = sorted(set(conds[c]) & set(conds.get(reference, ())))
             if not seeds:
+                if baseline == "matched" and skipped is not None:
+                    skipped.append({"group": g, "cond": c, "baseline": reference})
                 continue
             res = {"group": g, "cond": c, "baseline": reference, "n_pairs": len(seeds)}
             for m in ("assembled", "recoverable", "identified_parts"):
@@ -242,17 +248,27 @@ def render(rows, by, baseline, include_unknown, files_note="", check=False):
     indices = [by.index(k) for k in display_by]
     def compact(value): return value[:12] if len(value) > 32 else value
     def display_key(key): return " | ".join(compact(key[i]) for i in indices)
+    def run_label(group):
+        return ", ".join(f"{field}={compact(group[i])}" for i, field in enumerate(IDENTITY)
+                         if len({r.get(field) for r in rows}) > 1) or "single run"
+    def served(models): return (",".join(models) + (" (MIXED)" if len(models) > 1 else "")) if models else "-"
+    show_served = any(r.get("served_models") for r in rows)
+    served_header = " | served models" if show_served else ""
     for k in ("study", "served_models", "authorization", "prompt_hash", "protocol_hash"):
         L.append(f"- {k}: {', '.join(vals(k))}")
     failures = any(not is_valid(r, include_unknown) for r in rows)
     bounds_header = " | assembled all-trial range | recoverable all-trial range" if failures else ""
     L += ["", "## Cells", "",
-          "| " + " | ".join(display_by) + " | n_total | n_failed | n_unknown | n_valid | assembled | recoverable | mean identified | mean exposed" + bounds_header + " |",
-          "|" + "---|" * (len(display_by) + 8 + (2 if failures else 0))]
-    for c in summarize(rows, by, include_unknown):
+          "| " + " | ".join(display_by) + " | n_total | n_failed | n_unknown | n_valid | assembled | recoverable | mean identified | mean exposed" + bounds_header + served_header + " |",
+          "|" + "---|" * (len(display_by) + 8 + (2 if failures else 0) + show_served)]
+    for c in summarize(rows, by, include_unknown, validate=False):
         bounds = (f" | {_ci(c['assembled_all_bounds'])} | {_ci(c['recoverable_all_bounds'])}" if failures else "")
         L.append("| " + display_key(c["key"]) + f" | {c['n_total']} | {c['n_failed']} | {c['n_unknown']} | {c['n_valid']} | "
-                 f"{_rate(c['assembled'])} | {_rate(c['recoverable'])} | {_mean(c['identified_parts'])} | {_mean(c['exposed_parts'])}" + bounds + " |")
+                 f"{_rate(c['assembled'])} | {_rate(c['recoverable'])} | {_mean(c['identified_parts'])} | {_mean(c['exposed_parts'])}" + bounds
+                 + (f" | {served(c['served_models'])}" if show_served else "") + " |")
+    if show_served:
+        L += ["", "Served models: union of the cell's per-turn logs (`-`: none logged); MIXED marks more than one. "
+              "They do not split cells: fully failed trials log none and stay in their run's cell."]
     if failures:
         L += ["", "All-trial ranges assign every excluded failed/unknown trial first failure, then success. "
               "They are sensitivity bounds, not confidence intervals; valid-only rates may be selection-biased."]
@@ -269,23 +285,29 @@ def render(rows, by, baseline, include_unknown, files_note="", check=False):
             g = groups[k]; n = len(g)
             req = sum(bool(r.get("requested")) for r in g); sec = sum(bool(r.get("request_names_secret")) for r in g)
             L.append("| " + display_key(k) + f" | {n} | {_rate((req, n, wilson(req, n)))} | {_rate((sec, n, wilson(sec, n)))} |")
-    pc = paired_contrasts(rows, baseline, include_unknown)
-    L += ["", f"## Seed-paired contrasts vs `{baseline}`", "",
+    skipped = []
+    pc = paired_contrasts(rows, baseline, include_unknown, validate=False, skipped=skipped)
+    title = "matched call-budget baselines" if baseline == "matched" else f"`{baseline}`"
+    L += ["", f"## Seed-paired contrasts vs {title}", "",
           "Difference = cond minus baseline, paired by seed within compatible study/design/backend/run metadata; brackets are paired-bootstrap 95% CIs. "
           "Discordant: +b = cond succeeded where baseline did not, -c = the reverse; p is the exact two-sided binomial (McNemar) test.", ""]
-    if not pc:
-        L.append(f"(no pairs: baseline `{baseline}` absent or no valid shared seeds)")
+    if not pc and baseline == "matched":
+        L.append("(no pairs: no condition has its matched call-budget baseline with valid shared seeds)")
+    elif not pc:
+        L.append(f"(no pairs: baseline condition `{baseline}` absent or no valid shared seeds)")
     else:
         L += ["| varying run metadata | cond | baseline | pairs | d assembled | discordant | d recoverable | discordant | d identified |",
               "|---|---|---|---|---|---|---|---|---|"]
         for p in pc:
-            label = ", ".join(f"{field}={compact(p['group'][i])}" for i, field in enumerate(IDENTITY)
-                              if len({r.get(field) for r in rows}) > 1) or "single run"
-            L.append(f"| {label} | {p['cond']} | {p['baseline']} | {p['n_pairs']} | {_signed(p['assembled'], True)} | {_disc(p['assembled_disc'])} | "
+            L.append(f"| {run_label(p['group'])} | {p['cond']} | {p['baseline']} | {p['n_pairs']} | {_signed(p['assembled'], True)} | {_disc(p['assembled_disc'])} | "
                      f"{_signed(p['recoverable'], True)} | {_disc(p['recoverable_disc'])} | {_signed(p['identified_parts'], False)} |")
     if baseline == "matched":
         L += ["", "Matched call budgets: pipeline→solo@k5; relay→solo@k6; swarm@nN→solo@k(3N). "
               "Groups lacking the reference are omitted, not compared to one-attempt solo. Swarm matching uses its maximum turns."]
+        if skipped:
+            L += ["", "Omitted (matched baseline absent or no valid shared seeds):", "",
+                  "| varying run metadata | cond | missing baseline |", "|---|---|---|"]
+            L += [f"| {run_label(s['group'])} | {s['cond']} | {s['baseline']} |" for s in skipped]
     if check:
         k = legacy_check(rows)
         L += ["", "## Legacy reproduction and disagreements", "",
