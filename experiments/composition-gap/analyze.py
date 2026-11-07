@@ -293,7 +293,10 @@ def render(rows, by, baseline, include_unknown, files_note="", check=False):
     L += ["", f"## Seed-paired contrasts vs {title}", "",
           "Difference = cond minus baseline, paired by seed within compatible study/design/backend/run metadata; brackets are paired-bootstrap 95% CIs. "
           "Paired counts are both / treatment-only (b) / baseline-only (c) / neither; their sum is the evaluable pair count. "
-          "Discordant: +b = cond succeeded where baseline did not, -c = the reverse; p is the exact two-sided binomial (McNemar) test.", ""]
+          "Discordant: +b = cond succeeded where baseline did not, -c = the reverse; p is the exact two-sided binomial (McNemar) test. "
+          "The exact McNemar p is the test; the bootstrap interval is descriptive only. With few, one-sided discordant pairs "
+          "it can exclude 0 while p > 0.05 (e.g. +0/-5 of 20 pairs: p = 0.062), so do not read it as significance. "
+          "p-values are unadjusted for multiple contrasts.", ""]
     if not pc and baseline == "matched":
         L.append("(no pairs: no condition has its matched call-budget baseline with valid shared seeds)")
     elif not pc:

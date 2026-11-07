@@ -25,6 +25,12 @@ def test_documented_joint_distribution_examples():
     assert paired_power(20, .4, .1, .1) == pytest.approx(paired_power(20, .1, .4, .1))
 
 
+@pytest.mark.parametrize("solo,treatment", [(.7, .4), (.9, .2), (.6, .5), (.3, .8)])
+def test_frechet_lower_bound_accepted_despite_float_rounding(solo, treatment):
+    # solo + treatment - 1 is 0.10000000000000009 in floating point; 0.1 is still the feasible minimum.
+    assert 0 <= paired_power(20, solo, treatment, .1) <= 1
+
+
 @pytest.mark.parametrize("args", [(0,.1,.4,0), (5,.1,.4,.2), (5,.8,.8,.1),
                                   (5,float('nan'),.4,0), (5,.1,.4,0,0), (5,.1,.4,0,float('inf'))])
 def test_invalid_design_probabilities_are_rejected(args):

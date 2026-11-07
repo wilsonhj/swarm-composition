@@ -58,6 +58,7 @@ Every row has `turns`: a list, in call order, of
  "raw": "<raw model reply>",
  "posted": "<text>" or null,   # see parsing rule
  "failed": true|false,         # this call failed after retries
+ "fail_reason": "<cause>" or null,  # failed calls only: e.g. budget, empty, finish_reason:length, http_503, URLError
  "ms": <int latency>}
 ```
 
@@ -75,7 +76,7 @@ One JSON line per (condition, seed), written and flushed as each trial finishes 
 
 Each run writes `<out>.manifest.json` at start and rewrites it at the end (when appending to a file that already has one, `<out>.manifest.<run_id[:8]>.json`):
 
-`run_id` (uuid4), `design`, `argv`, `git` (`commit` from `git rev-parse HEAD`, `dirty` = tracked files modified; null if git is unavailable), `prompt_hash` (sha256 of `prompts`: every system prompt, frame, coordinator text and template the selected design/policy/framing can send) and `prompts`, `backend`, `backend_version` (`claude --version`, the anthropic SDK version, or a note), `model` (requested), `resolved_model` (claude-code `modelUsage` keys, the Anthropic / OpenRouter response `model`), `python`, `policy`, `framing`, `conds`, `sampling` (`max_tokens` 300 for the API backends, null where not applied (claude-code CLI); `temperature` null = provider default), `seeds` (offset, count, range), `max_usd`, `reserve_usd`, `start`, `end`, `status` (`running` / `complete` / `aborted: ...`), `totals` (`rows`, `failed_rows`, `calls`, `failed`, `cost` (null if the backend reports none), `missing_cost`).
+`run_id` (uuid4), `design`, `argv`, `git` (`commit` from `git rev-parse HEAD`, `dirty` = tracked files modified; null if git is unavailable), `prompt_hash` (sha256 of `prompts`: every system prompt, frame, coordinator text and template the selected design/policy/framing can send) and `prompts`, `backend`, `backend_version` (`claude --version`, the anthropic SDK version, or a note), `model` (requested), `resolved_model` (claude-code `modelUsage` keys, the Anthropic / OpenRouter response `model`), `python`, `policy`, `framing`, `conds`, `sampling` (`max_tokens` 300 for the API backends, null where not applied (claude-code CLI); `temperature` null = provider default), `seeds` (offset, count, range), `max_usd`, `reserve_usd`, `start`, `end`, `status` (`running` / `complete` / `aborted: ...`), `totals` (`rows`, `failed_rows`, `calls`, `failed`, `fail_reasons` (count per cause), `cost` (null if the backend reports none), `missing_cost`).
 
 ## Flags
 

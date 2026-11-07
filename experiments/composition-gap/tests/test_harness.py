@@ -180,7 +180,7 @@ def test_parse_post(raw, posted):
     assert h.parse_post(raw) == posted
 
 
-TURN_KEYS = {"role", "agent", "part", "raw", "posted", "failed", "ms", "model"}
+TURN_KEYS = {"role", "agent", "part", "raw", "posted", "failed", "fail_reason", "ms", "model"}
 
 
 @pytest.mark.parametrize("design,cond,n_turns", [
@@ -327,7 +327,7 @@ def test_cli_v2_mock_run_rows_and_manifest(tmp_path, keep_globals):
     assert all(r["design"] == "v2" and r["run_id"] == m["run_id"] and r["turns"] for r in rows)
     assert m["design"] == "v2" and m["status"] == "complete" and m["end"] and m["start"]
     assert m["seeds"]["range"] == [1000, 1001] and m["sampling"] == {"max_tokens": None, "temperature": None}
-    assert m["totals"]["rows"] == 12 and m["totals"]["failed"] == 0
+    assert m["totals"]["rows"] == 12 and m["totals"]["failed"] == 0 and m["totals"]["fail_reasons"] == {}
     assert m["totals"]["calls"] == 2 * (1 + 5 + 5 + 12 + 6 + 6)
     assert m["prompt_hash"] == h.prompt_hash(h.prompt_templates("v2", "strict", "explicit"))
     assert {"commit", "dirty"} <= m["git"].keys() and m["python"] and m["argv"][1:3] == ["--backend", "mock"]
@@ -542,11 +542,45 @@ def test_claude_code_failure_counted(monkeypatch):
     {"message": {"content": "POST: amber-bir"}, "finish_reason": "length"},  # truncated by max_tokens
     {"message": {"content": None}, "finish_reason": "stop"},                 # reasoning ate the budget
     {"message": {"content": "  "}},                                          # empty
+    {"message": {"content": "POST: emb"}, "finish_reason": "error"},         # mid-stream provider error
+    {"message": {"content": "POST: x"}, "finish_reason": "content_filter"},
 ])
 def test_openrouter_truncated_or_empty_counts_as_failure(monkeypatch, choice):
     patch(monkeypatch, [Resp({"choices": [choice], "usage": {"cost": 0.001}})])
     llm = h.OpenRouter("a/b", key="k", reserve_usd=0.01)
     assert llm("s", "u") == "PASS" and llm.errors == 1 and llm.tl.failed == 1
+
+
+@pytest.mark.parametrize("seq,reason", [
+    ([Resp({"choices": [{"message": {"content": ""}, "finish_reason": "length"}], "usage": {"cost": 0.001}})],
+     "finish_reason:length"),
+    ([Resp({"choices": [{"message": {"content": " "}, "finish_reason": "stop"}], "usage": {"cost": 0.001}})], "empty"),
+    ([http(400)], "http_400"),
+    ([http(503)], "http_503"),
+    ([urllib.error.URLError("down")], "URLError"),
+])
+def test_openrouter_failure_reason_logged(monkeypatch, seq, reason):
+    patch(monkeypatch, seq)
+    llm = h.OpenRouter("a/b", key="k", reserve_usd=0.01)
+    tl = h.Turns(llm)
+    tl("worker", "w0", 0, "s", "u")
+    assert tl.log[0]["failed"] and tl.log[0]["fail_reason"] == reason
+    assert llm.fail_reasons == {reason: 1}
+
+
+def test_fail_reason_cleared_between_turns(monkeypatch):
+    patch(monkeypatch, [http(400), ok("PASS")])
+    tl = h.Turns(h.OpenRouter("a/b", key="k", reserve_usd=0.01))
+    tl("worker", "w0", 0, "s", "u"); tl("worker", "w1", 1, "s", "u")
+    assert [t["fail_reason"] for t in tl.log] == ["http_400", None]
+
+
+def test_budget_refusal_reason(monkeypatch):
+    patch(monkeypatch, [ok("PASS")])
+    llm = h.OpenRouter("a/b", max_usd=0.005, key="k", reserve_usd=0.01)
+    tl = h.Turns(llm)
+    tl("worker", "w0", 0, "s", "u")
+    assert tl.log[0]["fail_reason"] == "budget" and llm.fail_reasons == {"budget": 1}
 
 
 def test_openrouter_normal_stop_not_failure(monkeypatch):

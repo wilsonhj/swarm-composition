@@ -311,6 +311,7 @@ def test_full_paired_table_contains_all_four_outcomes():
     assert p["assembled"][0] == 0 and p["assembled_disc"] == (1, 1, 1.0)
     report = analyze.render(rows, ["cond"], "solo", False)
     assert "paired counts (both/b/c/neither)" in report and "1/1/1/1" in report
+    assert "bootstrap interval is descriptive only" in report and "unadjusted" in report
 
 
 def test_superseded_skipped(tmp_path, capsys):

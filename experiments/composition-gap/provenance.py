@@ -202,7 +202,8 @@ def main(argv=None):
         finally:
             manifest.update(end=h.now(), resolved_model=sorted(llm.models), totals={
                 "rows": len(rows), "failed_rows": sum(r["failed_calls"] > 0 for r in rows),
-                "calls": llm.calls, "errors": llm.errors, "cost": llm.cost, "missing_cost": llm.missing_cost})
+                "calls": llm.calls, "errors": llm.errors, "fail_reasons": dict(llm.fail_reasons),
+                "cost": llm.cost, "missing_cost": llm.missing_cost})
             h.write_json(mpath, manifest)
     print(f"{STUDY}: {len(rows)} rows, {llm.calls} calls, {manifest['totals']['failed_rows']} failed rows")
     if args.backend == "mock": print("MOCK ONLY: scripted outcomes are not empirical model results.")

@@ -48,9 +48,9 @@ run-openrouter: ## OpenRouter run: make run-openrouter MODEL=<id> [SEEDS=20] [MA
 run-v2: ## Confirmatory v2 run (claude-code, Haiku, seeds 1000-1019); see run_v2.sh
 	cd $(EXP_DIR) && bash run_v2.sh
 
-analyze: ## Score + analyse rows: make analyze FILES="results/a.jsonl results/b.jsonl" [MD=out.md] (paths relative to experiments/composition-gap)
+analyze: ## Score + analyse rows: make analyze FILES="results/a.jsonl results/b.jsonl" [MD=out.md] [BASELINE=matched|solo|<cond>] (BASELINE=solo reproduces results/v2/analysis*.md contrasts; paths relative to experiments/composition-gap)
 	@test -n "$(FILES)" || { echo 'FILES is required, e.g. make analyze FILES="results/x.jsonl"'; exit 1; }
-	cd $(EXP_DIR) && $(UV) python analyze.py $(FILES) $(if $(MD),--md $(MD))
+	cd $(EXP_DIR) && $(UV) python analyze.py $(FILES) $(if $(BASELINE),--baseline $(BASELINE)) $(if $(MD),--md $(MD))
 
 clean: ## Remove __pycache__ and .pytest_cache (never results)
 	find . -type d \( -name __pycache__ -o -name .pytest_cache \) -not -path "./.git/*" -prune -exec rm -rf {} +

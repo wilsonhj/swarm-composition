@@ -134,6 +134,7 @@ def test_cli_mock_writes_unique_provenance_and_all_six_cells(tmp_path):
     m = json.loads((out.parent / "smoke.jsonl.manifest.json").read_text())
     n = 2 * len(p.CONDITIONS) * len(p.OBJECTIVES) * len(p.WORDINGS)
     assert len(rows) == n and m["status"] == "complete" and m["totals"]["failed_rows"] == 0
+    assert m["totals"]["fail_reasons"] == {}
     assert {(r["cond"], r["authorization"], r["framing"]) for r in rows} == {
         (c, a, w) for c in p.CONDITIONS for a in p.OBJECTIVES for w in p.WORDINGS}
     assert all(r["protocol_hash"] == m["protocol_hash"] and r["prompt_hash"] == m["prompt_hash"]

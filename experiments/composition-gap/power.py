@@ -22,9 +22,10 @@ def paired_power(pairs, solo, treatment, both, alpha=0.05):
         raise ValueError("outcome probabilities must be finite and between zero and one")
     if not math.isfinite(alpha) or not 0 < alpha < 1:
         raise ValueError("alpha must be finite and strictly between zero and one")
-    if not max(0, solo + treatment - 1) <= both <= min(solo, treatment):
+    eps = 1e-12  # tolerate float rounding at the Frechet bounds (e.g. 0.7 + 0.4 - 1 > 0.1)
+    if not max(0, solo + treatment - 1) - eps <= both <= min(solo, treatment) + eps:
         raise ValueError("P(both succeed) is incompatible with the marginal probabilities")
-    pb, pc = treatment - both, solo - both
+    pb, pc = max(0.0, treatment - both), max(0.0, solo - both)
     concordant = max(0.0, 1 - pb - pc)
     terms = []
     for b in range(pairs + 1):
