@@ -19,7 +19,7 @@ Maps each review finding to the action taken and where. "This branch" = the docu
 |---|---|---|
 | Anthropic failures counted as PASS | Per-row `failed_calls`; analysis excludes failed rows and reports them separately (described in Methods 3.5) | harness v2 — see `experiments/composition-gap/README.md` |
 | Spend cap not hard | Hard cap enforcement | harness v2 — see `experiments/composition-gap/README.md` |
-| Relay request metric bug | Corrected metric; pilot relay request counts flagged as indicative only | harness v2 — see `experiments/composition-gap/README.md`; caveat in this branch (`docs/findings/pilot-results.md`) |
+| Relay request metric bug | Harness records turns; `requested` = coordinator's first turn posted (regression test). Pilot counts re-scored: Haiku relay_uninformed 4/10 → 1/10 | harness v2 — see `experiments/composition-gap/README.md`; `scoring.py`, `docs/findings/pilot-rescored.md`, `docs/findings/pilot-results.md` |
 | Invalid condition names | Validation of condition names | harness v2 — see `experiments/composition-gap/README.md` |
 | Rerun duplication | Dedup / no-overwrite handling of reruns | harness v2 — see `experiments/composition-gap/README.md` |
 | Summaries include failed rows | Analysis excludes failed rows, reports counts | scoring.py / analyze.py — see `docs/findings/pilot-rescored.md`; denominators in this branch (`report/outline.md` 3.5) |

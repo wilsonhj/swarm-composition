@@ -111,5 +111,5 @@ Not fetchable: the OpenAI post (HTTP 403). See "Unverified".
 
 ## Counts
 
-- Verified sources: 36 entries in `references.bib` (30 of the 31 original candidates plus 6 added; the METR PDF and blog post are counted separately).
+- Verified sources: 38 entries in `references.bib` (30 of the 31 original candidates plus 8 added, 2 of them after the external review; the METR PDF and blog post are counted separately).
 - Candidate sources not verified: 1 (the OpenAI page).

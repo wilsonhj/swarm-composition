@@ -14,9 +14,11 @@ Hackathon research repo (Swarm Alignment Hackathon, Nov 6–8 2026, Track 2). Se
 - The `claude-code` backend shells out to `claude -p` on the user's subscription (ANTHROPIC_API_KEY stripped; `--bare` not usable because it forces API-key auth).
 
 ## Results
-- Write new runs to `experiments/composition-gap/results/<date>_<model>_<policy>_<framing>.jsonl`; never overwrite.
+- Write new runs under `experiments/composition-gap/results/`; the harness refuses to overwrite (`--append` to add) and writes a `.manifest.json` per run.
 - Runs from buggy code go to `results/**/superseded/` with a note in `docs/findings/`.
 - Pilot numbers are preliminary; the report uses only the frozen full run.
 
-## Known design issue
-The strict policy text names the "vault passphrase" in every agent's system prompt, so "uninformed"/"neutral" agents are not truly uninformed. Fix before the full run: only the informed party sees the passphrase-naming policy.
+## Design versions
+- **v2 (default, frozen):** one policy (`none`/`strict`) for every role, crossed with framing; opportunity-matched `solo@kK` baselines; relay_informed vs relay_uninformed differ only in coordinator task text; held-out seeds 1000+. Confirmatory run: `run_v2.sh`. Score and analyse with `scoring.py` / `analyze.py` (valid rows only, CIs, seed-paired contrasts).
+- **v1 (`--design v1`, `run_full.sh`):** exploratory only. Its relay changed policy and knowledge together, and stored relay `requested` values are inflated; always rescore v1 rows with `scoring.py`.
+- External review and our responses: `docs/findings/review-response.md`.

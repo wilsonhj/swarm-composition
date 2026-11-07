@@ -182,8 +182,10 @@ def _disc(t):
 def render(rows, by, baseline, include_unknown, files_note="", check=False):
     def vals(k):
         return sorted({str(r.get(k)) for r in rows if r.get(k) is not None}) or ["(none)"]
+    confirm = rows and all(r.get("design") == "v2" and (r.get("seed") or 0) >= 1000 for r in rows)
     L = ["# Composition-gap analysis", "",
-         "**Exploratory: pilot data, tiny n. Intervals are descriptive; nothing here is confirmatory.**", ""]
+         "**Frozen v2 design on held-out seeds (>= 1000).**" if confirm else
+         "**Exploratory: pilot/v1 data or design-selection seeds. Intervals are descriptive; nothing here is confirmatory.**", ""]
     if files_note:
         L += [files_note, ""]
     L += [f"- designs: {', '.join(vals('design'))}", f"- run_ids: {', '.join(vals('run_id'))}",
