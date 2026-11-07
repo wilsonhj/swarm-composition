@@ -56,8 +56,7 @@ jobs:
         run: |
           git worktree add --detach "$RUNNER_TEMP/swarm-v2-snapshot" 59c8b7a84e88728d7fb67672dc57d2066bb3aff9
           python docs/handoffs/tools/replay_v2.py --repo "$RUNNER_TEMP/swarm-v2-snapshot" --out "$RUNNER_TEMP/swarm-v2-replay"
-          cd "$RUNNER_TEMP/swarm-v2-replay"
-          sha256sum -c SHA256SUMS
+          grep -q '"status": "artifact_replay_passed"' "$RUNNER_TEMP/swarm-v2-replay/audit.json"
 
       - name: Upload v2 replay audit packet
         uses: actions/upload-artifact@v4

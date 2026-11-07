@@ -3,6 +3,11 @@
   "verified_utc_date": "2026-11-07",
   "expected_rows": 1040,
   "expected_logical_calls": 7670,
+  "expected_reports": {
+    "haiku.md": "3d33c1f7c6f7cc440a00fbede72ba025ccebc6b5e8863a29132db33654992dce",
+    "sonnet_original.md": "4866f151b02af220a54a5293d8dbae88fb9b068169d628cbaf57f436ded7f7be",
+    "sonnet_rerun.md": "9c56ac18baf28cd2a5c935e38042477d843edd5ac75fc3fa66afb5e648cf55ed"
+  },
   "files": [
     {
       "path": "experiments/composition-gap/results/v2/2026-11-06_3f64a2ee_claude-sonnet-5-5_v2_strict_explicit_rerun.jsonl",

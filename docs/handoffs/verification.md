@@ -16,10 +16,13 @@ sha256sum -c SHA256SUMS
 ```
 
 Use fresh output paths. The two generated bundles were byte-identical under the
-same local environment (Python 3.12.14). Repository CI uses Python 3.11; do not
-infer cross-version byte identity from this local check. Report/audit checksums
-include environment and checkout metadata. The replay records a dirty-tree flag;
-use a clean checkout for final presentation evidence.
+same local environment (Python 3.12.14). The three group reports must also match
+SHA256 values pinned in `v2-inputs.json`; they matched under CPython 3.11, 3.12
+and 3.13 on 7 November 2026. `audit.json` (and so `SHA256SUMS`) includes
+environment and checkout metadata and is not pinned. The audit status is
+`artifact_replay_passed` only for a clean checkout of the pinned snapshot commit
+(as in CI); otherwise it is `artifact_replay_passed_noncanonical_checkout`. Use
+the former for final presentation evidence.
 
 Observed: **1,040 rows, 7,670 logged logical calls, 1,040 stored legacy score
 triples reproduced**, no failures in these nine v2 runs. Raw files, manifests,
@@ -32,6 +35,10 @@ Negative-path checks also passed:
 - Copying the allowlisted inputs to a temporary fixture and appending a newline
   to one raw file returned exit status 1 with `SHA256 mismatch`, before producing
   an output directory. Even a score-neutral raw-file change is detected.
+- A run that fails after hashing (for example, a group report differing from its
+  pinned hash) returned exit status 1 and left no output directory.
+- An untracked `random.py` placed beside the analysis sources was not imported:
+  the analyzer runs from a temporary copy of the hash-verified sources only.
 
 These checks establish input integrity and deterministic local replay. They do
 not recover unlogged historical retries or promise future hosted-model behavior.

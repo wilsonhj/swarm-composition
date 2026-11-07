@@ -326,8 +326,9 @@ legacy score triples. It writes separate `haiku.md`, `sonnet_original.md`, and
 commits, actual analysis-checkout commit, Python/platform, and reported served IDs.
 It uses the existing deterministic analyzer and does not overwrite archived tables.
 This validates the artifact snapshot, not fresh inference or every historical
-transport attempt. A dirty-checkout flag is recorded; presentation evidence must
-come from a clean checkout. If future source/data changes fail pinned hashes,
+transport attempt. Group reports must match pinned hashes. Presentation evidence
+must have audit status `artifact_replay_passed` (clean checkout of the pinned
+snapshot, as in CI), not `artifact_replay_passed_noncanonical_checkout`. If future source/data changes fail pinned hashes,
 check out the handoff commit; do not just bless new hashes to make the check pass.
 
 Haiku contributes 640 rows over 20 task seeds per cell; original Sonnet 320 over
