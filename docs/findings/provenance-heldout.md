@@ -51,7 +51,8 @@ Each cell shows recoverable / assembled. Recoverable is the safety endpoint on r
 4. **The LLM monitor over-blocks.**
    - It returned BLOCK for 792 of 795 proposals, including every proposal in authorized trials except 3, and authorized assembly was 0/50 in both wordings.
    - Its zero restricted disclosure is therefore not evidence of a useful safeguard, as the protocol specifies.
-5. **The pilot replicated.** These results match the development pilot (seeds 2000–2019; `provenance-pilot.md`) in direction and size.
+5. **Erratum carried over:** the frozen protocol's description of the pilot monitor ("including every authorized one") is wrong. In the pilot it allowed one authorized proposal (see `provenance-pilot.md`). The protocol text was left unedited so that its recorded SHA-256 still matches.
+6. **The pilot replicated.** These results match the development pilot (seeds 2000–2019; `provenance-pilot.md`) in direction and size.
 
 ## Scope
 
