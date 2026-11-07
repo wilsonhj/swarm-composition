@@ -1,0 +1,266 @@
+<title>Swarm Composition 日英解説</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@700;900&display=swap">
+<style>
+/* Layout: one column of sections; inside each, English and Japanese sit side by side and stack on phones. */
+:root {
+  --bg: #f4f7f8; --surface: #ffffff; --ink: #15202a; --muted: #56636e; --rule: #d3dbe0;
+  --accent: #1d6a73; --leak: #b4472d; --safe: #2d7a4e; --track: #e6ecef;
+  --display: "Zen Kaku Gothic New", "Noto Sans JP", system-ui, sans-serif;
+  --en: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --ja: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0e1418; --surface: #162028; --ink: #e5ecf0; --muted: #9babb6; --rule: #2a3741;
+  --accent: #63b5bd; --leak: #e2805f; --safe: #6dc28d; --track: #22303a; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0e1418; --surface: #162028; --ink: #e5ecf0; --muted: #9babb6; --rule: #2a3741;
+  --accent: #63b5bd; --leak: #e2805f; --safe: #6dc28d; --track: #22303a; color-scheme: dark }
+
+body { background: var(--bg); color: var(--ink); font-family: var(--en); font-size: 16px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 48px; }
+.wrap { max-width: 1080px; margin: 0 auto; display: grid; gap: 28px; }
+[lang="ja"] { font-family: var(--ja); line-height: 1.85; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; }
+p { margin: 0; }
+
+header { display: grid; gap: 14px; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+h1 { font-size: clamp(28px, 4.6vw, 44px); line-height: 1.2; font-weight: 900; }
+h1 .ja { display: block; font-size: .72em; font-weight: 700; color: var(--muted); margin-top: 6px; }
+
+.toggle { display: inline-flex; border: 1px solid var(--rule); border-radius: 999px; padding: 3px; background: var(--surface); width: max-content; max-width: 100%; }
+.toggle button { font: 500 14px var(--en); color: var(--muted); background: none; border: 0; border-radius: 999px; padding: 6px 14px; cursor: pointer; }
+.toggle button[aria-pressed="true"] { background: var(--accent); color: var(--surface); }
+.toggle button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.lede { background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 20px; display: grid; gap: 6px; }
+.lede .label { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.lede .pair p { font-size: 19px; font-weight: 500; }
+
+section { display: grid; gap: 14px; padding-top: 22px; border-top: 1px solid var(--rule); }
+section > h2 { font-size: 22px; display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: baseline; }
+section > h2 .ja { font-size: 18px; color: var(--muted); }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 32px; }
+.pair > * { min-width: 0; display: grid; gap: 12px; align-content: start; }
+.pair [lang="en"] { max-width: 62ch; }
+main[data-lang="en"] [lang="ja"]:not(.keep), main[data-lang="ja"] [lang="en"]:not(.keep) { display: none; }
+main[data-lang="en"] .pair, main[data-lang="ja"] .pair { grid-template-columns: 1fr; }
+main[data-lang="en"] h2 .ja, main[data-lang="ja"] h2 .en { display: none; }
+main[data-lang="ja"] h2 .ja { color: var(--ink); font-size: 22px; }
+
+/* The four passphrase words, redacted */
+.secret { display: flex; flex-wrap: wrap; gap: 8px; }
+.secret span { font-family: var(--mono); font-size: 13px; padding: 8px 12px; border-radius: 6px; background: var(--surface); border: 1px dashed var(--rule); color: var(--muted); }
+.secret span b { color: var(--ink); letter-spacing: .1em; }
+
+/* Result bars, drawn to one 0-100% scale */
+.results { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.card { background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 18px; display: grid; gap: 14px; min-width: 0; }
+.card h3 { font-size: 16px; display: grid; gap: 2px; }
+.card h3 .ja { font-family: var(--ja); font-size: 14px; font-weight: 500; color: var(--muted); }
+.row { display: grid; gap: 4px; }
+.row .lbl { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; color: var(--muted); }
+.row .lbl .n { font-family: var(--mono); font-variant-numeric: tabular-nums; color: var(--ink); white-space: nowrap; }
+.bar { height: 12px; background: var(--track); border-radius: 3px; overflow: hidden; }
+.bar i { display: block; height: 100%; min-width: 2px; }
+.bar .leak { background: var(--leak); }
+.bar .safe { background: var(--safe); }
+.note { font-size: 12.5px; color: var(--muted); }
+
+.tracks { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.track { background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 16px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.track.anchor { border-color: var(--accent); box-shadow: inset 0 3px 0 var(--accent); }
+.track .tn { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+.track h3 { font-size: 16px; display: grid; gap: 2px; }
+.track h3 .ja { font-family: var(--ja); font-size: 14px; font-weight: 500; color: var(--muted); }
+.track p { font-size: 14px; }
+
+.gloss { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+td:first-child { font-weight: 600; white-space: nowrap; }
+
+footer { font-size: 13px; color: var(--muted); display: grid; gap: 8px; padding-top: 20px; border-top: 1px solid var(--rule); }
+footer a { color: var(--accent); }
+.flag { background: var(--surface); border: 1px solid var(--rule); border-left: 3px solid var(--leak); border-radius: 6px; padding: 12px 14px; color: var(--ink); }
+
+@media (max-width: 720px) { .pair { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">Swarm Alignment Hackathon · Nov 6–8, 2026 · Track 2</div>
+  <h1>When AI agents split a task, does a secret leak?<span class="ja" lang="ja">AIエージェントが作業を分担すると、秘密は漏れるのか</span></h1>
+  <div class="toggle" role="group" aria-label="Language / 言語">
+    <button type="button" id="lang-both" data-lang="both" aria-pressed="true">EN + 日本語</button>
+    <button type="button" id="lang-en" data-lang="en" aria-pressed="false">English</button>
+    <button type="button" id="lang-ja" data-lang="ja" aria-pressed="false">日本語</button>
+  </div>
+</header>
+
+<main id="main" data-lang="both" class="wrap" style="gap:28px">
+
+<div class="lede">
+  <div class="label">In one sentence · ひとことで</div>
+  <div class="pair">
+    <p lang="en">In our test, telling AI agents why they were doing a task made them better at keeping a secret and better at doing legitimate work.</p>
+    <p lang="ja">私たちの実験では、AIエージェントに作業の目的を伝えると、秘密を守る力と、正当な作業をやり遂げる力の両方が高まりました。</p>
+  </div>
+</div>
+
+<section>
+  <h2><span class="en">The question</span><span class="ja" lang="ja">問い</span></h2>
+  <div class="pair">
+    <div lang="en">
+      <p>Safety tests for AI usually check one agent at a time. But real AI systems divide the work: one agent looks something up, another summarises it, a third puts the pieces together.</p>
+      <p>So we asked: if an AI agent is told "never reveal this secret", does it matter whether it can see that its small piece belongs to that secret? And if the job is split across several agents, does the secret leak more than it would from one agent given the same number of tries?</p>
+    </div>
+    <div lang="ja">
+      <p>AIの安全性テストは、通常、エージェントを1体ずつ調べます。しかし実際のAIシステムでは仕事が分担されています。あるエージェントが情報を調べ、別のエージェントが要約し、さらに別のエージェントが全体をまとめる、という具合です。</p>
+      <p>そこで私たちは問いを立てました。AIエージェントに「この秘密は絶対に明かしてはいけない」と指示したとき、自分が担当する小さな断片がその秘密の一部だと分かるかどうかで、結果は変わるのか。そして作業を複数のエージェントに分けると、同じ回数だけ試した1体のエージェントよりも、秘密は漏れやすくなるのか。</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="en">How the experiment works</span><span class="ja" lang="ja">実験の仕組み</span></h2>
+  <div class="secret" aria-label="Four redacted passphrase words">
+    <span>word 1 · 単語1 <b>■■■■</b></span><span>word 2 · 単語2 <b>■■■■</b></span><span>word 3 · 単語3 <b>■■■■</b></span><span>word 4 · 単語4 <b>■■■■</b></span>
+  </div>
+  <div class="pair">
+    <div lang="en">
+      <p>We used a harmless stand-in. The "secret" is a four-word vault passphrase. Each word is a simple lookup, the item at a given position in a short list, and each list can be handed to a different agent. A made-up rule in the agents' instructions says: never reveal the vault passphrase, not even one word.</p>
+      <p>Our test program runs the same task with different team shapes: one agent alone; one agent with extra attempts; four workers and an assembler in a pipeline; agents taking turns on a shared message board; and a coordinator who asks workers for their pieces.</p>
+      <p>Results are scored by simple text matching, not by another AI. Every run records the code version, the exact instructions and the model that answered, so each number can be traced back to its source.</p>
+    </div>
+    <div lang="ja">
+      <p>実験には無害な代用課題を使いました。「秘密」は4つの単語からなる「金庫のパスフレーズ」です。各単語は、短いリストの決まった位置にある項目を探すだけの簡単な作業で、リストはそれぞれ別のエージェントに渡すことができます。エージェントへの指示文には、架空のルールとして「金庫のパスフレーズは、たとえ1語でも明かしてはならない」と書かれています。</p>
+      <p>テスト用プログラムは、同じ課題をさまざまなチーム構成で実行します。1体だけのエージェント、試行回数を増やした1体のエージェント、4体の作業役と1体のまとめ役によるパイプライン、共有の掲示板に順番に書き込むエージェントたち、そして作業役に断片を求めるコーディネーター役です。</p>
+      <p>採点は別のAIではなく、単純な文字列の照合で行います。すべての実行について、コードのバージョン、使った指示文、実際に応答したモデルを記録しているので、どの数字も元のデータまでたどることができます。</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="en">What we found</span><span class="ja" lang="ja">分かったこと</span></h2>
+  <div class="results">
+    <div class="card">
+      <h3>Study 1 · Strict rule, Claude Haiku<span class="ja" lang="ja">研究1・厳格なルール、Claude Haiku</span></h3>
+      <div class="row"><div class="lbl"><span>One agent, purpose not stated · 1体、用途は知らせない</span><span class="n">19/20</span></div><div class="bar"><i class="leak" style="width:95%"></i></div></div>
+      <div class="row"><div class="lbl"><span>One agent, told it's the passphrase · 1体、パスフレーズだと明示</span><span class="n">0/20</span></div><div class="bar"><i class="leak" style="width:0%"></i></div></div>
+      <div class="row"><div class="lbl"><span>Same, 12 attempts · 同上、12回試行</span><span class="n">0/20</span></div><div class="bar"><i class="leak" style="width:0%"></i></div></div>
+      <div class="row"><div class="lbl"><span>Split task, coordinator not told the goal · 分割、目的を知らないコーディネーター</span><span class="n">1/20</span></div><div class="bar"><i class="leak" style="width:5%"></i></div></div>
+      <p class="note">Bars: runs where the passphrase was written out in full · 棒グラフ：パスフレーズが全文書き出された回数</p>
+    </div>
+    <div class="card">
+      <h3>Study 2 · Sharing the task's purpose<span class="ja" lang="ja">研究2・タスクの目的を共有する</span></h3>
+      <div class="row"><div class="lbl"><span>Restricted task, without purpose · 禁止課題、目的なし</span><span class="n">45/50</span></div><div class="bar"><i class="leak" style="width:90%"></i></div></div>
+      <div class="row"><div class="lbl"><span>Restricted task, with purpose · 禁止課題、目的あり</span><span class="n">0/50</span></div><div class="bar"><i class="leak" style="width:0%"></i></div></div>
+      <div class="row"><div class="lbl"><span>Permitted task, without purpose · 許可課題、目的なし</span><span class="n">15/50</span></div><div class="bar"><i class="safe" style="width:30%"></i></div></div>
+      <div class="row"><div class="lbl"><span>Permitted task, with purpose · 許可課題、目的あり</span><span class="n">33/49</span></div><div class="bar"><i class="safe" style="width:67.3%"></i></div></div>
+      <p class="note">Orange: passphrase recoverable (lower is safer). Green: legitimate task completed (higher is better). One of 800 trials failed and is excluded. · オレンジ：パスフレーズが復元可能（低いほど安全）。緑：正当な課題を完了（高いほど良い）。800回中1回の失敗試行は除外。</p>
+    </div>
+  </div>
+  <div class="pair">
+    <div lang="en">
+      <p><strong>Study 1</strong> used Claude Haiku, 20 test cases per setting. Under the strict rule, a single agent that wasn't told what the words were for still wrote out the passphrase in 19 of 20 runs. When the instructions said plainly that these were parts of the passphrase, it was 0 of 20, even with 12 attempts. Splitting the task barely changed this. The leakiest setup, a relay whose coordinator didn't know the goal, assembled it once in 20. What decided refusal was not the rule itself but what the agent knew about the goal. We did not find that splitting the task opened a new safety gap.</p>
+      <p><strong>Study 2</strong> is a separate experiment. Its procedure was fixed in advance and it ran on new test cases. We gave every agent in a fixed pipeline the trusted purpose of the task. On restricted tasks, recoverable passphrases fell from 45 of 50 to 0 of 50. On permitted tasks, completed work rose from 15 of 50 to 33 of 49. Safety improved, and so did legitimate work.</p>
+    </div>
+    <div lang="ja">
+      <p><strong>研究1</strong>では Claude Haiku を使い、各設定で20件ずつテストしました。厳格なルールのもとでも、単語の用途を知らされていない1体のエージェントは、20回中19回パスフレーズを書き出しました。一方、指示文に「これはパスフレーズの一部だ」と明記すると、12回試行させても20回中0回でした。作業を分割しても、結果はほとんど変わりませんでした。最も漏れやすかったのは目的を知らないコーディネーターを介した中継型で、20回中1回でした。拒否するかどうかを決めたのはルールそのものではなく、エージェントが目的について何を知っていたかでした。作業の分割によって新たな安全上の隙間が生まれる、という結果は得られませんでした。</p>
+      <p><strong>研究2</strong>は、手順を事前に固定し、新しいテストケースで実施した別の実験です。固定されたパイプラインのすべてのエージェントに、信頼できる「タスクの目的」を伝えました。禁止された課題では、パスフレーズを復元できたケースが50回中45回から50回中0回に減りました。許可された課題では、作業を完了できたケースが50回中15回から49回中33回に増えました。安全性が高まり、正当な作業もより多く完了したのです。</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="en">How it fits the hackathon tracks</span><span class="ja" lang="ja">ハッカソンの研究トラックとの関係</span></h2>
+  <div class="tracks">
+    <div class="track anchor">
+      <div class="tn">Track 2 · Main track · 主トラック</div>
+      <h3>The science of agent networks<span class="ja" lang="ja">エージェント・ネットワークの科学</span></h3>
+      <p lang="en">The organisers asked whether agents that refuse a harmful task will complete it when it is split across them. That is Study 1. For this stand-in task, the answer was mostly no.</p>
+      <p lang="ja">主催者は「有害な課題を拒否するエージェントでも、課題が分割されるとそれを完遂してしまうのか」と問いかけています。これが研究1のテーマで、今回の代用課題では、答えはおおむね「いいえ」でした。</p>
+    </div>
+    <div class="track">
+      <div class="tn">Track 1</div>
+      <h3>Sandboxes and testbeds<span class="ja" lang="ja">サンドボックスとテストベッド</span></h3>
+      <p lang="en">The test program is a reproducible environment. It runs offline with a stand-in model, and it compares a small model with a larger one.</p>
+      <p lang="ja">テスト用プログラムは再現可能な実験環境です。代用モデルを使えばオフラインでも動き、小型モデルと大型モデルを比較できます。</p>
+    </div>
+    <div class="track">
+      <div class="tn">Track 4</div>
+      <h3>Oversight and monitoring<span class="ja" lang="ja">監視と監督</span></h3>
+      <p lang="en">We tested two automatic checks. A keyword filter missed reworded requests: the passphrase stayed recoverable in 46 of 50 runs. An AI monitor blocked 792 of 795 messages, legitimate ones included. Both failed, in opposite directions.</p>
+      <p lang="ja">2種類の自動チェックを試しました。キーワードフィルターは言い換えられた依頼を見逃し、50回中46回でパスフレーズが復元可能なままでした。AIによる監視役は795件中792件のメッセージを止め、正当なものまで止めてしまいました。どちらも、正反対の方向に失敗しました。</p>
+    </div>
+    <div class="track">
+      <div class="tn">Track 3</div>
+      <h3>Strengthening agent infrastructure<span class="ja" lang="ja">エージェント基盤の強化</span></h3>
+      <p lang="en">The results suggest it is worth building systems that pass trusted information about a task's purpose along with the task. We assumed that information was honest. Forged information was not tested.</p>
+      <p lang="ja">タスクの目的という信頼できる情報を、作業と一緒に受け渡す仕組みには作る価値がある、と結果は示唆しています。ただし今回はその情報が正しいと仮定しており、偽造された情報への耐性は検証していません。</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="en">Limits</span><span class="ja" lang="ja">この研究の限界</span></h2>
+  <div class="pair">
+    <p lang="en">One model family, one harmless made-up task, and purpose information supplied by our own program. No real attack was reproduced. Within those limits the lesson was consistent: what each agent knew about a task's purpose mattered more than the rule it was given. All code, data and the report are public.</p>
+    <p lang="ja">使ったモデルは1つのファミリーだけで、課題は無害な架空のもの1つ、目的の情報は私たち自身のプログラムが与えたものです。実際の攻撃を再現したわけではありません。その範囲内では、結論は一貫していました。各エージェントが課題の目的について何を知っていたかが、与えられたルールよりも重要だったのです。コード、データ、報告書はすべて公開しています。</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="en">Key terms for subtitles</span><span class="ja" lang="ja">字幕用の用語集</span></h2>
+  <div class="gloss">
+    <table class="keep">
+      <thead><tr><th>English</th><th>日本語</th><th>Meaning · 意味</th></tr></thead>
+      <tbody>
+        <tr><td>AI agent</td><td lang="ja" class="keep">AIエージェント</td><td>An AI model that carries out a task step by step · 課題を段階的にこなすAI</td></tr>
+        <tr><td>Swarm</td><td lang="ja" class="keep">スウォーム（群れ）</td><td>Many agents working on one shared job · 1つの仕事に取り組む多数のエージェント</td></tr>
+        <tr><td>Vault passphrase</td><td lang="ja" class="keep">金庫のパスフレーズ</td><td>The made-up four-word secret · 架空の4単語の秘密</td></tr>
+        <tr><td>Stand-in task</td><td lang="ja" class="keep">代用課題</td><td>A harmless task used in place of a dangerous one · 危険な課題の代わりに使う無害な課題</td></tr>
+        <tr><td>Refusal</td><td lang="ja" class="keep">拒否</td><td>The agent declines to do what is asked · 依頼に応じないこと</td></tr>
+        <tr><td>Pipeline</td><td lang="ja" class="keep">パイプライン</td><td>Workers pass results to an assembler · 作業役がまとめ役に結果を渡す構成</td></tr>
+        <tr><td>Coordinator</td><td lang="ja" class="keep">コーディネーター</td><td>An agent that asks others for their pieces · 他のエージェントに断片を求める役</td></tr>
+        <tr><td>Task purpose (provenance)</td><td lang="ja" class="keep">タスクの目的（来歴）</td><td>Trusted information on what the whole task is for · 課題全体の目的についての信頼できる情報</td></tr>
+        <tr><td>Monitor</td><td lang="ja" class="keep">監視役</td><td>A check that can stop messages before they are posted · 投稿前にメッセージを止められるチェック</td></tr>
+        <tr><td>Recoverable</td><td lang="ja" class="keep">復元可能</td><td>All four words can be read from the posted messages · 投稿から4語すべてを読み取れる状態</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="flag">
+    <p lang="en" class="keep">The Japanese text was drafted by an AI assistant. Please have a native speaker check it before broadcast.</p>
+    <p lang="ja" class="keep">日本語訳はAIアシスタントが作成した下書きです。放送前に、日本語話者による確認をお願いします。</p>
+  </div>
+  <p>Team HJ · Hirokazu James · Swarm Alignment Hackathon 2026 (Apart Research × AI Alignment Foundation), LA hub at AE Studio</p>
+  <p>Code, data and report: <a href="https://github.com/wilsonhj/swarm-composition">github.com/wilsonhj/swarm-composition</a></p>
+  <p>Sources for every number: Study 1, <code>experiments/composition-gap/results/v2/analysis.md</code>; Study 2, <code>docs/findings/provenance-heldout.md</code>. Hackathon tracks: <code>docs/hackathon/README.md</code>. Japanese track names are our own translations, not official names.</p>
+</footer>
+</div>
+
+<script>
+(function () {
+  var main = document.getElementById('main');
+  var buttons = document.querySelectorAll('.toggle button');
+  function setLang(lang) {
+    main.setAttribute('data-lang', lang);
+    buttons.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.lang === lang)); });
+    try { localStorage.setItem('explainer-lang', lang); } catch (e) {}
+  }
+  buttons.forEach(function (b) { b.addEventListener('click', function () { setLang(b.dataset.lang); }); });
+  try { var saved = localStorage.getItem('explainer-lang'); if (saved) setLang(saved); } catch (e) {}
+})();
+</script>
