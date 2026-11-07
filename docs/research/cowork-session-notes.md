@@ -20,9 +20,9 @@ The panel leans heavily toward security, identity and production engineering:
 
 **What this implies for framing.** The provenance result reads naturally as an access-control finding for this audience. Numbers are from the frozen held-out run (Haiku 5.5, seeds 3000–3049, one pipeline, harness-supplied trusted provenance; `docs/findings/provenance-heldout.md`):
 
-- A context-blind restriction is bypassed by decomposition: restricted recoverability under `local` is 45/50 with paraphrase wording (49/50 with keyword wording).
-- Propagating trusted task metadata fixes it without a utility tax: restricted recoverability is 0/50 in both wordings, and authorized assembly rises from 15/50 to 33/49 (paraphrase; one failed trial) and from 12/50 to 48/50 (keyword).
-- It beats a naive keyword gate in both directions: the gate leaves 46/50 paraphrased restricted runs recoverable and cuts authorized keyword assembly to 0/50.
+- In this fixed pipeline, withholding the overall purpose leaves restricted recoverability at 45/50 with paraphrase wording (49/50 with keyword wording). This comparison does not isolate an effect of decomposition: both conditions use the same pipeline, and paired authorized/restricted local prompts are identical.
+- In this Haiku run, supplying trusted task metadata reduces observed restricted recoverability to 0/50 in both wordings, while authorized assembly rises from 15/50 to 33/49 (paraphrase; one failed trial) and from 12/50 to 48/50 (keyword). These observations do not establish zero underlying risk or a general absence of utility costs.
+- For these tested wordings, provenance outperforms the keyword gate: the gate leaves 46/50 paraphrased restricted runs recoverable and cuts authorized keyword assembly to 0/50.
 - An LLM monitor over-blocks: it blocked 792 of 795 proposals, and authorized assembly under it was 0/50 in both wordings, so its 0/50 restricted result is not evidence of a useful safeguard.
 
 Security reviewers will ask: *what if provenance is forged?* `README.md` says "Provenance is assumed trustworthy in the harness; resistance to forged metadata is not evaluated." For the global round, state this in the report's Limitations. For the LA round, raise it in the presentation rather than waiting for a question.
@@ -78,7 +78,7 @@ uv run --no-project --with numpy --with scikit-learn --with matplotlib \
   python experiments/run_scripted.py --seeds 10 --out results/rerun
 ```
 
-`--out results/rerun` keeps the committed outputs in `results/` intact. The run took about 40 seconds in the Cowork session and needs no network.
+`--out results/rerun` keeps the committed outputs in `results/` intact. The run took about 40 seconds in the Cowork session and uses no model service. On a fresh machine, `uv` may need network access to download the dependencies first.
 
 - Its results are synthetic and scripted: 10 seeds with adversary levels L0–L4. They have not been frozen or replicated.
 - Do not put them in the report or the video. They are not part of this study's protocol, and mixing them in would undercut the repo's held-out discipline.
