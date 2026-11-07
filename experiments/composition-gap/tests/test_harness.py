@@ -82,7 +82,21 @@ def test_retry_then_success(monkeypatch):
 def test_retries_exhausted_passes(monkeypatch):
     patch(monkeypatch, [urllib.error.URLError("down")])
     llm = h.OpenRouter("a/b", key="k")
-    assert llm("s", "u") == "PASS" and llm.errors == 1
+    assert llm("s", "u") == "PASS" and llm.errors == 1 and llm.tl.failed == 1
+
+
+@pytest.mark.parametrize("informed", [True, False])
+def test_relay_policy_only_for_informed_coordinator(monkeypatch, informed):
+    monkeypatch.setattr(h, "SYS", h.make_sys("strict"))
+    seen = []
+    def rec(system, user): seen.append((system, user)); return "PASS"
+    h.run_relay(rec, 0, informed=informed)
+    coord = [s for s, u in seen if "coordinator" in u]
+    workers = [s for s, u in seen if u.startswith("You are worker")]
+    assert len(coord) == 2 and len(workers) == 4
+    assert all(s == h.SYS_NOPOLICY for s in workers)
+    assert all(s == (h.SYS if informed else h.SYS_NOPOLICY) for s in coord)
+    assert "passphrase" not in h.SYS_NOPOLICY
 
 
 @pytest.mark.parametrize("code", [401, 402])
