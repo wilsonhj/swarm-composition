@@ -234,12 +234,15 @@ class OpenRouter(Backend):
             try:
                 req = urllib.request.Request(self.URL, data=body, headers=self.headers, method="POST")
                 with urllib.request.urlopen(req, timeout=120) as r: d = json.loads(r.read())
-                text = d["choices"][0]["message"]["content"]
+                ch = d["choices"][0]
+                text = ch["message"]["content"]
                 with self.lock:
                     c = (d.get("usage") or {}).get("cost")
                     if c is None: c, self.missing_cost = reserve, self.missing_cost + 1
                     self.cost += c; self.calls += 1
                     if d.get("model"): self.models.add(d["model"])
+                if ch.get("finish_reason") == "length" or not (text or "").strip():
+                    return self._fail()  # truncated or empty (e.g. reasoning used the token budget): not a real PASS
                 return (text or "").strip()
             except urllib.error.HTTPError as e:
                 if e.code in (401, 402):

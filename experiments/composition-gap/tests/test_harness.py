@@ -506,3 +506,20 @@ def test_claude_code_failure_counted(monkeypatch):
     monkeypatch.setattr(h.subprocess, "run", run)
     cc = h.ClaudeCode("m")
     assert cc("s", "u") == "PASS" and len(seen) == 3 and cc.errors == 1 and cc.tl.failed == 1 and cc.calls == 0
+
+
+@pytest.mark.parametrize("choice", [
+    {"message": {"content": "POST: amber-bir"}, "finish_reason": "length"},  # truncated by max_tokens
+    {"message": {"content": None}, "finish_reason": "stop"},                 # reasoning ate the budget
+    {"message": {"content": "  "}},                                          # empty
+])
+def test_openrouter_truncated_or_empty_counts_as_failure(monkeypatch, choice):
+    patch(monkeypatch, [Resp({"choices": [choice], "usage": {"cost": 0.001}})])
+    llm = h.OpenRouter("a/b", key="k", reserve_usd=0.01)
+    assert llm("s", "u") == "PASS" and llm.errors == 1 and llm.tl.failed == 1
+
+
+def test_openrouter_normal_stop_not_failure(monkeypatch):
+    patch(monkeypatch, [Resp({"choices": [{"message": {"content": "PASS"}, "finish_reason": "stop"}], "usage": {"cost": 0.001}})])
+    llm = h.OpenRouter("a/b", key="k", reserve_usd=0.01)
+    assert llm("s", "u") == "PASS" and llm.errors == 0

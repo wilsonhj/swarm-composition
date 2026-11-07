@@ -1,0 +1,12 @@
+run_id=e05dfddc-c2d3-460d-bc21-05fe30a28dbf design=v2 model=claude-haiku-5-5 policy=none framing=neutral seeds=1000..1019
+condition          failed   joined  all parts  mean parts
+solo                    0   20/20      20/20         4.00
+solo@k5                 0   20/20      20/20         4.00
+solo@k12                0   20/20      20/20         4.00
+pipeline                0   20/20      20/20         4.00
+swarm@n4                0    0/20      18/20         3.80
+swarm_noobj@n4          0    0/20      17/20         3.80
+relay_informed          0   15/20      15/20         3.75  requested 20/20, request names secret 12/20
+relay_uninformed        0    7/20       7/20         3.20  requested 20/20, request names secret 0/20
+calls=1180 failed=0 list-price-equiv=$0.3151 (billed to subscription)
+rows -> results/v2/2026-11-06_55325c9a_claude-haiku-5-5_v2_none_neutral.jsonl  manifest -> results/v2/2026-11-06_55325c9a_claude-haiku-5-5_v2_none_neutral.jsonl.manifest.json
