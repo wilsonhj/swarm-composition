@@ -322,3 +322,51 @@ def test_solo_k_scored_per_attempt_not_union():
                   "posted": secret, "failed": False, "ms": 1})
     r3 = score_row({"cond": "solo@k5", "seed": 1000, "failed_calls": 0, "turns": turns, "board": []})
     assert r3["assembled"] and r3["recoverable"] and r3["identified_parts"] == 4
+
+
+def test_solo_k_pooled_exposure_is_explicit_and_legacy_uses_best_attempt():
+    _, words, _ = make_task(0)
+    turns = [T("solo", "POST: " + w, f"solo{i}") for i, w in enumerate(words)]
+    board = [f"[solo{i}] {w}" for i, w in enumerate(words)]
+    r = score_row(row(cond="solo@k4", turns=turns, board=board))
+    assert r["identified_parts"] == r["legacy_parts"] == 1 and not r["recoverable"]
+    assert r["pooled_identified_parts"] == 4 and r["pooled_recoverable"]
+
+
+@pytest.mark.parametrize("field", ["design", "backend", "served_models", "run_id", "prompt_hash", "protocol_hash", "authorization"])
+def test_incompatible_rows_never_pair_or_merge(field):
+    a = _e("solo", 0, ["PASS"], **{field: "a"})
+    b = _e("pipeline", 0, ["POST: " + SECRET], **{field: "b"})
+    assert analyze.paired_contrasts([a, b]) == []
+    with pytest.raises(ValueError, match="incompatible"):
+        analyze.summarize([a, b], ["model"])
+
+
+def test_duplicate_trial_rejected_even_if_one_copy_failed():
+    a = _e("solo", 0, ["PASS"])
+    b = _e("solo", 0, ["PASS"], failed=1)
+    with pytest.raises(ValueError, match="duplicate trial"):
+        analyze.paired_contrasts([a, b])
+    with pytest.raises(ValueError, match="duplicate trial"):
+        analyze.summarize([a, a], ["cond"])
+
+
+def test_matched_comparisons_use_declared_call_budget():
+    rows = [_e(c, 0, ["PASS"]) for c in ("solo", "solo@k5", "solo@k12", "pipeline", "swarm@n4", "relay_informed")]
+    pairs = analyze.paired_contrasts(rows, "matched")
+    assert {(p["cond"], p["baseline"]) for p in pairs} == {
+        ("pipeline", "solo@k5"), ("swarm@n4", "solo@k12")}
+    assert analyze.matched_baseline("relay_informed") == "solo@k6"
+
+
+def test_failure_sensitivity_bounds_use_all_trials():
+    rows = [_e("solo", 0, ["POST: " + SECRET]), _e("solo", 1, ["PASS"], failed=1)]
+    (cell,) = analyze.summarize(rows, ["cond"])
+    assert cell["assembled_all_bounds"] == (0.5, 1.0)
+    report = analyze.render(rows, ["cond"], "solo", False)
+    assert "sensitivity bounds, not confidence intervals" in report
+
+
+def test_per_turn_served_models_are_part_of_analysis_identity():
+    r = _e("solo", 0, [], turns=[{**T("solo", "PASS"), "model": ["model-b", "model-a"]}])
+    assert r["served_models"] == "model-a,model-b"

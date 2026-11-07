@@ -1,6 +1,13 @@
 # Composition gap: annotated bibliography
 
-All entries below were fetched on 2026-11-06 and checked against the source page. Descriptions state only what the source says. Authors are the first three plus "et al." (full lists are in `references.bib`). BibTeX keys are in brackets. Where a source gave no venue, it is listed as an arXiv preprint.
+Original entries below were fetched on 2026-11-06 and checked against the source page; the provenance-study additions were fetched on 2026-11-07. Descriptions state only what the source says. Authors are the first three plus "et al." (full lists are in `references.bib`). BibTeX keys are in brackets. Where a source gave no venue, it is listed as an arXiv preprint.
+
+## Provenance-study additions (7 November)
+
+- [AI Organizations are More Effective but Less Aligned than Individual Agents](https://arxiv.org/abs/2604.10290), Shen et al., 2026 `[shen2026organizations]`. Abstract and [companion post](https://alignment.anthropic.com/2026/ai-organizations/) fetched. Direct prior work comparing individual agents with organizations on twelve business/ethics tasks; model-dependent results. It limits broad novelty claims for this repository.
+- [Recommendations for Technical AI Safety Research Directions](https://alignment.anthropic.com/2025/recommended-directions/), Anthropic Alignment Science, 2025 `[anthropic2025directions]`. Proposes inter-query defenses and multi-agent governance, motivating a focused provenance/publication-control intervention.
+- [CHIVE](https://alignment.anthropic.com/2026/chive/), Karvonen, Ong, Kantamneni and Marks, 2026 `[karvonen2026chive]`. Uses measured counterfactual edits to evaluate behavioral explanations; generated explanations are not treated as ground truth.
+- [Petri 2.0](https://alignment.anthropic.com/2026/petri-v2/), Anthropic Alignment Science, 2026 `[anthropic2026petri]`. Discusses realism and evaluation-awareness mitigations and their limits. A motivation for future external-validity checks, not evidence that this toy task transfers.
 
 Files in this directory: `README.md` (this file), `metr-incident.md` (sourced incident summary), `related-work.md` (draft Related Work), `references.bib`.
 

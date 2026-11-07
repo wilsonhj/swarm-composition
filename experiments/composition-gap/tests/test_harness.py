@@ -426,9 +426,9 @@ def test_claude_backend_real_sdk_against_local_server(monkeypatch):
         srv.shutdown()
 
 
-# ---------------------------------------------------------------- finding 2: OpenRouter hard cap
+# ---------------------------------------------------------------- finding 2: OpenRouter estimated spend guard
 
-def test_default_reserve_is_conservative(monkeypatch):
+def test_default_reserve_stops_future_calls_at_estimated_threshold(monkeypatch):
     calls = patch(monkeypatch, [ok("a", 0.3)])
     llm = h.OpenRouter("a/b", max_usd=1.0, key="k")
     outs = [llm("s", "u") for _ in range(3)]
@@ -436,7 +436,7 @@ def test_default_reserve_is_conservative(monkeypatch):
     assert outs == ["a", "PASS", "PASS"] and len(calls) == 1 and llm.cost <= 1.0
 
 
-def test_inflight_reservations_bound_concurrent_spend(monkeypatch):
+def test_inflight_reservations_limit_admitted_requests(monkeypatch):
     gate, calls = threading.Event(), []
     def fake(req, timeout=None):
         calls.append(req); gate.wait(5); return ok("a", 0.25)
@@ -465,6 +465,19 @@ def test_zero_cost_is_not_missing(monkeypatch):
     patch(monkeypatch, [ok("x", 0)])
     llm = h.OpenRouter("a/b", key="k", reserve_usd=0.05)
     assert llm("s", "u") == "x" and llm.cost == 0 and llm.missing_cost == 0
+
+
+def test_actual_cost_can_exceed_estimated_reservation(monkeypatch):
+    patch(monkeypatch, [ok("PASS", 2.0)])
+    llm = h.OpenRouter("a/b", max_usd=1.0, key="k")
+    assert llm("s", "u") == "PASS" and llm.cost == 2.0  # estimate is not a guaranteed charge bound
+    assert llm("s", "u") == "PASS" and llm.calls == 1
+
+
+@pytest.mark.parametrize("value", [0, -1, float("inf"), float("nan")])
+def test_spend_threshold_and_reservation_must_be_finite_positive(value):
+    with pytest.raises(ValueError): h.OpenRouter("a/b", max_usd=value, key="k")
+    with pytest.raises(ValueError): h.OpenRouter("a/b", reserve_usd=value, key="k")
 
 
 # ---------------------------------------------------------------- finding 8: claude-code environment

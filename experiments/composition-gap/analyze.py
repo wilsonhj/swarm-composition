@@ -16,6 +16,36 @@ from scoring import score_row, is_preschema
 Z = 1.959964
 B = 2000
 BOOT_SEED = 20261106
+# Runs are independent replications. Pair only within a compatible run; old rows
+# without provenance retain explicit missing values rather than borrowing metadata.
+IDENTITY = ("study", "design", "backend", "model", "served_models", "authorization", "policy", "framing",
+            "run_id", "prompt_hash", "protocol_hash")
+DEFAULT_BY = (*IDENTITY, "cond")
+
+
+def validate_rows(rows, by=None):
+    """Reject repeated trials and summary groups that would merge incompatible runs."""
+    seen, groups = set(), defaultdict(set)
+    for r in rows:
+        identity = cell_key(r, IDENTITY)
+        trial = (identity, r.get("cond"), r.get("seed"))
+        if trial in seen:
+            raise ValueError(f"duplicate trial: condition={r.get('cond')}, seed={r.get('seed')}, "
+                             f"run_id={r.get('run_id')}; select one input copy/run")
+        seen.add(trial)
+        if by is not None:
+            groups[cell_key(r, by)].add(identity)
+    if any(len(g) > 1 for g in groups.values()):
+        raise ValueError("--by would merge incompatible study/design/backend/run metadata; "
+                         "retain the default grouping or select one run")
+
+
+def matched_baseline(cond):
+    if cond == "pipeline": return "solo@k5"
+    if cond.startswith("relay"): return "solo@k6"
+    if cond.startswith(("swarm@n", "swarm_noobj@n")):
+        return f"solo@k{3 * int(cond.rsplit('@n', 1)[1])}"
+    return None
 
 
 def wilson(k, n, z=Z):
@@ -74,7 +104,13 @@ def load_rows(paths, include_superseded=False):
 
 def enrich(row):
     s = score_row(row)
-    keep = {k: row.get(k) for k in ("cond", "seed", "model", "policy", "framing", "backend", "design", "run_id", "_file")}
+    keep = {k: row.get(k) for k in (*IDENTITY, "cond", "seed", "_file")}
+    served = set()
+    for turn in row.get("turns") or []:
+        model = turn.get("model")
+        if isinstance(model, str): served.add(model)
+        elif isinstance(model, list): served.update(model)
+    if served: keep["served_models"] = ",".join(sorted(served))
     return {**keep, **s, "_raw": row}
 
 
@@ -87,6 +123,7 @@ def cell_key(r, by):
 
 
 def summarize(rows, by, include_unknown=False):
+    validate_rows(rows, by)
     cells = defaultdict(list)
     for r in rows:
         cells[cell_key(r, by)].append(r)
@@ -100,6 +137,7 @@ def summarize(rows, by, include_unknown=False):
         for m in ("assembled", "recoverable"):
             k = sum(bool(r[m]) for r in v)
             cell[m] = (k, n, wilson(k, n))
+            cell[m + "_all_bounds"] = (k / len(rs), (k + len(rs) - n) / len(rs))
         for m in ("identified_parts", "exposed_parts"):
             by_seed = defaultdict(list)
             for r in v:
@@ -110,26 +148,26 @@ def summarize(rows, by, include_unknown=False):
 
 
 def paired_contrasts(rows, baseline="solo", include_unknown=False):
-    """Seed-paired contrasts of every non-baseline cond vs baseline within (model, policy, framing).
-    One row per (cell, seed) is used (the first valid one)."""
+    """Seed-paired contrasts within compatible runs; never silently pick a duplicate.
+    `matched` selects call-budget baselines for v2 topologies, skipping absent baselines."""
+    validate_rows(rows)
     groups = defaultdict(lambda: defaultdict(dict))
     for r in rows:
         if is_valid(r, include_unknown):
-            groups[cell_key(r, ("model", "policy", "framing"))][r["cond"]].setdefault(r["seed"], r)
+            groups[cell_key(r, IDENTITY)][r["cond"]][r["seed"]] = r
     out = []
     for g in sorted(groups):
         conds = groups[g]
-        if baseline not in conds:
-            continue
         for c in sorted(conds):
-            if c == baseline:
+            reference = matched_baseline(c) if baseline == "matched" else baseline
+            if not reference or reference not in conds or c == reference:
                 continue
-            seeds = sorted(set(conds[c]) & set(conds[baseline]))
+            seeds = sorted(set(conds[c]) & set(conds[reference]))
             if not seeds:
                 continue
-            res = {"group": g, "cond": c, "n_pairs": len(seeds)}
+            res = {"group": g, "cond": c, "baseline": reference, "n_pairs": len(seeds)}
             for m in ("assembled", "recoverable", "identified_parts"):
-                d = [float(conds[c][s][m]) - float(conds[baseline][s][m]) for s in seeds]
+                d = [float(conds[c][s][m]) - float(conds[reference][s][m]) for s in seeds]
                 res[m] = (sum(d) / len(d), boot_ci([[x] for x in d]))
                 if m != "identified_parts":
                     bb = sum(x > 0 for x in d); cc = sum(x < 0 for x in d)
@@ -180,57 +218,74 @@ def _disc(t):
 
 
 def render(rows, by, baseline, include_unknown, files_note="", check=False):
+    validate_rows(rows, by)
     def vals(k):
         return sorted({str(r.get(k)) for r in rows if r.get(k) is not None}) or ["(none)"]
-    confirm = rows and all(r.get("design") == "v2" and (r.get("seed") or 0) >= 1000 for r in rows)
     L = ["# Composition-gap analysis", "",
-         "**Frozen v2 design on held-out seeds (>= 1000).**" if confirm else
-         "**Exploratory: pilot/v1 data or design-selection seeds. Intervals are descriptive; nothing here is confirmatory.**", ""]
+         "**Descriptive analysis. Design and seed labels alone do not verify prospective freezing or held-out status.**",
+         "Interpret against the committed protocol and run manifests; primary comparisons must be specified before collection.", ""]
+    if any(r.get("backend") == "mock" for r in rows):
+        L += ["**MOCK DATA: scripted software checks, not empirical model evidence.**", ""]
     if files_note:
         L += [files_note, ""]
     nf = sum(r.get("valid") is False for r in rows)
-    keys = [(r.get("model"), r.get("policy"), r.get("framing"), r.get("cond"), r.get("seed"))
-            for r in rows if is_valid(r, include_unknown)]
-    dups = len(keys) - len(set(keys))
     L += [f"- designs: {', '.join(vals('design'))}", f"- run_ids: {', '.join(vals('run_id'))}",
           f"- backends: {', '.join(vals('backend'))}", f"- models: {', '.join(vals('model'))}",
-          f"- failed rows excluded (failed_calls>0): {nf}/{len(rows)}"
-          + (f"; **WARNING: {dups} duplicate valid (cell, seed) rows: cell rates count all, paired contrasts use only the first**" if dups else ""),
+          f"- failed rows excluded (failed_calls>0): {nf}/{len(rows)}; duplicate trial keys rejected",
           f"- rows: {len(rows)}; unknown-validity rows {'treated as valid' if include_unknown else 'excluded from denominators'}"
           " (reported in n_unknown)",
           "- CIs: Wilson 95% for proportions; seed-bootstrap 95% (2000 resamples, seeded) for means; "
           "metrics from posted messages only (see scoring.py)", ""]
-    L += ["## Cells", "",
-          "| " + " | ".join(by) + " | n_total | n_failed | n_unknown | n_valid | assembled | recoverable | mean identified | mean exposed |",
-          "|" + "---|" * (len(by) + 8)]
+    # Keep full identities for grouping, but avoid repeating constant metadata and
+    # 64-character hashes in every cell. Full values remain in the metadata above/below.
+    display_by = [k for k in by if k == "cond" or len({r.get(k) for r in rows}) > 1] or list(by)
+    indices = [by.index(k) for k in display_by]
+    def compact(value): return value[:12] if len(value) > 32 else value
+    def display_key(key): return " | ".join(compact(key[i]) for i in indices)
+    for k in ("study", "served_models", "authorization", "prompt_hash", "protocol_hash"):
+        L.append(f"- {k}: {', '.join(vals(k))}")
+    failures = any(not is_valid(r, include_unknown) for r in rows)
+    bounds_header = " | assembled all-trial range | recoverable all-trial range" if failures else ""
+    L += ["", "## Cells", "",
+          "| " + " | ".join(display_by) + " | n_total | n_failed | n_unknown | n_valid | assembled | recoverable | mean identified | mean exposed" + bounds_header + " |",
+          "|" + "---|" * (len(display_by) + 8 + (2 if failures else 0))]
     for c in summarize(rows, by, include_unknown):
-        L.append("| " + " | ".join(c["key"]) + f" | {c['n_total']} | {c['n_failed']} | {c['n_unknown']} | {c['n_valid']} | "
-                 f"{_rate(c['assembled'])} | {_rate(c['recoverable'])} | {_mean(c['identified_parts'])} | {_mean(c['exposed_parts'])} |")
+        bounds = (f" | {_ci(c['assembled_all_bounds'])} | {_ci(c['recoverable_all_bounds'])}" if failures else "")
+        L.append("| " + display_key(c["key"]) + f" | {c['n_total']} | {c['n_failed']} | {c['n_unknown']} | {c['n_valid']} | "
+                 f"{_rate(c['assembled'])} | {_rate(c['recoverable'])} | {_mean(c['identified_parts'])} | {_mean(c['exposed_parts'])}" + bounds + " |")
+    if failures:
+        L += ["", "All-trial ranges assign every excluded failed/unknown trial first failure, then success. "
+              "They are sensitivity bounds, not confidence intervals; valid-only rates may be selection-biased."]
     relay = [r for r in rows if str(r.get("cond", "")).startswith("relay") and is_valid(r, include_unknown)]
     if relay:
         L += ["", "## Relay coordinator requests", "",
               "From `scoring.relay_request` (coordinator's first turn posted). Relay prompts do not use `framing`, so "
               "framing cells are replicates for relay.", "",
-              "| " + " | ".join(by) + " | n_valid | requested | request names secret |", "|" + "---|" * (len(by) + 3)]
+              "| " + " | ".join(display_by) + " | n_valid | requested | request names secret |", "|" + "---|" * (len(display_by) + 3)]
         groups = {}
         for r in relay:
             groups.setdefault(cell_key(r, by), []).append(r)
         for k in sorted(groups):
             g = groups[k]; n = len(g)
             req = sum(bool(r.get("requested")) for r in g); sec = sum(bool(r.get("request_names_secret")) for r in g)
-            L.append("| " + " | ".join(k) + f" | {n} | {_rate((req, n, wilson(req, n)))} | {_rate((sec, n, wilson(sec, n)))} |")
+            L.append("| " + display_key(k) + f" | {n} | {_rate((req, n, wilson(req, n)))} | {_rate((sec, n, wilson(sec, n)))} |")
     pc = paired_contrasts(rows, baseline, include_unknown)
     L += ["", f"## Seed-paired contrasts vs `{baseline}`", "",
-          "Difference = cond minus baseline, paired by seed within (model, policy, framing); brackets are paired-bootstrap 95% CIs. "
+          "Difference = cond minus baseline, paired by seed within compatible study/design/backend/run metadata; brackets are paired-bootstrap 95% CIs. "
           "Discordant: +b = cond succeeded where baseline did not, -c = the reverse; p is the exact two-sided binomial (McNemar) test.", ""]
     if not pc:
         L.append(f"(no pairs: baseline `{baseline}` absent or no valid shared seeds)")
     else:
-        L += ["| model/policy/framing | cond | pairs | d assembled | discordant | d recoverable | discordant | d identified |",
-              "|---|---|---|---|---|---|---|---|"]
+        L += ["| varying run metadata | cond | baseline | pairs | d assembled | discordant | d recoverable | discordant | d identified |",
+              "|---|---|---|---|---|---|---|---|---|"]
         for p in pc:
-            L.append(f"| {'/'.join(p['group'])} | {p['cond']} | {p['n_pairs']} | {_signed(p['assembled'], True)} | {_disc(p['assembled_disc'])} | "
+            label = ", ".join(f"{field}={compact(p['group'][i])}" for i, field in enumerate(IDENTITY)
+                              if len({r.get(field) for r in rows}) > 1) or "single run"
+            L.append(f"| {label} | {p['cond']} | {p['baseline']} | {p['n_pairs']} | {_signed(p['assembled'], True)} | {_disc(p['assembled_disc'])} | "
                      f"{_signed(p['recoverable'], True)} | {_disc(p['recoverable_disc'])} | {_signed(p['identified_parts'], False)} |")
+    if baseline == "matched":
+        L += ["", "Matched call budgets: pipeline→solo@k5; relay→solo@k6; swarm@nN→solo@k(3N). "
+              "Groups lacking the reference are omitted, not compared to one-attempt solo. Swarm matching uses its maximum turns."]
     if check:
         k = legacy_check(rows)
         L += ["", "## Legacy reproduction and disagreements", "",
@@ -254,13 +309,17 @@ def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("files", nargs="+")
     ap.add_argument("--md")
-    ap.add_argument("--by", default="model,policy,framing,cond")
-    ap.add_argument("--baseline", default="solo")
+    ap.add_argument("--by", default=",".join(DEFAULT_BY))
+    ap.add_argument("--baseline", default="matched", help="matched (default), solo, or a named condition")
     ap.add_argument("--include-superseded", action="store_true")
     ap.add_argument("--include-unknown", action="store_true", help="count rows lacking failed_calls as valid")
     ap.add_argument("--legacy-check", action="store_true")
+    ap.add_argument("--run-id", action="append", help="select one or more run IDs before grouping")
     a = ap.parse_args(argv)
     raw = load_rows(a.files, a.include_superseded)
+    if a.run_id:
+        raw = [r for r in raw if r.get("run_id") in a.run_id]
+        if not raw: ap.error("no rows match --run-id")
     pre = [r for r in raw if is_preschema(r)]
     raw = [r for r in raw if not is_preschema(r)]
     rows = [enrich(r) for r in raw]
@@ -269,7 +328,10 @@ def main(argv=None):
         note += (f"\n\nExcluded {len(pre)} pre-schema row(s) ({', '.join(sorted({r['_file'].split('/')[-1] for r in pre}))}): "
                  "they predate the frozen task generator, so their words do not match make_task(seed) and cannot be scored.")
         print(f"WARNING: excluded {len(pre)} pre-schema rows", file=sys.stderr)
-    out = render(rows, a.by.split(","), a.baseline, a.include_unknown, note, a.legacy_check)
+    try:
+        out = render(rows, a.by.split(","), a.baseline, a.include_unknown, note, a.legacy_check)
+    except ValueError as e:
+        ap.error(str(e))
     print(out)
     if a.md:
         with open(a.md, "w") as f:

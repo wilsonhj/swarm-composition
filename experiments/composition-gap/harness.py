@@ -10,7 +10,7 @@ Two designs: `--design v1` reproduces the original pilot/full-run prompts byte f
 `--design v2` (default) applies one policy to every role, builds every board from parsed
 `posted` values, and adds opportunity-matched solo@kK baselines. See README.md.
 """
-import argparse, hashlib, json, os, platform, random, re, subprocess, sys, tempfile, threading, time, uuid
+import argparse, hashlib, json, math, os, platform, random, re, subprocess, sys, tempfile, threading, time, uuid
 import urllib.error, urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
@@ -193,12 +193,18 @@ class OpenRouterError(RuntimeError): pass
 class OpenRouter(Backend):
     """OpenRouter chat completions over stdlib urllib. Per-call cost comes from `usage.cost` (credits = USD).
 
-    Hard cap: before sending, under the lock, a call reserves `reserve` dollars and is refused if
+    Estimated spend guard: before sending, under the lock, a call reserves `reserve` dollars and is refused if
     cost + in-flight reservations + reserve >= max_usd. reserve = reserve_usd if given, else
     max(0.01, 3 x running mean cost per call). On completion the reservation is replaced by the actual cost;
-    a response without usage.cost is charged the reservation (conservative) and counted in missing_cost."""
+    a response without usage.cost is imputed at the reservation and counted in missing_cost.
+    Actual charges can exceed estimates, including for retries; this is NOT a guaranteed hard cap.
+    Use a provider-side key limit where a strict spending constraint is needed."""
     URL = "https://openrouter.ai/api/v1/chat/completions"
     def __init__(self, model, max_usd=250.0, key=None, reserve_usd=None):
+        if not math.isfinite(max_usd) or max_usd <= 0:
+            raise ValueError("max_usd must be finite and positive")
+        if reserve_usd is not None and (not math.isfinite(reserve_usd) or reserve_usd <= 0):
+            raise ValueError("reserve_usd must be finite and positive")
         self.model, self.max_usd, self.reserve_usd, self.key = model, max_usd, reserve_usd, key or openrouter_key()
         self.warned, self.inflight = False, 0.0
         self._init_counters()
@@ -562,7 +568,7 @@ def main(argv=None):
     ap.add_argument("--ks", default="5,12", help="valid K for solo@kK opportunity-matched baselines (v2)")
     ap.add_argument("--policy", default="strict", choices=list(POLICIES))
     ap.add_argument("--framing", default="explicit", choices=list(FRAMES))
-    ap.add_argument("--max-usd", type=float, default=None, help="openrouter hard budget cap (default env OPENROUTER_BUDGET_USD, else 250)")
+    ap.add_argument("--max-usd", type=float, default=None, help="openrouter estimated spend threshold; actual charges may exceed it (default env OPENROUTER_BUDGET_USD, else 250)")
     ap.add_argument("--reserve-usd", type=float, default=None,
                     help="openrouter per-call reservation (default max(0.01, 3x running mean cost per call))")
     ap.add_argument("--seeds", type=int, default=5)

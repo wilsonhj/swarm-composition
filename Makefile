@@ -6,7 +6,7 @@ MAX_USD ?= 25
 PYTEST  := pytest==9.2.0
 
 .DEFAULT_GOAL := help
-.PHONY: help test smoke credits pilot-haiku run-openrouter run-v2 analyze clean
+.PHONY: help test smoke provenance-smoke run-provenance credits pilot-haiku run-openrouter run-v2 analyze clean
 
 help: ## List available targets
 	@grep -E '^[a-zA-Z0-9_-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-16s %s\n", $$1, $$2}'
@@ -17,6 +17,15 @@ test: ## Run pytest (no network)
 smoke: ## Mock-backend smoke run (overwrites /tmp/smoke.jsonl and its manifest)
 	rm -f /tmp/smoke.jsonl /tmp/smoke.jsonl.manifest.json
 	cd $(EXP_DIR) && $(UV) python harness.py --backend mock --seeds 2 --out /tmp/smoke.jsonl
+
+provenance-smoke: ## Offline provenance study + analysis (scripted mock, no model service)
+	rm -f /tmp/task-provenance-smoke.jsonl /tmp/task-provenance-smoke.jsonl.manifest.json
+	cd $(EXP_DIR) && $(UV) python provenance.py --seeds 2 --out /tmp/task-provenance-smoke.jsonl
+	cd $(EXP_DIR) && $(UV) python analyze.py /tmp/task-provenance-smoke.jsonl --baseline local --md /tmp/task-provenance-smoke.md
+
+run-provenance: ## Pilot only: make run-provenance OUT=results/task-provenance/pilot.jsonl [BACKEND=mock] (paths relative to experiment dir)
+	@test -n "$(OUT)" || { echo 'OUT is required; see docs/protocols/task-provenance-v1.md'; exit 1; }
+	cd $(EXP_DIR) && $(UV) python provenance.py --backend $(or $(BACKEND),mock) --seeds $(SEEDS) --out "$(OUT)"
 
 credits: ## Show OpenRouter credit usage/remaining (needs .env)
 	cd $(EXP_DIR) && $(UV) python credits.py
