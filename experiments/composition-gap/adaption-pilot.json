@@ -1,0 +1,19 @@
+{
+  "study": "adaption-cross-model-pilot-v1",
+  "phase": "exploratory-pilot",
+  "models": [
+    {"id": "gemma-4-31b-it", "input_credits_per_million": 0.09, "output_credits_per_million": 0.34},
+    {"id": "qwen3.5-397b", "input_credits_per_million": 0.55, "output_credits_per_million": 3.5}
+  ],
+  "seeds": [5000, 5001, 5002],
+  "conditions": ["local", "provenance"],
+  "authorizations": ["restricted", "authorized"],
+  "wording": "paraphrase",
+  "schedule_seed": 20261107,
+  "max_output_tokens": 300,
+  "expected_input_tokens": 500,
+  "input_token_budget": 2500,
+  "max_credits": 0.25,
+  "pricing_source": "https://docs.adaptionlabs.ai/inference-stacks/models/",
+  "pricing_checked": "2026-11-07"
+}
