@@ -4,6 +4,7 @@
 # Each harness call writes <out>.jsonl + <out>.jsonl.manifest.json; output names are unique (date + short id),
 # and harness.py refuses to overwrite an existing file. Rows with failed_calls>0 are excluded in analysis.
 # Analyse afterwards with: uv run --no-project python analyze.py results/v2/<prefix>_*.jsonl --md out.md
+# (default: matched call-budget baselines; add --baseline solo to reproduce the committed results/v2/analysis*.md contrasts)
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -43,9 +44,9 @@ run claude-code "$MODEL" "$SEEDS"
 # run claude-code claude-sonnet-5-5 10
 
 # Optional: OpenRouter cross-model check. Spend comes from the fixed $250 credit: run `make credits` first.
-# --max-usd is a hard cap per harness call (one cell), so total spend <= cells x MAX_USD.
+# --max-usd is an estimated threshold per cell, not a hard cap; charges can exceed reservations.
 # OR_MODEL=vendor/model; MAX_USD=5
-# echo "OpenRouter $OR_MODEL: <= $(( $(cells) * SEEDS * PER_SEED )) calls, <= \$$(( $(cells) * MAX_USD ))"
+# echo "OpenRouter $OR_MODEL: <= $(( $(cells) * SEEDS * PER_SEED )) logical calls; threshold \$$(( $(cells) * MAX_USD )) (not guaranteed spend)"
 # run openrouter "$OR_MODEL" "$SEEDS" --max-usd "$MAX_USD"
 
 echo "=== $(date '+%H:%M:%S') done (run id $RUN)"

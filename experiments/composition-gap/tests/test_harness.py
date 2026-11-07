@@ -55,6 +55,14 @@ def patch(monkeypatch, seq):
     return calls
 
 
+def test_openrouter_turn_records_served_model(monkeypatch):
+    r = Resp({"choices": [{"message": {"content": "PASS"}}], "usage": {"cost": 0.01}, "model": "vendor/m-2026"})
+    patch(monkeypatch, [r, ok("PASS")])
+    tl = h.Turns(h.OpenRouter("vendor/m", key="k"))
+    tl("worker", "w0", 0, "s", "u"); tl("worker", "w1", 1, "s", "u")
+    assert [t["model"] for t in tl.log] == [["vendor/m-2026"], None]
+
+
 def test_openrouter_parses(monkeypatch):
     calls = patch(monkeypatch, [ok(" POST: x ", 0.02)])
     llm = h.OpenRouter("a/b", key="k")
@@ -172,7 +180,7 @@ def test_parse_post(raw, posted):
     assert h.parse_post(raw) == posted
 
 
-TURN_KEYS = {"role", "agent", "part", "raw", "posted", "failed", "ms", "model"}
+TURN_KEYS = {"role", "agent", "part", "raw", "posted", "failed", "fail_reason", "ms", "model"}
 
 
 @pytest.mark.parametrize("design,cond,n_turns", [
@@ -319,7 +327,7 @@ def test_cli_v2_mock_run_rows_and_manifest(tmp_path, keep_globals):
     assert all(r["design"] == "v2" and r["run_id"] == m["run_id"] and r["turns"] for r in rows)
     assert m["design"] == "v2" and m["status"] == "complete" and m["end"] and m["start"]
     assert m["seeds"]["range"] == [1000, 1001] and m["sampling"] == {"max_tokens": None, "temperature": None}
-    assert m["totals"]["rows"] == 12 and m["totals"]["failed"] == 0
+    assert m["totals"]["rows"] == 12 and m["totals"]["failed"] == 0 and m["totals"]["fail_reasons"] == {}
     assert m["totals"]["calls"] == 2 * (1 + 5 + 5 + 12 + 6 + 6)
     assert m["prompt_hash"] == h.prompt_hash(h.prompt_templates("v2", "strict", "explicit"))
     assert {"commit", "dirty"} <= m["git"].keys() and m["python"] and m["argv"][1:3] == ["--backend", "mock"]
@@ -401,6 +409,55 @@ def test_claude_backend_counts_failures(monkeypatch, behaviour):
     assert llm.cost is None
 
 
+def sdk_message(content, stop_reason="end_turn", model="claude-x-1"):
+    calls = []
+    class Msgs:
+        def create(self, **kw):
+            calls.append(kw)
+            return types.SimpleNamespace(content=content, stop_reason=stop_reason, model=model,
+                                         usage=types.SimpleNamespace(input_tokens=5, output_tokens=2))
+    return types.SimpleNamespace(Anthropic=lambda: types.SimpleNamespace(messages=Msgs())), calls
+
+
+def text_block(t): return types.SimpleNamespace(type="text", text=t)
+
+
+def test_claude_thinking_then_text_is_a_valid_reply(monkeypatch):
+    sdk, calls = sdk_message([types.SimpleNamespace(type="thinking", thinking="private"), text_block("POST: complete")])
+    monkeypatch.setitem(sys.modules, "anthropic", sdk)
+    llm = h.Claude("claude-x"); T = h.Turns(llm)
+    raw, posted = T("worker", "w0", 0, "s", "u")
+    assert raw == "POST: complete" and posted == "complete" and not T.log[0]["failed"]
+    assert len(calls) == 1 and llm.calls == 1 and llm.in_tok == 5
+
+
+@pytest.mark.parametrize("content,stop,reason", [
+    ([text_block("")], "max_tokens", "stop_reason:max_tokens"),
+    ([text_block("POST: amb")], "max_tokens", "stop_reason:max_tokens"),
+    ([text_block("  ")], "end_turn", "empty"),
+    ([types.SimpleNamespace(type="thinking", thinking="x")], "end_turn", "empty"),
+])
+def test_claude_truncated_or_empty_fails_without_retry_and_counts_usage(monkeypatch, content, stop, reason):
+    sdk, calls = sdk_message(content, stop)
+    monkeypatch.setitem(sys.modules, "anthropic", sdk)
+    llm = h.Claude("claude-x"); T = h.Turns(llm)
+    raw, _ = T("worker", "w0", 0, "s", "u")
+    assert raw == "PASS" and T.log[0]["failed"] and T.log[0]["fail_reason"] == reason
+    assert len(calls) == 1 and llm.calls == 1 and llm.in_tok == 5 and llm.models == {"claude-x-1"}
+
+
+def test_claude_turn_records_served_model_per_call(monkeypatch):
+    sdk, _ = sdk_message([text_block("PASS")], model="claude-x-served")
+    monkeypatch.setitem(sys.modules, "anthropic", sdk)
+    llm = h.Claude("claude-x"); T = h.Turns(llm)
+    T("worker", "w0", 0, "s", "u")
+    assert T.log[0]["model"] == ["claude-x-served"]
+    llm.c.messages.create = lambda **kw: types.SimpleNamespace(content=[text_block("PASS")], stop_reason="end_turn",
+                                                               model=None, usage=types.SimpleNamespace(input_tokens=1, output_tokens=1))
+    T("worker", "w1", 1, "s", "u")
+    assert T.log[1]["model"] is None  # no inheritance from the previous call
+
+
 def test_claude_backend_real_sdk_against_local_server(monkeypatch):
     """Exercises the installed anthropic SDK end to end against a localhost fake Messages API (no network).
     Skipped unless the `anthropic` extra is installed."""
@@ -426,9 +483,9 @@ def test_claude_backend_real_sdk_against_local_server(monkeypatch):
         srv.shutdown()
 
 
-# ---------------------------------------------------------------- finding 2: OpenRouter hard cap
+# ---------------------------------------------------------------- finding 2: OpenRouter estimated spend guard
 
-def test_default_reserve_is_conservative(monkeypatch):
+def test_default_reserve_stops_future_calls_at_estimated_threshold(monkeypatch):
     calls = patch(monkeypatch, [ok("a", 0.3)])
     llm = h.OpenRouter("a/b", max_usd=1.0, key="k")
     outs = [llm("s", "u") for _ in range(3)]
@@ -436,7 +493,7 @@ def test_default_reserve_is_conservative(monkeypatch):
     assert outs == ["a", "PASS", "PASS"] and len(calls) == 1 and llm.cost <= 1.0
 
 
-def test_inflight_reservations_bound_concurrent_spend(monkeypatch):
+def test_inflight_reservations_limit_admitted_requests(monkeypatch):
     gate, calls = threading.Event(), []
     def fake(req, timeout=None):
         calls.append(req); gate.wait(5); return ok("a", 0.25)
@@ -465,6 +522,19 @@ def test_zero_cost_is_not_missing(monkeypatch):
     patch(monkeypatch, [ok("x", 0)])
     llm = h.OpenRouter("a/b", key="k", reserve_usd=0.05)
     assert llm("s", "u") == "x" and llm.cost == 0 and llm.missing_cost == 0
+
+
+def test_actual_cost_can_exceed_estimated_reservation(monkeypatch):
+    patch(monkeypatch, [ok("PASS", 2.0)])
+    llm = h.OpenRouter("a/b", max_usd=1.0, key="k")
+    assert llm("s", "u") == "PASS" and llm.cost == 2.0  # estimate is not a guaranteed charge bound
+    assert llm("s", "u") == "PASS" and llm.calls == 1
+
+
+@pytest.mark.parametrize("value", [0, -1, float("inf"), float("nan")])
+def test_spend_threshold_and_reservation_must_be_finite_positive(value):
+    with pytest.raises(ValueError): h.OpenRouter("a/b", max_usd=value, key="k")
+    with pytest.raises(ValueError): h.OpenRouter("a/b", reserve_usd=value, key="k")
 
 
 # ---------------------------------------------------------------- finding 8: claude-code environment
@@ -514,13 +584,69 @@ def test_claude_code_failure_counted(monkeypatch):
                           h.subprocess.TimeoutExpired("claude", 180)])
     monkeypatch.setattr(h.subprocess, "run", run)
     cc = h.ClaudeCode("m")
-    assert cc("s", "u") == "PASS" and len(seen) == 3 and cc.errors == 1 and cc.tl.failed == 1 and cc.calls == 0
+    # The is_error JSON was a received response, so it is counted; the unparseable and timed-out attempts are not.
+    assert cc("s", "u") == "PASS" and len(seen) == 3 and cc.errors == 1 and cc.tl.failed == 1 and cc.calls == 1
+    assert cc.missing_cost == 0 and cc.fail_reasons == {"TimeoutExpired": 1}
+
+
+def test_claude_code_nonzero_exit_is_failure_even_with_success_json(monkeypatch):
+    body = json.dumps({"is_error": False, "result": "PASS", "total_cost_usd": 0.01, "modelUsage": {"m": {}}})
+    seen = []
+    def run(cmd, **kw):
+        seen.append(kw); return types.SimpleNamespace(stdout=body, returncode=1)
+    monkeypatch.setattr(h.subprocess, "run", run)
+    T = h.Turns(h.ClaudeCode("m"))
+    raw, _ = T("worker", "w0", 0, "s", "u")
+    assert raw == "PASS" and T.log[0]["failed"] and T.log[0]["fail_reason"] == "exit_1" and len(seen) == 3
+
+
+def cli_result(rc, cost, model, result="PASS"):
+    return types.SimpleNamespace(returncode=rc, stdout=json.dumps(
+        {"is_error": False, "result": result, "total_cost_usd": cost, "modelUsage": {model: {}}}))
+
+
+def test_claude_code_failed_attempt_still_accounted_before_retry(monkeypatch):
+    seq = iter([cli_result(1, 0.01, "model-a"), cli_result(0, 0.02, "model-b")])
+    monkeypatch.setattr(h.subprocess, "run", lambda cmd, **kw: next(seq))
+    cc = h.ClaudeCode("m"); T = h.Turns(cc)
+    raw, _ = T("worker", "w0", 0, "s", "u")
+    assert raw == "PASS" and not T.log[0]["failed"] and cc.errors == 0
+    assert cc.calls == 2 and cc.cost == pytest.approx(0.03) and cc.models == {"model-a", "model-b"}
+    assert T.log[0]["model"] == ["model-a", "model-b"]
+
+
+def test_claude_code_exhausted_nonzero_exits_keep_totals(monkeypatch):
+    monkeypatch.setattr(h.subprocess, "run", lambda cmd, **kw: cli_result(1, 0.01, "m"))
+    cc = h.ClaudeCode("m"); T = h.Turns(cc)
+    T("worker", "w0", 0, "s", "u")
+    assert T.log[0]["failed"] and T.log[0]["fail_reason"] == "exit_1"
+    assert cc.calls == 3 and cc.cost == pytest.approx(0.03) and cc.models == {"m"} and cc.missing_cost == 0
+
+
+@pytest.mark.parametrize("result", ["", "   "])
+def test_claude_code_empty_result_is_failure_not_nondisclosure(monkeypatch, result):
+    run, seen = fake_run([json.dumps({"is_error": False, "result": result, "total_cost_usd": 0.01,
+                                      "modelUsage": {"m": {}}})])
+    monkeypatch.setattr(h.subprocess, "run", run)
+    cc = h.ClaudeCode("m"); T = h.Turns(cc)
+    raw, posted = T("worker", "w0", 0, "s", "u")
+    assert raw == "PASS" and posted is None and T.log[0]["failed"] and T.log[0]["fail_reason"] == "empty"
+    assert len(seen) == 1 and cc.calls == 1 and cc.cost == pytest.approx(0.01)
+
+
+def test_claude_code_genuine_pass_stays_valid(monkeypatch):
+    run, _ = fake_run([json.dumps({"is_error": False, "result": "PASS", "modelUsage": {"m": {}}})])
+    monkeypatch.setattr(h.subprocess, "run", run)
+    T = h.Turns(h.ClaudeCode("m"))
+    assert T("worker", "w0", 0, "s", "u")[0] == "PASS" and not T.log[0]["failed"]
 
 
 @pytest.mark.parametrize("choice", [
     {"message": {"content": "POST: amber-bir"}, "finish_reason": "length"},  # truncated by max_tokens
     {"message": {"content": None}, "finish_reason": "stop"},                 # reasoning ate the budget
     {"message": {"content": "  "}},                                          # empty
+    {"message": {"content": "POST: emb"}, "finish_reason": "error"},         # mid-stream provider error
+    {"message": {"content": "POST: x"}, "finish_reason": "content_filter"},
 ])
 def test_openrouter_truncated_or_empty_counts_as_failure(monkeypatch, choice):
     patch(monkeypatch, [Resp({"choices": [choice], "usage": {"cost": 0.001}})])
@@ -528,7 +654,114 @@ def test_openrouter_truncated_or_empty_counts_as_failure(monkeypatch, choice):
     assert llm("s", "u") == "PASS" and llm.errors == 1 and llm.tl.failed == 1
 
 
+@pytest.mark.parametrize("seq,reason", [
+    ([Resp({"choices": [{"message": {"content": ""}, "finish_reason": "length"}], "usage": {"cost": 0.001}})],
+     "finish_reason:length"),
+    ([Resp({"choices": [{"message": {"content": " "}, "finish_reason": "stop"}], "usage": {"cost": 0.001}})], "empty"),
+    ([http(400)], "http_400"),
+    ([http(503)], "http_503"),
+    ([urllib.error.URLError("down")], "URLError"),
+])
+def test_openrouter_failure_reason_logged(monkeypatch, seq, reason):
+    patch(monkeypatch, seq)
+    llm = h.OpenRouter("a/b", key="k", reserve_usd=0.01)
+    tl = h.Turns(llm)
+    tl("worker", "w0", 0, "s", "u")
+    assert tl.log[0]["failed"] and tl.log[0]["fail_reason"] == reason
+    assert llm.fail_reasons == {reason: 1}
+
+
+def test_fail_reason_cleared_between_turns(monkeypatch):
+    patch(monkeypatch, [http(400), ok("PASS")])
+    tl = h.Turns(h.OpenRouter("a/b", key="k", reserve_usd=0.01))
+    tl("worker", "w0", 0, "s", "u"); tl("worker", "w1", 1, "s", "u")
+    assert [t["fail_reason"] for t in tl.log] == ["http_400", None]
+
+
+def test_budget_refusal_reason(monkeypatch):
+    patch(monkeypatch, [ok("PASS")])
+    llm = h.OpenRouter("a/b", max_usd=0.005, key="k", reserve_usd=0.01)
+    tl = h.Turns(llm)
+    tl("worker", "w0", 0, "s", "u")
+    assert tl.log[0]["fail_reason"] == "budget" and llm.fail_reasons == {"budget": 1}
+
+
 def test_openrouter_normal_stop_not_failure(monkeypatch):
     patch(monkeypatch, [Resp({"choices": [{"message": {"content": "PASS"}, "finish_reason": "stop"}], "usage": {"cost": 0.001}})])
     llm = h.OpenRouter("a/b", key="k", reserve_usd=0.01)
     assert llm("s", "u") == "PASS" and llm.errors == 0
+
+
+# ---------------------------------------------------------------- runner review: OpenRouter usage errors
+
+@pytest.fixture
+def no_dotenv(monkeypatch):
+    monkeypatch.setattr(h, "load_env", lambda path=None: None)
+    monkeypatch.delenv("OPENROUTER_BUDGET_USD", raising=False)
+    monkeypatch.setenv("OPENROUTER_API_KEY", "test-not-a-key")
+
+
+@pytest.mark.parametrize("extra,budget_env", [(["--max-usd", "0"], None), (["--max-usd", "nan"], None),
+                                              (["--max-usd", "5", "--reserve-usd", "-1"], None),
+                                              ([], "0"), ([], "abc")])
+def test_cli_invalid_openrouter_budget_is_usage_error(tmp_path, keep_globals, no_dotenv, monkeypatch, capsys,
+                                                       extra, budget_env):
+    if budget_env is not None: monkeypatch.setenv("OPENROUTER_BUDGET_USD", budget_env)
+    out = tmp_path / "x.jsonl"
+    with pytest.raises(SystemExit) as e:
+        h.main(["--backend", "openrouter", "--model", "a/b", *extra, "--out", str(out)])
+    assert e.value.code == 2 and "usage:" in capsys.readouterr().err
+    assert not list(tmp_path.iterdir())
+
+
+def test_cli_openrouter_budget_falls_back_to_env(tmp_path, keep_globals, no_dotenv, monkeypatch):
+    monkeypatch.setenv("OPENROUTER_BUDGET_USD", "7.5")
+    seen = {}
+    class Stop(Exception): pass
+    def fake(model, max_usd, key=None, reserve_usd=None):
+        seen.update(model=model, max_usd=max_usd, reserve_usd=reserve_usd); raise Stop
+    monkeypatch.setattr(h, "OpenRouter", fake)
+    with pytest.raises(Stop):
+        h.main(["--backend", "openrouter", "--model", "a/b", "--out", str(tmp_path / "x.jsonl")])
+    assert seen == {"model": "a/b", "max_usd": 7.5, "reserve_usd": None}
+
+
+def test_cli_openrouter_requires_vendor_slug(tmp_path, keep_globals, no_dotenv):
+    with pytest.raises(SystemExit) as e:
+        h.main(["--backend", "openrouter", "--model", "plain", "--max-usd", "1", "--out", str(tmp_path / "x.jsonl")])
+    assert e.value.code == 2
+
+
+# ---------------------------------------------------------------- runner review: Makefile run-provenance
+
+ROOT = Path(__file__).resolve().parents[3]
+needs_make = pytest.mark.skipif(not __import__("shutil").which("make"), reason="make not installed")
+
+
+def make(*args, dry=True):
+    import subprocess
+    return subprocess.run(["make", "--no-print-directory", "-C", str(ROOT), *(["-n"] if dry else []), *args],
+                          capture_output=True, text=True, timeout=30)
+
+
+def provenance_cmd(r): return [l for l in r.stdout.splitlines() if "provenance.py" in l][0]
+
+
+@needs_make
+def test_make_run_provenance_default_unchanged():
+    r = make("run-provenance", "OUT=results/x.jsonl")
+    assert r.returncode == 0
+    assert provenance_cmd(r).endswith('provenance.py --backend mock --seeds 20 --out "results/x.jsonl"')
+
+
+@needs_make
+def test_make_run_provenance_openrouter_forwards_model_and_max_usd():
+    r = make("run-provenance", "OUT=results/x.jsonl", "BACKEND=openrouter", "MODEL=a/b", "MAX_USD=3")
+    assert r.returncode == 0
+    assert '--backend openrouter --model "a/b" --max-usd 3 --seeds 20' in provenance_cmd(r)
+
+
+@needs_make
+def test_make_run_provenance_openrouter_requires_model():
+    r = make("run-provenance", "OUT=results/x.jsonl", "BACKEND=openrouter", dry=False)
+    assert r.returncode != 0 and "MODEL is required" in r.stdout + r.stderr

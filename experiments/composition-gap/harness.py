@@ -10,7 +10,7 @@ Two designs: `--design v1` reproduces the original pilot/full-run prompts byte f
 `--design v2` (default) applies one policy to every role, builds every board from parsed
 `posted` values, and adds opportunity-matched solo@kK baselines. See README.md.
 """
-import argparse, hashlib, json, os, platform, random, re, subprocess, sys, tempfile, threading, time, uuid
+import argparse, hashlib, json, math, os, platform, random, re, subprocess, sys, tempfile, threading, time, uuid
 import urllib.error, urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
@@ -80,14 +80,19 @@ def part_prompt(k, lists):
 
 class Backend:
     """Shared counters. `tl.failed` is a per-thread count of calls that exhausted retries; Turns compares
-    it before/after each call to flag failed turns. `cost` is None when the backend reports no cost."""
+    it before/after each call to flag failed turns, and logs `tl.fail_reason` (the last cause seen).
+    `fail_reasons` counts causes for the manifest. `cost` is None when the backend reports no cost."""
     def _init_counters(self, cost=0.0):
         self.lock, self.tl = threading.Lock(), threading.local()
         self.calls, self.errors, self.cost, self.missing_cost, self.models = 0, 0, cost, 0, set()
+        self.fail_reasons = {}
 
-    def _fail(self):
-        with self.lock: self.errors += 1
+    def _fail(self, reason="unknown"):
+        with self.lock:
+            self.errors += 1
+            self.fail_reasons[reason] = self.fail_reasons.get(reason, 0) + 1
         self.tl.failed = getattr(self.tl, "failed", 0) + 1
+        self.tl.fail_reason = reason
         return "PASS"
 
 
@@ -111,18 +116,28 @@ class Claude(Backend):
         self.in_tok = self.out_tok = 0
         self._init_counters(cost=None)  # the Messages API reports tokens, not dollars
     def __call__(self, system, user):
+        reason = "unknown"
         for a in range(4):
             try:
                 m = self.c.messages.create(model=self.model, max_tokens=MAX_TOKENS, system=system,
                                            messages=[{"role": "user", "content": user}])
-                text = m.content[0].text
-                with self.lock:
-                    self.in_tok += m.usage.input_tokens; self.out_tok += m.usage.output_tokens; self.calls += 1
-                    if getattr(m, "model", None): self.models.add(m.model)
-                return text
-            except Exception:
+            except Exception as e:
+                reason = type(e).__name__
                 time.sleep(2 ** a)
-        return self._fail()
+                continue
+            # A received response is billed: account for it before interpreting it, and never resend it.
+            with self.lock:
+                self.in_tok += m.usage.input_tokens; self.out_tok += m.usage.output_tokens; self.calls += 1
+                if getattr(m, "model", None): self.models.add(m.model)
+            self.tl.model = [m.model] if getattr(m, "model", None) else None
+            # Thinking blocks may precede the text block; join only text blocks (blocks without a type are text).
+            text = "".join(getattr(b, "text", "") or "" for b in m.content
+                           if getattr(b, "type", "text") == "text").strip()
+            stop = getattr(m, "stop_reason", None)
+            if stop == "max_tokens": return self._fail("stop_reason:max_tokens")
+            if not text: return self._fail("empty")
+            return text
+        return self._fail(reason)
 
 
 # claude -p gets only these variables: enough for the CLI to find its binary, config and the macOS keychain
@@ -148,24 +163,34 @@ class ClaudeCode(Backend):
     def __call__(self, system, user):
         cmd = ["claude", "-p", user, "--safe-mode", "--model", self.model, "--system-prompt", system,
                "--tools", "", "--strict-mcp-config", "--no-session-persistence", "--output-format", "json"]
+        reason, turn_models = "unknown", set()
         for a in range(3):
             try:
                 p = subprocess.run(cmd, capture_output=True, text=True, cwd=self.cwd, env=self.env, timeout=180)
                 d = json.loads(p.stdout)
-                if not d.get("is_error"):
+                ok = p.returncode == 0 and not d.get("is_error")
+                # Account every received response once (cost, served models) before classifying it,
+                # so failed attempts that are retried still appear in the totals and the turn's model list.
+                served = (d.get("modelUsage") or {}).keys()
+                with self.lock:
+                    c = d.get("total_cost_usd")
+                    if c is not None: self.cost += c
+                    elif ok: self.missing_cost += 1
+                    self.calls += 1
+                    self.models.update(served)
+                turn_models.update(served)
+                self.tl.model = sorted(turn_models) or None
+                if p.returncode != 0: reason = f"exit_{p.returncode}"  # process failed, whatever the JSON says
+                elif d.get("is_error"): reason = "is_error"
+                else:
                     text = d["result"].strip()
-                    with self.lock:
-                        c = d.get("total_cost_usd")
-                        if c is None: self.missing_cost += 1
-                        else: self.cost += c
-                        self.calls += 1
-                        self.models.update((d.get("modelUsage") or {}).keys())
-                    self.tl.model = sorted((d.get("modelUsage") or {}).keys()) or None
+                    # An empty reply is a generation failure, not an observed refusal (PASS); don't resample it.
+                    if not text: return self._fail("empty")
                     return text
-            except (json.JSONDecodeError, KeyError, AttributeError, TypeError, subprocess.TimeoutExpired):
-                pass
+            except (json.JSONDecodeError, KeyError, AttributeError, TypeError, subprocess.TimeoutExpired) as e:
+                reason = type(e).__name__
             time.sleep(2 ** a)
-        return self._fail()
+        return self._fail(reason)
 
 
 def load_env(path=None):
@@ -193,12 +218,18 @@ class OpenRouterError(RuntimeError): pass
 class OpenRouter(Backend):
     """OpenRouter chat completions over stdlib urllib. Per-call cost comes from `usage.cost` (credits = USD).
 
-    Hard cap: before sending, under the lock, a call reserves `reserve` dollars and is refused if
+    Estimated spend guard: before sending, under the lock, a call reserves `reserve` dollars and is refused if
     cost + in-flight reservations + reserve >= max_usd. reserve = reserve_usd if given, else
     max(0.01, 3 x running mean cost per call). On completion the reservation is replaced by the actual cost;
-    a response without usage.cost is charged the reservation (conservative) and counted in missing_cost."""
+    a response without usage.cost is imputed at the reservation and counted in missing_cost.
+    Actual charges can exceed estimates, including for retries; this is NOT a guaranteed hard cap.
+    Use a provider-side key limit where a strict spending constraint is needed."""
     URL = "https://openrouter.ai/api/v1/chat/completions"
     def __init__(self, model, max_usd=250.0, key=None, reserve_usd=None):
+        if not math.isfinite(max_usd) or max_usd <= 0:
+            raise ValueError("max_usd must be finite and positive")
+        if reserve_usd is not None and (not math.isfinite(reserve_usd) or reserve_usd <= 0):
+            raise ValueError("reserve_usd must be finite and positive")
         self.model, self.max_usd, self.reserve_usd, self.key = model, max_usd, reserve_usd, key or openrouter_key()
         self.warned, self.inflight = False, 0.0
         self._init_counters()
@@ -222,7 +253,7 @@ class OpenRouter(Backend):
             else:
                 self.inflight += reserve
                 refused = False
-        if refused: return self._fail()
+        if refused: return self._fail("budget")
         try:
             return self._send(system, user, reserve)
         finally:
@@ -231,6 +262,7 @@ class OpenRouter(Backend):
     def _send(self, system, user, reserve):
         body = json.dumps({"model": self.model, "max_tokens": MAX_TOKENS,
                            "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}]}).encode()
+        reason = "unknown"
         for a in range(3):
             try:
                 req = urllib.request.Request(self.URL, data=body, headers=self.headers, method="POST")
@@ -242,18 +274,23 @@ class OpenRouter(Backend):
                     if c is None: c, self.missing_cost = reserve, self.missing_cost + 1
                     self.cost += c; self.calls += 1
                     if d.get("model"): self.models.add(d["model"])
-                if ch.get("finish_reason") == "length" or not (text or "").strip():
-                    return self._fail()  # truncated or empty (e.g. reasoning used the token budget): not a real PASS
+                self.tl.model = [d["model"]] if d.get("model") else None
+                # Only a normal stop (or a missing field) is a real reply. "length" is truncation (e.g. reasoning
+                # used the token budget); "error"/"content_filter" can carry partial text. None is a real PASS.
+                fr = ch.get("finish_reason")
+                if fr not in (None, "stop"): return self._fail(f"finish_reason:{fr}")
+                if not (text or "").strip(): return self._fail("empty")
                 return (text or "").strip()
             except urllib.error.HTTPError as e:
                 if e.code in (401, 402):
                     raise OpenRouterError(f"OpenRouter HTTP {e.code}: " + ("invalid API key" if e.code == 401 else "out of credit")) from None
+                reason = f"http_{e.code}"
                 if e.code != 429 and e.code < 500:
                     break  # other 4xx: retrying won't help
-            except (urllib.error.URLError, OSError, json.JSONDecodeError, KeyError, IndexError, TypeError):
-                pass
+            except (urllib.error.URLError, OSError, json.JSONDecodeError, KeyError, IndexError, TypeError) as e:
+                reason = type(e).__name__
             time.sleep(2 ** a)
-        return self._fail()
+        return self._fail(reason)
 
 
 # Relay: in v1 only the informed coordinator carries the policy; workers and the uninformed coordinator get
@@ -286,14 +323,15 @@ class Turns:
     def __call__(self, role, agent, part, system, user):
         tl = getattr(self.llm, "tl", None)
         before = getattr(tl, "failed", 0)
-        if tl is not None: tl.model = None
+        if tl is not None: tl.model = tl.fail_reason = None
         t0 = time.monotonic()
         raw = self.llm(system, user)
         ms = int((time.monotonic() - t0) * 1000)
         posted = parse_post(raw)
+        failed = getattr(tl, "failed", 0) > before
         self.log.append({"role": role, "agent": agent, "part": part, "raw": raw, "posted": posted,
-                         "failed": getattr(tl, "failed", 0) > before, "ms": ms,
-                         "model": getattr(tl, "model", None)})
+                         "failed": failed, "fail_reason": getattr(tl, "fail_reason", None) if failed else None,
+                         "ms": ms, "model": getattr(tl, "model", None)})
         return raw, posted
 
 
@@ -526,6 +564,33 @@ def manifest_path(out, append, run_id):
     return p
 
 
+def make_backend(ap, backend, model, max_usd=None, reserve_usd=None, require_max_usd=False, mock=None):
+    """Build the selected backend; bad OpenRouter settings become argparse usage errors (exit 2).
+    Without --max-usd, OpenRouter uses env OPENROUTER_BUDGET_USD, else 250, unless require_max_usd."""
+    if backend == "mock": return (mock or Mock)()
+    if backend == "claude": return Claude(model)
+    if backend == "claude-code": return ClaudeCode(model)
+    if "/" not in model: ap.error("--model must be an OpenRouter slug like <vendor>/<model> (see https://openrouter.ai/models)")
+    if max_usd is None:
+        if require_max_usd: ap.error("OpenRouter requires an explicit --max-usd (an estimated threshold, not a hard cap)")
+        load_env()
+        max_usd = os.environ.get("OPENROUTER_BUDGET_USD", 250)
+    try:
+        return OpenRouter(model, float(max_usd), reserve_usd=reserve_usd)
+    except ValueError as e:
+        ap.error(f"invalid OpenRouter budget: {e}")
+
+
+def base_manifest(run_id, backend, model, templates, argv, git=None):
+    """Manifest fields shared by harness.py and provenance.py runs; callers add their own study fields."""
+    return {"run_id": run_id, "argv": argv, "git": git or git_info(), "prompt_hash": prompt_hash(templates),
+            "prompts": templates, "backend": backend, "backend_version": backend_version(backend), "model": model,
+            # claude -p has no max-tokens flag, so only the API backends apply MAX_TOKENS
+            "sampling": {"max_tokens": MAX_TOKENS if backend in ("claude", "openrouter") else None,
+                         "temperature": TEMPERATURE},
+            "start": now(), "end": None, "status": "running", "totals": None}
+
+
 def summarize(res):
     """Table over valid rows only (failed_calls == 0); failed rows are counted separately, never in denominators."""
     lines = [f"{'condition':18s} {'failed':>6s} {'joined':>8s} {'all parts':>10s} {'mean parts':>11s}"]
@@ -562,7 +627,7 @@ def main(argv=None):
     ap.add_argument("--ks", default="5,12", help="valid K for solo@kK opportunity-matched baselines (v2)")
     ap.add_argument("--policy", default="strict", choices=list(POLICIES))
     ap.add_argument("--framing", default="explicit", choices=list(FRAMES))
-    ap.add_argument("--max-usd", type=float, default=None, help="openrouter hard budget cap (default env OPENROUTER_BUDGET_USD, else 250)")
+    ap.add_argument("--max-usd", type=float, default=None, help="openrouter estimated spend threshold; actual charges may exceed it (default env OPENROUTER_BUDGET_USD, else 250)")
     ap.add_argument("--reserve-usd", type=float, default=None,
                     help="openrouter per-call reservation (default max(0.01, 3x running mean cost per call))")
     ap.add_argument("--seeds", type=int, default=5)
@@ -580,30 +645,19 @@ def main(argv=None):
     out = Path(a.out)
     if out.exists() and not a.append:
         ap.error(f"--out {out} already exists; pass --append to add rows to it, or choose a new file name")
-    if a.backend == "openrouter":
-        if "/" not in a.model: ap.error("--model must be an OpenRouter slug like <vendor>/<model> (see https://openrouter.ai/models)")
-        load_env()
-        if a.max_usd is None: a.max_usd = float(os.environ.get("OPENROUTER_BUDGET_USD", 250))
+    llm = make_backend(ap, a.backend, a.model, a.max_usd, a.reserve_usd)
+    if a.backend == "openrouter": a.max_usd = llm.max_usd  # resolved env/default budget
     SYS = make_sys(a.policy)
     FRAME = FRAMES[a.framing]
-    if a.backend == "mock": llm = Mock()
-    elif a.backend == "claude": llm = Claude(a.model)
-    elif a.backend == "claude-code": llm = ClaudeCode(a.model)
-    else: llm = OpenRouter(a.model, a.max_usd, reserve_usd=a.reserve_usd)
 
     run_id = str(uuid.uuid4())
     templates = prompt_templates(a.design, a.policy, a.framing)
-    manifest = {"run_id": run_id, "design": a.design, "argv": sys.argv if argv is None else ["harness.py", *argv],
-                "git": git_info(), "prompt_hash": prompt_hash(templates), "prompts": templates,
-                "backend": a.backend, "backend_version": backend_version(a.backend), "model": a.model,
-                "resolved_model": None, "python": platform.python_version(), "policy": a.policy,
-                "framing": a.framing, "conds": list(conds),
-                # claude -p has no max-tokens flag, so only the API backends apply MAX_TOKENS
-                "sampling": {"max_tokens": MAX_TOKENS if a.backend in ("claude", "openrouter") else None,
-                             "temperature": TEMPERATURE},
+    manifest = {**base_manifest(run_id, a.backend, a.model, templates,
+                                sys.argv if argv is None else ["harness.py", *argv]),
+                "design": a.design, "resolved_model": None, "python": platform.python_version(),
+                "policy": a.policy, "framing": a.framing, "conds": list(conds),
                 "seeds": {"offset": a.seed_offset, "count": a.seeds, "range": [a.seed_offset, a.seed_offset + a.seeds - 1]},
-                "max_usd": a.max_usd, "reserve_usd": a.reserve_usd, "out": str(out),
-                "start": now(), "end": None, "status": "running", "totals": None}
+                "max_usd": a.max_usd, "reserve_usd": a.reserve_usd, "out": str(out)}
     mpath = manifest_path(out, a.append, run_id)
     write_json(mpath, manifest)
 
@@ -630,7 +684,8 @@ def main(argv=None):
         rows = [r for rs in res.values() for r in rs]
         manifest.update(end=now(), status=status, resolved_model=sorted(llm.models) or None, totals={
             "rows": len(rows), "failed_rows": sum(r["failed_calls"] > 0 for r in rows),
-            "calls": llm.calls, "failed": llm.errors, "cost": llm.cost, "missing_cost": llm.missing_cost})
+            "calls": llm.calls, "failed": llm.errors, "fail_reasons": dict(llm.fail_reasons),
+            "cost": llm.cost, "missing_cost": llm.missing_cost})
         write_json(mpath, manifest)
 
     print(f"run_id={run_id} design={a.design} model={a.model} policy={a.policy} framing={a.framing} "

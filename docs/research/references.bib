@@ -1,4 +1,4 @@
-% Verified entries only. Every entry was fetched (abs page / landing page) on 2026-11-06.
+% Verified entries only. Original entries fetched 2026-11-06; provenance/memo additions fetched 2026-11-07.
 % Entries with only arXiv metadata have no venue unless the page listed one.
 
 @misc{metr2026incident,
@@ -339,7 +339,96 @@
   url = {https://apartresearch.com/sprints/projects/they-say-no-then-do-it-anyway-collusion-when-they-hit-a-wall-zqrf}
 }
 
+% Primary sources fetched 2026-11-07 while developing the prospective provenance study.
+@misc{shen2026organizations,
+  title = {{AI} Organizations are More Effective but Less Aligned than Individual Agents},
+  author = {Shen, Judy Hanwen and Zhu, Daniel and Srinivasan, Siddarth and Sleight, Henry and Wagner, Lawrence T. III and Matthews, Morgan Jane and Jones, Erik and Sohl-Dickstein, Jascha},
+  year = {2026},
+  eprint = {2604.10290},
+  archivePrefix = {arXiv},
+  url = {https://arxiv.org/abs/2604.10290},
+  note = {Abstract and companion post verified; https://alignment.anthropic.com/2026/ai-organizations/}
+}
+
+@misc{anthropic2025directions,
+  title = {Recommendations for Technical {AI} Safety Research Directions},
+  author = {{Anthropic Alignment Science}},
+  year = {2025},
+  url = {https://alignment.anthropic.com/2025/recommended-directions/},
+  note = {Primary research-directions post; sections on inter-query defenses and learned governance for multi-agent alignment}
+}
+
+@misc{karvonen2026chive,
+  title = {Would This Change Your Answer? Evaluating Explanations of {LLM} Behavior in the Wild with Counterfactual Experiments},
+  author = {Karvonen, Adam and Ong, Euan and Kantamneni, Subhash and Marks, Samuel},
+  year = {2026},
+  month = aug,
+  url = {https://alignment.anthropic.com/2026/chive/},
+  note = {Primary post, 21 August 2026; proposed explanations distinguished from measured counterfactual outcomes}
+}
+
+@misc{anthropic2026petri,
+  title = {Petri 2.0: New Scenarios, New Model Comparisons, and Improved Eval-Awareness Mitigations},
+  author = {{Anthropic Alignment Science}},
+  year = {2026},
+  month = jan,
+  url = {https://alignment.anthropic.com/2026/petri-v2/},
+  note = {Primary post, 22 January 2026; realism and evaluation-awareness limitations}
+}
+
+% Primary abstract/metadata pages checked 2026-11-07 for the corrected submission memo.
+@misc{cloud2025subliminal,
+  title = {Subliminal Learning: Language models transmit behavioral traits via hidden signals in data},
+  author = {Cloud, Alex and Le, Minh and Chua, James and Betley, Jan and Sztyber-Betley, Anna and Hilton, Jacob and Marks, Samuel and Evans, Owain},
+  year = {2025},
+  eprint = {2507.14805},
+  archivePrefix = {arXiv},
+  url = {https://arxiv.org/abs/2507.14805},
+  note = {Training-mediated teacher/student transfer; abstract verified, not independently replicated}
+}
+
+@misc{wang2025personafeatures,
+  title = {Persona Features Control Emergent Misalignment},
+  author = {Wang, Miles and Dupré la Tour, Tom and Watkins, Olivia and others},
+  year = {2025},
+  eprint = {2506.19823},
+  archivePrefix = {arXiv},
+  url = {https://arxiv.org/abs/2506.19823v2},
+  note = {Version 2 abstract verified; individual-model SAE/model-diffing evidence, not a network propagation experiment}
+}
+
+@misc{wu2025axbench,
+  title = {{AxBench}: Steering {LLMs}? Even Simple Baselines Outperform Sparse Autoencoders},
+  author = {Wu, Zhengxuan and Arora, Aryaman and Geiger, Atticus and Wang, Zheng and Huang, Jing and Jurafsky, Dan and Manning, Christopher D. and Potts, Christopher},
+  year = {2025},
+  eprint = {2501.17148},
+  archivePrefix = {arXiv},
+  url = {https://arxiv.org/abs/2501.17148v3},
+  note = {Version 3 abstract verified; results scoped to its Gemma-2 steering and concept-detection benchmark}
+}
+
+@misc{nief2026lora,
+  title = {Subliminal Learning is a {LoRA} Artifact},
+  author = {Nief, Todd and Fu, Harvey Yiyun and Muchane, Mark and Holtzman, Ari},
+  year = {2026},
+  eprint = {2606.00831},
+  archivePrefix = {arXiv},
+  url = {https://arxiv.org/abs/2606.00831v2},
+  note = {DISPUTED: arXiv metadata checked 7 November 2026 states that follow-up work found some main claims incorrect and that a substantial revision is being prepared. Do not use as settled negative evidence; the warning does not identify which individual results remain valid}
+}
+
+@misc{morgulis2026subliminal,
+  title = {Subliminal Steering: Stronger Encoding of Hidden Signals},
+  author = {Morgulis, George and Hewitt, John},
+  year = {2026},
+  eprint = {2604.25783},
+  archivePrefix = {arXiv},
+  url = {https://arxiv.org/abs/2604.25783v2},
+  note = {Version 2 abstract verified; reports full-finetuning and SGD transfer in an activation-steered teacher setting, not a universal statement about every subliminal-learning setup}
+}
+
 % Added 2026-11-06 (alignment review pass). Each entry fetched via the arXiv API or the post page on 2026-11-06.
+% (shen2026aiorgs merged into the existing shen2026organizations entry)
 
 @misc{hammond2025multiagent,
   author = {Hammond, Lewis and Chan, Alan and Clifton, Jesse and Hoelscher-Obermaier, Jason and Khan, Akbir and McLean, Euan and Smith, Chandler and Barfuss, Wolfram and Foerster, Jakob and others},
@@ -349,16 +438,6 @@
   archivePrefix = {arXiv},
   url = {https://arxiv.org/abs/2502.14143},
   note = {Cooperative AI Foundation, Technical Report \#1 (arXiv comments)}
-}
-
-@misc{shen2026aiorgs,
-  author = {Shen, Judy Hanwen and Zhu, Daniel and Srinivasan, Siddarth and Sleight, Henry and Wagner, Lawrence T. and Matthews, Morgan Jane and Jones, Erik and Sohl-Dickstein, Jascha},
-  title = {{AI} Organizations are More Effective but Less Aligned than Individual Agents},
-  year = {2026},
-  eprint = {2604.10290},
-  archivePrefix = {arXiv},
-  url = {https://arxiv.org/abs/2604.10290},
-  note = {Companion post on the Anthropic Alignment Science Blog: https://alignment.anthropic.com/2026/ai-organizations/ (post title reads ``Can Be More Effective'')}
 }
 
 @misc{remedios2026automode,

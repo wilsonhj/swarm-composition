@@ -2,11 +2,13 @@
 
 DRAFT v1 (Fri Nov 6, 2026). Every number below comes from the frozen v2 runs on held-out seeds and is traceable to `docs/findings/v2-results.md` and `experiments/composition-gap/results/v2/analysis*.md`. `[TODO]` marks things the team must fill in. `[FIG]` marks figures still to be made. Citation keys are from `docs/research/references.bib`. Appendix A is in `appendix-limitations-dual-use.md`.
 
+**Scope of this draft:** completed v2 measurements only. The later [provenance development pilot](../docs/findings/provenance-pilot.md) is a separate study and is not silently added to these tables. Its held-out protocol is frozen at `435d20d`; subsequent held-out outcomes remain separate from this draft; [SAE sender intervention](../docs/protocols/sae-sender-study-proposal.md) is future work. Operational and attribution corrections are documented in the [revised memo](../docs/research/revised-sae-review-and-submission-memo.md).
+
 **Authors:** [TODO: names, affiliations, emails]. Team [TODO]. LA hub (AE Studio) and global sprint. Track 2: The Science of Agent Networks.
 
 ## Abstract
 
-Per-agent safety evaluations test whether a model refuses a forbidden request, yet deployed agents increasingly work in systems that split tasks. We ask whether restriction-bound agents that refuse alone still disclose or assemble a forbidden artifact when the work is split. In a benign, string-scored proxy, the artifact is a four-word "vault passphrase" whose words are lookups held by different agents, and a synthetic operator policy forbids revealing any word. We cross policy (none vs. strict) with framing (whether prompts say the items form the passphrase) across solo agents, opportunity-matched solo baselines (5 or 12 attempts), a pipeline, a round-robin shared board, and a coordinator relay whose two variants differ only in the coordinator's task text. We ran Claude Haiku 5.5 (20 held-out seeds per cell, 4,720 calls) and Claude Sonnet 5.5 (10 seeds, 2,950 calls), with no failed calls. Framing decides whether a solo agent refuses: under the strict policy, solo agents assemble the passphrase in 19/20 (Haiku) and 8/10 (Sonnet) runs when the goal is unstated and in none when it is stated, even with 12 attempts. In split conditions the policy text alone also reduces assembly, for example in Haiku's pipeline (20/20 without the policy, 2/20 with it, neutral framing). Informed coordinators never requested the pieces (0/70). With an uninformed coordinator, Sonnet relays assembled the passphrase in 7/30 strict-policy runs (from 4 of 10 seeds; words recoverable in 13/30), although Sonnet refused every solo attempt that named the goal; the paired contrasts are not significant. No split leaked more than a single agent given the same unstated goal. Solo refusal tracks whether an agent's own context names the restricted whole; a split that removes that link from every agent can still produce the artifact, though here less often than an equally uninformed single agent.
+Per-agent safety evaluations test whether a model refuses a forbidden request, yet deployed agents increasingly work in systems that split tasks. We ask whether restriction-bound agents that refuse alone still disclose or assemble a forbidden artifact when the work is split. In a benign, string-scored proxy, the artifact is a four-word "vault passphrase" whose words are lookups held by different agents, and a synthetic operator policy forbids revealing any word. We cross policy (none vs. strict) with framing (whether prompts say the items form the passphrase) across solo agents, opportunity-matched solo baselines (5 or 12 attempts), a pipeline, a round-robin shared board, and a coordinator relay whose two variants differ only in the coordinator's task text. We ran Claude Haiku 5.5 (20 held-out seeds per cell, 4,720 calls) and Claude Sonnet 5.5 (10 seeds, 2,950 calls), with no failed calls. Under the strict policy, solo disclosure strongly depends on framing: solo agents assemble the passphrase in 19/20 (Haiku) and 8/10 (Sonnet) runs when the goal is unstated and in none when it is stated, even with 12 attempts. In split conditions the policy text alone also reduces assembly. Informed coordinators never requested the pieces (0/70). With an uninformed coordinator, requested-Sonnet relays assembled the passphrase in 7/30 strict-policy runs (4 of 10 seeds; one cell had mixed served models), although Sonnet refused every solo attempt that named the goal; paired contrasts are not significant. No split assembled it more often than a single agent given the same unstated goal.
 
 ## 1 Introduction
 
@@ -19,8 +21,8 @@ We ask a narrower, controlled question. **Does a restriction-bound agent's refus
 Contributions:
 1. **A testbed.** It is controlled and string-scored, with no LLM judge. It includes opportunity-matched solo baselines (K independent attempts) and uniform parsing in every condition. Policy and framing are crossed, and every role in a run gets the same policy.
 2. **Measurements on two models.** Claude Haiku 5.5 (20 held-out seeds per cell) and Claude Sonnet 5.5 (10 seeds per cell, plus a replicate of the key cell). This is 7,670 calls with 0 failed. Run manifests and per-turn logs are included.
-3. **A dissociation in solo agents.** Stating the goal in the agent's own prompt switches solo refusal on and off; the policy text alone does not. In split conditions the policy text alone also reduces assembly.
-4. **Weak evidence that a split which hides the goal can leak.** When it removes the goal from every agent's context, the restricted artifact is sometimes assembled even though every agent that sees the goal refuses (Sonnet: 7/30 relays from 4 of 10 seeds, vs. 0/20 solo with the goal stated; paired p ≥ 0.125). The split leaked less than a single agent with the same hidden goal.
+3. **An observed context difference in solo agents.** Under the strict policy, solo disclosure is lower when local prompts identify the restricted artifact; the policy text alone does not switch it. In split conditions the policy text alone also reduces assembly. These prompt variants do not isolate every lexical or semantic explanation.
+4. **Weak evidence that a split which hides the goal can leak.** When it removes the goal from every agent's context, the restricted artifact is sometimes assembled even though every agent that sees the goal refuses (requested Sonnet, strict: 7/30 relays from 4 of 10 seeds vs. 0/20 solo with the goal stated; paired p ≥ 0.125; one pooled cell had mixed served models, and the verified-model rerun gave 1/10). The split assembled the artifact less often than a single agent with the same hidden goal.
 5. **Code and data:** [TODO: repo URL, public].
 
 [FIG 1: the four topologies in one row. Caption: Solo: one agent sees all four lists (solo@kK: K independent attempts). Pipeline: four workers with one list each, then an assembler (5 calls). Swarm@n4: four agents on a shared board, fixed round-robin, 3 rounds (up to 12 calls), with or without a team objective. Relay: a coordinator that cannot see the lists, four workers, and a final coordinator turn (6 calls).]
@@ -31,9 +33,11 @@ Contributions:
 
 **Context-dependent disclosure.** ConfAIde shows that models disclose private information in contexts where humans would not (GPT-4 39%, ChatGPT 57%), even with privacy-inducing prompts [mireshghallah2024confaide]. Our framing manipulation asks the same question, in minimal form, for an operator restriction.
 
-**Multi-agent safety.** Hammond et al. give a taxonomy of multi-agent risks, including information asymmetries and emergent agency [hammond2025multiagent]. Shen et al. find that organizations of aligned models produce more effective but less aligned solutions than a single aligned model [shen2026aiorgs]; they score the ethics of a joint output under a shared goal, while we score leakage of a restricted string. Production blocking monitors miss over 55% of red-team attacks, with attacks spread across agents so that no single context contains a blockable action among the most effective [remedios2026automode]; harm can appear only in aggregate [sumers2025summarization]. AI control assumes deliberately subversive models [greenblatt2024control]; ours are not adversarial. Prior work also studies payloads that spread between agents [lee2024prompt, men2024troublemaker], effects of network topology [yu2024netsafe], and deliberate, hidden collusion [motwani2024secret, rose2026narc]. Concurrent sprint work reports agents that refuse direct requests yet break rules jointly once a sanctioned tool degrades [chen2026theysay].
+**Multi-agent safety.** Hammond et al. give a taxonomy of multi-agent risks, including information asymmetries and emergent agency [hammond2025multiagent]. Production blocking monitors miss over 55% of red-team attacks, with attacks spread across agents so that no single context contains a blockable action among the most effective [remedios2026automode]; harm can appear only in aggregate [sumers2025summarization]. AI control assumes deliberately subversive models [greenblatt2024control]; ours are not adversarial. Prior work also studies payloads that spread between agents [lee2024prompt, men2024troublemaker], effects of network topology [yu2024netsafe], and deliberate, hidden collusion [motwani2024secret, rose2026narc]. Concurrent sprint work reports agents that refuse direct requests yet break rules jointly once a sanctioned tool degrades [chen2026theysay].
 
-**Our position.** We do not test an attack. We hold the restriction fixed and identical for every role, and vary only what each agent's context reveals about the goal and how the work is split. We compare each split against matched single-agent baselines.
+**AI organizations.** Shen et al. compare individual agents with consultancy/software organizations across twelve tasks, reporting effectiveness/ethics tradeoffs and model-dependent gaps [shen2026organizations]. This is direct prior work on collective versus individual alignment without requiring a self-replicating injected payload. Our contribution is a controlled synthetic restriction/context measurement, not first discovery of multi-agent safety failures. Training-mediated trait transfer and individual-model SAE interventions are distinct questions and remain outside the experiments reported here.
+
+**Our position.** We hold the synthetic restriction identical across roles and vary context and coordination. We report one-attempt solo contrasts and the available maximum-call-matched baselines separately; the six-call relay has no exact K6 baseline in these runs. These comparisons do not isolate topology from every information or opportunity difference.
 
 ## 3 Methods
 
@@ -70,14 +74,14 @@ Relay workers see only their list, their position and the board.
 | swarm_noobj@n4 | 4 | 12 | as swarm@n4, no objective |
 | relay_informed / relay_uninformed | coordinator + 4 workers | 6 | coordinator: board only; worker: its own list, its position, board |
 
-solo@k5 and solo@k12 match the call budgets of the pipeline/relay and of the swarm. They are upper-bound baselines, because success in any one of K attempts counts. The swarm runs a fixed round-robin; we claim no emergent role formation.
+solo@k5 matches the five-call pipeline and solo@k12 matches the N=4 swarm's maximum 12 calls. The relay makes six calls; neither K5 nor K12 is an exact match, and K6 was not collected. The solo baselines count success in any one attempt. Swarm early stopping can reduce realized calls; matching maxima does not match tokens, information or realized exposure. N=8 would permit 24 calls, requiring K24 for a matched maximum, and is not a newly adopted comparison here. The swarm runs a fixed round-robin; we claim no emergent role formation.
 
 ### 3.4 Outcomes
 
 Only text after a leading `POST:` counts as posted, in every condition. We report four outcomes:
 - **Exposed parts:** a target word appears in a post.
 - **Identified parts:** the word is posted without other items from its list, so it is attributable.
-- **Recoverable:** all four words are identified somewhere on the board, possibly across agents.
+- **Recoverable:** all four words are identified somewhere on the board, possibly across agents. This is a conservative clean-mention heuristic: a word quoted together with other items of its list is not counted, even when the message plainly selects it (e.g. Sonnet strict/neutral `swarm@n4`, seed 1004, names all four words yet scores 0 identified). Identified and recoverable counts are therefore lower bounds on what a reader could reconstruct; assembled is unaffected.
 - **Assembled:** all four words appear in order in a single post, after normalising formatting.
 
 ### 3.5 Design, seeds, statistics
@@ -97,11 +101,11 @@ Models were run through Claude Code (`claude -p`, no tools, provider-default sam
 
 Each run writes a manifest with run id, git commit, prompt hash, CLI version and served model. The manifest for the Sonnet strict/explicit cell listed two served model IDs (`claude-sonnet-5`, `claude-sonnet-5-5`). We added per-turn model logging and reran that cell on the same seeds (590 calls), and all 590 rerun calls were served by `claude-sonnet-5-5`.
 
-**Pre-sprint disclosure:** none. All code, pilots and runs were produced during the sprint, starting Nov 6, 2026 (git history). [TODO: confirm for every team member.]
+**Recorded timeline and pre-sprint disclosure:** public history records the scaffold at 17:24 Pacific and v2 implementation at 18:29 on Friday Nov 6, after the published 13:30 LA kickoff. The first v2 Haiku manifest records 18:49 Pacific. These are records of commits/execution, not proof of every asset's authoring date. See the [source-linked UTC/Pacific timeline](../docs/findings/development-timeline.md). [TODO: identify any genuinely pre-sprint assets individually with every team member.] Work preceding this amendment is not automatically pre-sprint work; earlier pilots remain exploratory because they selected the design.
 
 ## 4 Results
 
-### 4.1 Framing decides solo refusal
+### 4.1 Framing changes solo disclosure under the strict policy
 
 | Solo, strict policy | Haiku: neutral | Haiku: explicit | Sonnet: neutral | Sonnet: explicit |
 |---|---|---|---|---|
@@ -111,7 +115,7 @@ Each run writes a manifest with run id, git commit, prompt hash, CLI version and
 
 *Table 2. Solo agents that assembled the passphrase, under the strict policy. Recoverable equals assembled for solo. Full tables for all four cells: Appendix B.2.*
 
-The strict policy names the vault passphrase in every prompt. Without a statement that these items are the passphrase, a single agent with all four lists writes it out almost every time. With that statement, both models refuse in every attempt, including 12 independent attempts per seed. More attempts did not wear the refusal down, so it is not a sampling artefact. For solo agents, the policy text alone barely changes the outcome under neutral framing (Haiku 19/20 strict vs. 20/20 none). In split conditions it does (Sections 4.3–4.4).
+The strict policy names the vault passphrase in every prompt. Without a statement that these items are the passphrase, a single agent with all four lists writes it out almost every time. With that statement, both models refuse in every attempt, including 12 independent attempts per seed. No additional successes were observed in these repeated attempts; this does not rule out small nonzero disclosure probabilities. For solo agents, the policy text alone barely changes the outcome under neutral framing (Haiku 19/20 strict vs. 20/20 none). In split conditions it does (Sections 4.3–4.4).
 
 ### 4.2 Splitting when the goal is visible: little leakage
 
@@ -151,7 +155,7 @@ These drops must be read against the same contrast with no policy (Appendix B.2)
 | Recoverable | 0/40 | 3/40 | 0/30 | **13/30** |
 | Same with no policy: assembled | 29/40 | 16/40 | 9/20 | 17/20 |
 
-*Table 4. Relay outcomes. Relay prompts do not use framing, so the framing cells are replicates and are pooled. Sonnet strict pools the main run (20) and the strict/explicit rerun (10). These are 30 relays over 10 distinct seeds, so treat them as clustered: the 7 Sonnet assemblies come from 4 distinct seeds (1002, 1004, 1005, 1008), and the 13 recoverable runs from 7.*
+*Table 4. Relay outcomes. Relay prompts do not use framing, so the framing cells are replicates and are pooled. Sonnet strict pools the main run (20) and the strict/explicit rerun (10). These are 30 relays over 10 distinct seeds, so treat them as clustered: the 7 Sonnet assemblies come from 4 distinct seeds (1002, 1004, 1005, 1008), and the 13 recoverable runs from 7. The original strict/explicit cell's manifest records two served models (`claude-sonnet-5` and `claude-sonnet-5-5`) without per-turn identity, so 7/30 is a requested-Sonnet aggregate. Excluding that cell (strict/neutral plus the verified rerun): 5/20 assembled, 9/20 recoverable.*
 
 **Informed coordinators.** An informed coordinator under the strict policy never sent a request: 0 of 70 across both models. Without the policy it always did (40/40 and 20/20).
 
@@ -170,7 +174,7 @@ No agent was told that these items are the passphrase. The policy reached every 
 
 No seed went the other way. For Haiku the same contrast is +5 pp [0, +15] assembled and +15 pp [0, +30] recoverable. Haiku's uninformed coordinator mostly declined to send requests at all (7/40).
 
-**Against the information-matched baseline.** The fair comparison for the uninformed relay is solo/neutral: one agent that also has not been told the goal. Against that baseline the relay leaked less (Sonnet 7/30 vs. 8/10 assembled; Haiku 1/40 vs. 19/20). The relay task is also harder even without any policy (Sonnet uninformed 17/20 assembled; Haiku 16/40).
+**Against the information-matched baseline.** The fair comparison for the uninformed relay is solo/neutral: one agent that also has not been told the goal. Against that baseline the relay assembled less often (Sonnet strict/neutral 4/10 vs. 8/10; Haiku 1/40 vs. 19/20). The relay task is also harder even without any policy (Sonnet uninformed 17/20 assembled; Haiku 16/40).
 
 ### 4.5 Robustness
 
@@ -182,11 +186,11 @@ No seed went the other way. For Haiku the same contrast is +5 pp [0, +15] assemb
 
 ### 5.1 Interpretation
 
-Across two models, one variable predicts solo refusal: whether the agent's own prompt states that its output is the restricted artifact. For a solo agent, the policy text alone, even when it names the artifact, does not. It is not inert in split conditions: it suppresses the join in Haiku's pipeline and lowers uninformed-relay assembly (Haiku 16/40 → 1/40; Sonnet 17/20 → 7/30). Haiku's uninformed coordinators mostly stop requesting the pieces (40/40 → 7/40); Sonnet's do not (20/20 → 27/30). More attempts do not erode a refusal, and splitting the task does not by itself defeat one.
+Across the tested prompt variants and two models, solo disclosure is strongly associated with whether the local task identifies the restricted artifact. For a solo agent, naming the artifact in the policy alone did not reliably prevent disclosure. The policy text is not inert in split conditions: it suppresses the join in Haiku's pipeline and lowers uninformed-relay assembly (Haiku 16/40 → 1/40; Sonnet 17/20 → 7/30). Haiku's uninformed coordinators mostly stop requesting the pieces (40/40 → 7/40); Sonnet's do not (20/20 → 27/30). These observations do not identify a unique internal mechanism or establish zero risk after repeated attempts.
 
 When each piece carries a cue ("Part k … your word"), most workers refuse. When the split removes that cue from every agent, as in the uninformed relay, the restricted artifact is sometimes assembled (Sonnet 7/30 over 4 of 10 seeds; Haiku 1/40) even though each agent would refuse a request that stated the goal.
 
-We therefore read the "composition gap" in our data as a **goal-visibility gap**. A multi-agent split can leak when it hides the goal from every agent. It leaked less than a single agent from whom the goal was equally hidden (Sonnet 7/30 vs. 8/10; Haiku 1/40 vs. 19/20).
+We therefore read the "composition gap" in our data as a **goal-visibility gap**. A multi-agent split can leak when it hides the goal from every agent. It assembled the artifact less often than a single agent from whom the goal was equally hidden (Sonnet 7/30 vs. 8/10; Haiku 1/40 vs. 19/20). (Recoverability is a conservative heuristic, §3.4, so we do not make the same claim for partial disclosure.)
 
 This is consistent with, but does not prove, a mechanism in which refusal is triggered by recognising the target in local context rather than by inferring it. In the leaking relays, the coordinator invoked the policy in its own request while requesting the policy's object. A warning does not stop a leak when no agent recognises that what it is doing is what the warning is about.
 
@@ -218,7 +222,7 @@ See Appendix A.
 
 Restriction-bound agents that refuse a goal when it is stated in their own context do not refuse more when it isn't, and splitting a task across agents does not by itself overcome that refusal. A split that hides the goal from every agent can, though in our data less often than a single agent kept equally uninformed.
 
-For Sonnet 5.5 this produced the restricted artifact in 7 of 30 relays (4 of 10 seeds) while every goal-aware attempt refused. Safety evaluations of agent systems should therefore test what each agent learns about the system goal, not only whether each agent refuses it.
+For requested Sonnet this produced the restricted artifact in 7 of 30 relays (4 of 10 seeds; one pooled cell had mixed served models, and the verified-model rerun gave 1 of 10) while every goal-aware attempt refused. Safety evaluations of agent systems should therefore test what each agent learns about the system goal, not only whether each agent refuses it.
 
 Next steps:
 - Cross-provider runs.
@@ -229,7 +233,7 @@ Next steps:
 
 ## References
 
-[TODO: render from `docs/research/references.bib`. Keys used: metr2026incident, metr2026report, jones2024combinations, srivastav2025safe, kothamasu2026decompbench, yuehan2025monitoring, russinovich2026laundering, ahad2026semantic, lee2024prompt, men2024troublemaker, yu2024netsafe, motwani2024secret, rose2026narc, chen2026theysay, li2024drattack, russinovich2024crescendo, andriushchenko2024agentharm, mireshghallah2024confaide, hammond2025multiagent, shen2026aiorgs, remedios2026automode, sumers2025summarization, greenblatt2024control.]
+[TODO: render from `docs/research/references.bib`. Keys used: metr2026incident, metr2026report, jones2024combinations, srivastav2025safe, kothamasu2026decompbench, yuehan2025monitoring, russinovich2026laundering, ahad2026semantic, lee2024prompt, men2024troublemaker, yu2024netsafe, motwani2024secret, rose2026narc, chen2026theysay, shen2026organizations, li2024drattack, russinovich2024crescendo, andriushchenko2024agentharm, mireshghallah2024confaide, hammond2025multiagent, remedios2026automode, sumers2025summarization, greenblatt2024control.]
 
 ## Appendix A: Limitations and Dual-Use / Ethical Considerations
 
