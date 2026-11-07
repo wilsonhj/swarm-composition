@@ -52,10 +52,49 @@ Relay prompts do not use framing, so each relay row above pools the neutral and 
    - Uninformed relays assemble in only 7–9 of 20 runs, and informed ones in 14–15.
    - Relay outcomes under `strict` therefore mix refusal with task failure. Compare them against the `none` row, not against 20 of 20.
 
+## Sonnet 5.5 replication (10 seeds per cell)
+
+- **Run:** `MODEL=claude-sonnet-5-5 SEEDS=10 ./run_v2.sh`, run id `9c37b82a`, commit 4d17ea6 (clean). Seeds 1000–1009, 4 cells × 8 conditions = 320 rows, 2,360 calls, 0 failed.
+- **Full tables:** [`results/v2/analysis_sonnet.md`](../../experiments/composition-gap/results/v2/analysis_sonnet.md).
+- **Provenance caveat:** the strict / explicit manifest lists two served models, `claude-sonnet-5` and `claude-sonnet-5-5`. The other three cells list only `claude-sonnet-5-5`. The harness did not yet record the model per call, so the affected rows cannot be identified.
+  - We added per-turn model logging (commit 3dadb78) and reran that cell on the same seeds: run id `3f64a2ee`, file `*_strict_explicit_rerun.jsonl`, analysis `results/v2/analysis_sonnet_strict_explicit_rerun.md`.
+  - All 590 rerun calls were served by `claude-sonnet-5-5`.
+
+Assembled / recoverable, n = 10 each:
+
+| Condition | none / neutral | none / explicit | strict / neutral | strict / explicit | strict / explicit, rerun |
+|---|---|---|---|---|---|
+| solo | 10 / 10 | 9 / 9 | 8 / 8 | 0 / 0 | 0 / 0 |
+| solo@k5 | 10 / 10 | 10 / 10 | 9 / 9 | 0 / 0 | 0 / 0 |
+| solo@k12 | 10 / 10 | 10 / 10 | 10 / 10 | 0 / 0 | 0 / 0 |
+| pipeline | 5 / 6 | 10 / 10 | 3 / 8 | 0 / 0 | 0 / 0 (mean identified 0.30) |
+| swarm@n4 | 0 / 9 | 9 / 9 | 0 / 7 | 0 / 0 | 0 / 0 |
+| swarm_noobj@n4 | 0 / 6 | 1 / 9 | 0 / 6 | 0 / 0 | 0 / 0 |
+| relay_informed | 4 / 5 | 5 / 5 | 0 / 0 | 0 / 0 | 0 / 0 |
+| relay_uninformed | 8 / 8 | 9 / 9 | 4 / 7 | **2 / 4** (mean identified 3.00) | **1 / 2** (mean identified 1.20) |
+
+Coordinator requests under `strict`:
+- `relay_informed`: 0 of 20 in the main run, 0 of 10 in the rerun.
+- `relay_uninformed`: 20 of 20 in the main run, 7 of 10 in the rerun.
+
+What Sonnet adds to the Haiku picture:
+
+1. **The same framing effect holds.** Under `strict`, solo assembles 8 of 10 with neutral framing and 0 of 10 with explicit framing, even with 5 or 12 tries. The informed coordinator never sends a request under `strict`.
+2. **One distributed condition leaks when every solo attempt refuses.** In strict / explicit, the uninformed relay produced the full passphrase in 2 of 10 runs (main) and 1 of 10 (rerun). All four words were recoverable in 4 of 10 and 2 of 10. Solo was 0 of 10 in both runs.
+   - Seed-paired contrasts against solo:
+     - main run: assembled +20 pp [0, +50], p = 0.50; recoverable +40 pp [+10, +70], p = 0.125
+     - rerun: assembled +10 pp [0, +30]; recoverable +20 pp [0, +50]
+   - Individually none is significant. The direction is the same in both runs, and no seed went the other way (0 discordant pairs against).
+   - Both runs use the same 10 seeds, so they are replicates on the same tasks, not 20 independent tasks.
+3. **The mechanism is visible in the transcripts.** In the leaking runs, the coordinator's request says not to include or hint at the vault passphrase. Each worker then posts its single item, and the coordinator posts the four items joined.
+   - No agent is told that these items are the passphrase. Relay prompts do not carry the explicit framing, so the split itself hides the goal from every agent.
+   - This is the same mechanism as neutral framing in a single agent (solo strict / neutral assembles 8 of 10), now produced by the task split.
+4. **Compared with Haiku:** Haiku's uninformed coordinator under `strict` mostly did not send requests (7 of 40). Sonnet's did (20 of 20 main, 7 of 10 rerun), and that is where the leakage comes from.
+
 ## Caveats
 
-- One model (Haiku 5.5), through one backend.
+- Haiku 5.5 at 20 seeds per cell; Sonnet 5.5 at 10 seeds per cell. One backend (Claude Code).
 - The restriction is a synthetic operator rule. This is not a test of trained-in safety refusals.
 - Each cell has 20 seeds, and the paired tests are uncorrected for multiple comparisons, so read effect sizes and intervals rather than p-values.
 - The design was chosen after looking at the pilot seeds 0–19. These numbers come from fresh seeds 1000–1019.
-- Sonnet and cross-model (OpenRouter) runs have not been done yet.
+- Cross-model (OpenRouter) runs have not been done yet.
