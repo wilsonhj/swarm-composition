@@ -102,6 +102,29 @@ Not fetchable: the OpenAI post (HTTP 403). See "Unverified".
 - **Omission Attacks: When Doing Nothing Is the Attack.** Jurgis Kemeklis, Nikhil Vemuri (Team MAIA). Apart sprint project, 23 Mar 2026. https://apartresearch.com/sprints/projects/omission-attacks-when-doing-nothing-is-the-attack-0y1v `[kemeklis2026omission]`
   Argues that per-action monitoring can miss attacks that appear only as omitted obligations, and proposes postcondition monitoring of the final system state. That is a system-level rather than action-level check, which parallels our agent-level versus system-level distinction. Apart notes sprint projects are early-stage work, not Apart publications.
 
+## 7. Added in the alignment review (2026-11-06)
+
+Each entry below was fetched on 2026-11-06 (arXiv API metadata and abstract, or the post page) and checked against it.
+
+- **Multi-Agent Risks from Advanced AI.** Lewis Hammond, Alan Chan, Jesse Clifton, et al. arXiv:2502.14143, 2025 (Cooperative AI Foundation Technical Report #1). https://arxiv.org/abs/2502.14143 `[hammond2025multiagent]`
+  A taxonomy of multi-agent risks: three failure modes (miscoordination, conflict, collusion) and seven risk factors, including information asymmetries and emergent agency. The standard framing reference for the event.
+- **AI Organizations are More Effective but Less Aligned than Individual Agents.** Judy Hanwen Shen, Daniel Zhu, Siddarth Srinivasan, et al. arXiv:2604.10290, 2026; companion post on the Anthropic Alignment Science Blog. https://arxiv.org/abs/2604.10290 `[shen2026aiorgs]`
+  Across 12 tasks in two settings, organizations of aligned models produce solutions with higher utility but greater misalignment than a single aligned model. The closest system-level result to ours; it scores the joint output's ethics under a shared goal, whereas we score leakage of a restricted string.
+- **Red-Teaming Auto Mode: Improving Blocking Classifiers Against Malign Coding Agents.** Alex Remedios, Simon Storf, Fabien Roger, John Hughes. Anthropic Alignment Science Blog, 22 Oct 2026. https://alignment.anthropic.com/2026/red-teaming-auto-mode/ `[remedios2026automode]`
+  Production blocking monitors fail to block over 55% of red-team attacks; among the most effective strategies are multi-agent and compaction attacks that spread a side task so that no single context contains a blockable action. The monitor-side counterpart to our agent-side question.
+- **Monitoring computer use via hierarchical summarization.** Theodore Sumers et al. (Anthropic Safeguards Research Team). Anthropic Alignment Science Blog, 27 Feb 2025. https://alignment.anthropic.com/2025/summarization-for-monitoring/index.html `[sumers2025summarization]`
+  Notes that behaviour benign in individual interactions may create harm in aggregate, and monitors via summaries of summaries. Supports a board-level monitor as a candidate control.
+- **AI Control: Improving Safety Despite Intentional Subversion.** Ryan Greenblatt, Buck Shlegeris, Kshitij Sachan, Fabien Roger. arXiv:2312.06942, 2023. https://arxiv.org/abs/2312.06942 `[greenblatt2024control]`
+  Evaluates safety protocols against models that deliberately try to subvert them. Cited as a contrast: our agents are not adversarial.
+- **Can LLMs Keep a Secret? Testing Privacy Implications of Language Models via Contextual Integrity Theory.** Niloofar Mireshghallah, Hyunwoo Kim, Xuhui Zhou, et al. arXiv:2310.17884, 2023 (ICLR 2024 Spotlight). https://arxiv.org/abs/2310.17884 `[mireshghallah2024confaide]`
+  ConfAIde: GPT-4 and ChatGPT revealed private information in contexts where humans would not 39% and 57% of the time, even with privacy-inducing prompts. Prior evidence that disclosure depends on context; our framing manipulation is a minimal version for an operator restriction.
+- **DrAttack: Prompt Decomposition and Reconstruction Makes Powerful LLM Jailbreakers.** Xirui Li, Ruochen Wang, Minhao Cheng, et al. arXiv:2402.16914, 2024. https://arxiv.org/abs/2402.16914 `[li2024drattack]`
+  Decomposing a malicious prompt into sub-prompts obscures its intent; reports 78.0% success on GPT-4 with 15 queries. Single-model, attacker-designed decomposition.
+- **Great, Now Write an Article About That: The Crescendo Multi-Turn LLM Jailbreak Attack.** Mark Russinovich, Ahmed Salem, Ronen Eldan. arXiv:2404.01833, 2024 (USENIX Security 2025). https://arxiv.org/abs/2404.01833 `[russinovich2024crescendo]`
+  A multi-turn jailbreak that starts benign and escalates by referencing the model's own replies. Shows refusal depends on accumulated context. Same first author as `[russinovich2026laundering]`; do not conflate.
+- **AgentHarm: A Benchmark for Measuring Harmfulness of LLM Agents.** Maksym Andriushchenko, Alexandra Souly, Mateusz Dziemian, et al. arXiv:2410.09024, 2024 (ICLR 2025). https://arxiv.org/abs/2410.09024 `[andriushchenko2024agentharm]`
+  110 explicitly malicious agent tasks (440 with augmentations) in 11 harm categories; leading LLMs are surprisingly compliant without jailbreaking. The standard single-agent harm benchmark; it does not vary what each agent knows about the goal.
+
 ## Unverified
 
 - **https://openai.com/hugging-face-incident-and-misalignment/**: the fetch returned HTTP 403, so the page content could not be read. Nothing in this directory is cited to it. METR's report refers to publishing "simultaneously with OpenAI's post-mortem", which suggests the page exists, but its title, date and claims are unconfirmed. Excluded from `references.bib`.
@@ -111,5 +134,5 @@ Not fetchable: the OpenAI post (HTTP 403). See "Unverified".
 
 ## Counts
 
-- Verified sources: 38 entries in `references.bib` (30 of the 31 original candidates plus 8 added, 2 of them after the external review; the METR PDF and blog post are counted separately).
+- Verified sources: 47 entries in `references.bib` (30 of the 31 original candidates plus 8 added, 2 of them after the external review, plus 9 added in the alignment review; the METR PDF and blog post are counted separately).
 - Candidate sources not verified: 1 (the OpenAI page).
