@@ -397,14 +397,19 @@
   note = {Version 2 abstract verified; individual-model SAE/model-diffing evidence, not a network propagation experiment}
 }
 
-@misc{wu2025axbench,
+@inproceedings{wu2025axbench,
   title = {{AxBench}: Steering {LLMs}? Even Simple Baselines Outperform Sparse Autoencoders},
   author = {Wu, Zhengxuan and Arora, Aryaman and Geiger, Atticus and Wang, Zheng and Huang, Jing and Jurafsky, Dan and Manning, Christopher D. and Potts, Christopher},
   year = {2025},
   eprint = {2501.17148},
   archivePrefix = {arXiv},
-  url = {https://arxiv.org/abs/2501.17148v3},
-  note = {Version 3 abstract verified; results scoped to its Gemma-2 steering and concept-detection benchmark}
+  booktitle = {Proceedings of the 42nd International Conference on Machine Learning},
+  series = {Proceedings of Machine Learning Research},
+  volume = {267},
+  pages = {67035--67080},
+  publisher = {PMLR},
+  url = {https://proceedings.mlr.press/v267/wu25a.html},
+  note = {ICML 2025 proceedings and abstract freshly checked 7 November 2026; earlier arXiv version 3 check retained in history. Findings are scoped to the Gemma-2 benchmark}
 }
 
 @misc{nief2026lora,
@@ -469,14 +474,15 @@
   note = {arXiv comments link an ICML version on OpenReview}
 }
 
-@misc{mireshghallah2024confaide,
+@inproceedings{mireshghallah2024confaide,
   author = {Mireshghallah, Niloofar and Kim, Hyunwoo and Zhou, Xuhui and Tsvetkov, Yulia and Sap, Maarten and Shokri, Reza and Choi, Yejin},
   title = {Can {LLMs} Keep a Secret? Testing Privacy Implications of Language Models via Contextual Integrity Theory},
-  year = {2023},
+  year = {2024},
+  booktitle = {International Conference on Learning Representations},
   eprint = {2310.17884},
   archivePrefix = {arXiv},
-  url = {https://arxiv.org/abs/2310.17884},
-  note = {ICLR 2024 Spotlight (arXiv comments)}
+  url = {https://proceedings.iclr.cc/paper_files/paper/2024/hash/08305d8b2ddab98932c163ea73df065f-Abstract-Conference.html},
+  note = {Primary ICLR 2024 proceedings and abstract checked 7 November 2026; OpenReview gmg7t8b4s0 records spotlight. Preprint first posted 2023}
 }
 
 @misc{li2024drattack,
@@ -551,4 +557,75 @@
   year = {2026},
   url = {https://aialignmentfoundation.org/hackathons/swarm-alignment-2026},
   note = {Schedule checked 7 November 2026: LA video due 8 November at 10:00 Pacific; selected live presentations noon--15:00 Pacific; global report due 23:59 AoE}
+}
+% Additional primary methodological records checked 7 November 2026.
+@article{wilson1927probable,
+  author = {Wilson, Edwin B.},
+  title = {Probable Inference, the Law of Succession, and Statistical Inference},
+  journal = {Journal of the American Statistical Association},
+  year = {1927},
+  volume = {22},
+  number = {158},
+  pages = {209--212},
+  doi = {10.1080/01621459.1927.10502953},
+  url = {https://www.jstor.org/stable/2276774},
+  note = {Original journal record checked 7 November 2026; source for score-interval inference, not a validation of the repository implementation}
+}
+
+@article{mcnemar1947sampling,
+  author = {McNemar, Quinn},
+  title = {Note on the Sampling Error of the Difference Between Correlated Proportions or Percentages},
+  journal = {Psychometrika},
+  year = {1947},
+  volume = {12},
+  pages = {153--157},
+  doi = {10.1007/BF02295996},
+  url = {https://doi.org/10.1007/BF02295996},
+  note = {Cambridge publisher record checked 7 November 2026; exact conditional variant is documented separately by Fagerland et al.}
+}
+
+@article{fagerland2013mcnemar,
+  author = {Fagerland, Morten W. and Lydersen, Stian and Laake, Petter},
+  title = {The {McNemar} test for binary matched-pairs data: mid-p and asymptotic are better than exact conditional},
+  journal = {BMC Medical Research Methodology},
+  year = {2013},
+  volume = {13},
+  pages = {91},
+  doi = {10.1186/1471-2288-13-91},
+  url = {https://link.springer.com/article/10.1186/1471-2288-13-91},
+  note = {Primary full text checked 7 November 2026, especially exact conditional test and conservatism; does not establish independence of this project's task seeds}
+}
+
+@article{efron1979bootstrap,
+  author = {Efron, Bradley},
+  title = {Bootstrap Methods: Another Look at the Jackknife},
+  journal = {The Annals of Statistics},
+  year = {1979},
+  volume = {7},
+  number = {1},
+  pages = {1--26},
+  doi = {10.1214/aos/1176344552},
+  url = {https://doi.org/10.1214/aos/1176344552},
+  note = {Publisher-deposited Crossref metadata and abstract checked 7 November 2026. Foundational bootstrap source; the repository's task-cluster choice is an implementation/design decision}
+}
+
+@article{clopper1934confidence,
+  author = {Clopper, C. J. and Pearson, E. S.},
+  title = {The Use of Confidence or Fiducial Limits Illustrated in the Case of the Binomial},
+  journal = {Biometrika},
+  year = {1934},
+  volume = {26},
+  number = {4},
+  pages = {404--413},
+  doi = {10.1093/biomet/26.4.404},
+  url = {https://academic.oup.com/biomet/article-abstract/26/4/404/291538},
+  note = {Indexed primary Oxford record checked 7 November 2026; full text not retrieved. The zero-event bound is conditional on an iid Bernoulli model}
+}
+
+@misc{realm2025reviewpolicy,
+  author = {{REALM 2025 organizers}},
+  title = {Call for Papers: REALM 2025},
+  year = {2025},
+  url = {https://realm-workshop.github.io/2025-acl/call_for_papers/},
+  note = {Primary policy checked 7 November 2026: double-blind peer review; only accepted archival papers enter proceedings. Policy source, not an empirical research paper}
 }

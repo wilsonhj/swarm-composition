@@ -84,6 +84,19 @@ jobs:
           python report/tools/check_claims.py --quiet
           python -m unittest discover -s report/tests -v
 
+      - name: Verify documentation, diagram exports and rendered citations
+        run: |
+          python docs/guide/tools/check_docs.py
+          python -m unittest discover -s docs/guide/tests -v
+          python report/tools/render_refs.py report/draft.md --bib docs/research/references.bib --out report/references.md --check
+
+      - name: Verify current plotted data against frozen cells
+        env:
+          MPLCONFIGDIR: ${{ runner.temp }}/swarm-matplotlib
+        run: |
+          uv run --no-project --with matplotlib==3.10.8 python report/figures/make_figures.py --out-dir "$RUNNER_TEMP/report-figures"
+          cmp report/figures/figure-data.json "$RUNNER_TEMP/report-figures/figure-data.json"
+
       - name: Mock smoke run (v1, v2 and task provenance)
         working-directory: experiments/composition-gap
         run: |
