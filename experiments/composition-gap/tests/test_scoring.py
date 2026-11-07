@@ -299,6 +299,20 @@ def test_paired_contrast_all_gain():
     assert p["assembled"][0] == 1.0 and p["assembled_disc"] == (5, 0, pytest.approx(2 / 32))
 
 
+def test_full_paired_table_contains_all_four_outcomes():
+    rows = []
+    for seed, (baseline, treatment) in enumerate([(True, True), (False, True), (True, False), (False, False)]):
+        secret = make_task(seed)[2]
+        rows.extend([_e("solo", seed, ["POST: " + secret] if baseline else ["PASS"]),
+                     _e("pipeline", seed, ["POST: " + secret] if treatment else ["PASS"])])
+    (p,) = analyze.paired_contrasts(rows)
+    assert p["assembled_table"] == p["recoverable_table"] == (1, 1, 1, 1)
+    assert sum(p["assembled_table"]) == p["n_pairs"] == 4
+    assert p["assembled"][0] == 0 and p["assembled_disc"] == (1, 1, 1.0)
+    report = analyze.render(rows, ["cond"], "solo", False)
+    assert "paired counts (both/b/c/neither)" in report and "1/1/1/1" in report
+
+
 def test_superseded_skipped(tmp_path, capsys):
     d = tmp_path / "superseded"; d.mkdir()
     f = d / "x.jsonl"; f.write_text('{"cond":"solo","seed":0}\n')

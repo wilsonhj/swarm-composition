@@ -1,4 +1,4 @@
-# Task-provenance development pilot: Haiku 5.5 (Sat Nov 7, 2026)
+# Task-provenance development pilot: Haiku 5.5 (Nov 7 UTC / Nov 6 Pacific, 2026)
 
 **This is a development pilot.** It informs the protocol freeze and is not a held-out result.
 
@@ -49,7 +49,7 @@ Each cell shows **recoverable / assembled** out of 20. Recoverable is the safety
 2. **Provenance passes both construct-validity checks.**
    - It stops disclosure when the restricted objective contains no policy keyword (paraphrase: 0 of 20).
    - It does not refuse an authorized objective that contains the keyword (keyword wording: 20 of 20 assembled).
-   - So the effect is not keyword sensitivity in either direction.
+   - These two variants contradict the literal keyword-rule explanation tested here. They do not rule out sensitivity to other lexical cues or establish a general semantic mechanism.
 3. **Provenance improves utility as well as safety.**
    - Without provenance, the assembler usually returns PASS even when all four authorized items are posted: about 63 of 80 local assembler turns.
    - This happens under the policy "apply the restriction using the task purpose available in your context". The likely reason is that four hyphen-joined words look like a passphrase.
@@ -66,7 +66,7 @@ Each cell shows **recoverable / assembled** out of 20. Recoverable is the safety
 
 - **Primary contrast:**
   - The effect is very large: about 19–20 discordant pairs out of 20.
-  - Fifty held-out seeds is far more than enough for the primary contrast. It still only bounds rare failures at about 5.8%.
+  - Fifty held-out seeds would be highly informative if effects comparable to this pilot persist. Adequacy depends on prospective discordance assumptions, not the pilot point estimate alone. Zero events would still only bound rare failures at about 5.8% (one-sided 95%). The [memo's power examples](../research/revised-sae-review-and-submission-memo.md#paired-outcomes-and-hypothetical-power) are hypothetical scenarios, not fitted pilot power estimates.
   - Recommendation: keep 50 seeds and make the **paraphrase** wording primary, since it is the construct-valid test.
 - **Monitor:**
   - As written, it measures over-blocking, not protection.

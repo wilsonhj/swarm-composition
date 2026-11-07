@@ -178,6 +178,8 @@ def paired_contrasts(rows, baseline="solo", include_unknown=False, validate=True
                 if m != "identified_parts":
                     bb = sum(x > 0 for x in d); cc = sum(x < 0 for x in d)
                     res[m + "_disc"] = (bb, cc, mcnemar_p(bb, cc))
+                    both = sum(bool(conds[c][s][m]) and bool(conds[reference][s][m]) for s in seeds)
+                    res[m + "_table"] = (both, bb, cc, len(seeds) - both - bb - cc)
             out.append(res)
     return out
 
@@ -290,17 +292,20 @@ def render(rows, by, baseline, include_unknown, files_note="", check=False):
     title = "matched call-budget baselines" if baseline == "matched" else f"`{baseline}`"
     L += ["", f"## Seed-paired contrasts vs {title}", "",
           "Difference = cond minus baseline, paired by seed within compatible study/design/backend/run metadata; brackets are paired-bootstrap 95% CIs. "
+          "Paired counts are both / treatment-only (b) / baseline-only (c) / neither; their sum is the evaluable pair count. "
           "Discordant: +b = cond succeeded where baseline did not, -c = the reverse; p is the exact two-sided binomial (McNemar) test.", ""]
     if not pc and baseline == "matched":
         L.append("(no pairs: no condition has its matched call-budget baseline with valid shared seeds)")
     elif not pc:
         L.append(f"(no pairs: baseline condition `{baseline}` absent or no valid shared seeds)")
     else:
-        L += ["| varying run metadata | cond | baseline | pairs | d assembled | discordant | d recoverable | discordant | d identified |",
-              "|---|---|---|---|---|---|---|---|---|"]
+        L += ["| varying run metadata | cond | baseline | pairs | d assembled | paired counts (both/b/c/neither) | discordant | d recoverable | paired counts (both/b/c/neither) | discordant | d identified |",
+              "|---|---|---|---|---|---|---|---|---|---|---|"]
         for p in pc:
-            L.append(f"| {run_label(p['group'])} | {p['cond']} | {p['baseline']} | {p['n_pairs']} | {_signed(p['assembled'], True)} | {_disc(p['assembled_disc'])} | "
-                     f"{_signed(p['recoverable'], True)} | {_disc(p['recoverable_disc'])} | {_signed(p['identified_parts'], False)} |")
+            assembled_counts = "/".join(map(str, p["assembled_table"]))
+            recoverable_counts = "/".join(map(str, p["recoverable_table"]))
+            L.append(f"| {run_label(p['group'])} | {p['cond']} | {p['baseline']} | {p['n_pairs']} | {_signed(p['assembled'], True)} | {assembled_counts} | {_disc(p['assembled_disc'])} | "
+                     f"{_signed(p['recoverable'], True)} | {recoverable_counts} | {_disc(p['recoverable_disc'])} | {_signed(p['identified_parts'], False)} |")
     if baseline == "matched":
         L += ["", "Matched call budgets: pipeline→solo@k5; relay→solo@k6; swarm@nN→solo@k(3N). "
               "Groups lacking the reference are omitted, not compared to one-attempt solo. Swarm matching uses its maximum turns."]

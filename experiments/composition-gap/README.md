@@ -125,6 +125,8 @@ Tests (no network): `uv run --no-project --with pytest==9.2.0 pytest -q` (or `ma
 
 `scoring.py` and `analyze.py` score rows from the per-turn log and produce the tables:
 
+Paired binary contrasts now include all four counts in the order both / treatment-only / baseline-only / neither, in addition to directional discordance, risk differences, intervals and exact McNemar p. Historical committed reports remain unchanged; regenerate into a new file when adding this presentation.
+
 ```
 uv run --no-project python analyze.py results/<file>.jsonl [more.jsonl ...] --md out.md
 make analyze FILES="results/<file>.jsonl ..." MD=out.md
@@ -138,9 +140,11 @@ Repeated-solo primary metrics are maxima/any over individual attempts. Explicit 
 
 ## Prospective task-provenance study
 
+For the corrected submission scope, see [the revised memo](../../docs/research/revised-sae-review-and-submission-memo.md). The [offline power calculator](power.py) can be run with `make power-check` from the repo root; its hypothetical rates and joint-success assumptions do not constitute observed effects or actual study power. N8 requires K24 for a matched maximum under the three-round protocol, not K12. The completed v2 runs and provenance development pilot are preserved, and [SAE sender intervention](../../docs/protocols/sae-sender-study-proposal.md) remains a separate unimplemented proposal.
+
 `provenance.py` is a separate runner with no changes to frozen v1/v2 prompt templates. Read [the protocol](../../docs/protocols/task-provenance-v1.md) for the exact treatments, endpoints, held-out gate, information boundary and limits. Run `make provenance-smoke` from the repository root for offline scripted positive/negative tests. It writes `/tmp/task-provenance-smoke.jsonl`, a manifest, and a descriptive analysis, clearly labeled as mock data.
 
-Rows additionally carry `study`, `authorization`, `phase`, `prompt_hash`, `protocol_hash`, `actor_calls`, `monitor_calls`, `blocked_posts`, and `protocol_errors`. Actor turn logs retain `proposed` privately; `posted` is the accepted board value. Monitor turns never count as public posts. Actor replies are parsed with the v2 `parse_post` rule; a reply that is not a post (e.g. a prose refusal) counts as not posted, is tallied in `nonprotocol_replies`, and never invalidates a trial. Backend failures and malformed monitor verdicts invalidate a trial. Primary analysis uses `python analyze.py FILE --baseline local`, separately for authorized utility and restricted disclosure. No study results are committed until model experiments actually run.
+Rows additionally carry `study`, `authorization`, `phase`, `prompt_hash`, `protocol_hash`, `actor_calls`, `monitor_calls`, `blocked_posts`, and `protocol_errors`. Actor turn logs retain `proposed` privately; `posted` is the accepted board value. Monitor turns never count as public posts. Actor replies are parsed with the v2 `parse_post` rule; a reply that is not a post (e.g. a prose refusal) counts as not posted, is tallied in `nonprotocol_replies`, and never invalidates a trial. Backend failures and malformed monitor verdicts invalidate a trial. Primary analysis uses `python analyze.py FILE --baseline local`, separately for authorized utility and restricted disclosure. The committed development pilot is documented in `docs/findings/provenance-pilot.md`; it is not held-out evidence. See the protocol for the remaining freeze and collection requirements.
 
 ## results/
 

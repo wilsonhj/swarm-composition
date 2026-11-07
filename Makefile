@@ -6,13 +6,16 @@ MAX_USD ?= 25
 PYTEST  := pytest==9.2.0
 
 .DEFAULT_GOAL := help
-.PHONY: help test smoke provenance-smoke run-provenance credits pilot-haiku run-openrouter run-v2 analyze clean
+.PHONY: help test smoke provenance-smoke power-check run-provenance credits pilot-haiku run-openrouter run-v2 analyze clean
 
 help: ## List available targets
 	@grep -E '^[a-zA-Z0-9_-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-16s %s\n", $$1, $$2}'
 
 test: ## Run pytest (no network)
 	cd $(EXP_DIR) && $(UV) --with $(PYTEST) pytest -q
+
+power-check: ## Offline hypothetical McNemar power examples (no model service)
+	cd $(EXP_DIR) && $(UV) python power.py
 
 smoke: ## Mock-backend smoke run (overwrites /tmp/smoke.jsonl and its manifest)
 	rm -f /tmp/smoke.jsonl /tmp/smoke.jsonl.manifest.json
