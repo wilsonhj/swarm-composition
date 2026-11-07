@@ -163,22 +163,27 @@ class ClaudeCode(Backend):
     def __call__(self, system, user):
         cmd = ["claude", "-p", user, "--safe-mode", "--model", self.model, "--system-prompt", system,
                "--tools", "", "--strict-mcp-config", "--no-session-persistence", "--output-format", "json"]
-        reason = "unknown"
+        reason, turn_models = "unknown", set()
         for a in range(3):
             try:
                 p = subprocess.run(cmd, capture_output=True, text=True, cwd=self.cwd, env=self.env, timeout=180)
                 d = json.loads(p.stdout)
+                ok = p.returncode == 0 and not d.get("is_error")
+                # Account every received response once (cost, served models) before classifying it,
+                # so failed attempts that are retried still appear in the totals and the turn's model list.
+                served = (d.get("modelUsage") or {}).keys()
+                with self.lock:
+                    c = d.get("total_cost_usd")
+                    if c is not None: self.cost += c
+                    elif ok: self.missing_cost += 1
+                    self.calls += 1
+                    self.models.update(served)
+                turn_models.update(served)
+                self.tl.model = sorted(turn_models) or None
                 if p.returncode != 0: reason = f"exit_{p.returncode}"  # process failed, whatever the JSON says
                 elif d.get("is_error"): reason = "is_error"
                 else:
                     text = d["result"].strip()
-                    with self.lock:
-                        c = d.get("total_cost_usd")
-                        if c is None: self.missing_cost += 1
-                        else: self.cost += c
-                        self.calls += 1
-                        self.models.update((d.get("modelUsage") or {}).keys())
-                    self.tl.model = sorted((d.get("modelUsage") or {}).keys()) or None
                     # An empty reply is a generation failure, not an observed refusal (PASS); don't resample it.
                     if not text: return self._fail("empty")
                     return text

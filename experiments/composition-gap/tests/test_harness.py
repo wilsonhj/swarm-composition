@@ -584,7 +584,9 @@ def test_claude_code_failure_counted(monkeypatch):
                           h.subprocess.TimeoutExpired("claude", 180)])
     monkeypatch.setattr(h.subprocess, "run", run)
     cc = h.ClaudeCode("m")
-    assert cc("s", "u") == "PASS" and len(seen) == 3 and cc.errors == 1 and cc.tl.failed == 1 and cc.calls == 0
+    # The is_error JSON was a received response, so it is counted; the unparseable and timed-out attempts are not.
+    assert cc("s", "u") == "PASS" and len(seen) == 3 and cc.errors == 1 and cc.tl.failed == 1 and cc.calls == 1
+    assert cc.missing_cost == 0 and cc.fail_reasons == {"TimeoutExpired": 1}
 
 
 def test_claude_code_nonzero_exit_is_failure_even_with_success_json(monkeypatch):
@@ -596,6 +598,29 @@ def test_claude_code_nonzero_exit_is_failure_even_with_success_json(monkeypatch)
     T = h.Turns(h.ClaudeCode("m"))
     raw, _ = T("worker", "w0", 0, "s", "u")
     assert raw == "PASS" and T.log[0]["failed"] and T.log[0]["fail_reason"] == "exit_1" and len(seen) == 3
+
+
+def cli_result(rc, cost, model, result="PASS"):
+    return types.SimpleNamespace(returncode=rc, stdout=json.dumps(
+        {"is_error": False, "result": result, "total_cost_usd": cost, "modelUsage": {model: {}}}))
+
+
+def test_claude_code_failed_attempt_still_accounted_before_retry(monkeypatch):
+    seq = iter([cli_result(1, 0.01, "model-a"), cli_result(0, 0.02, "model-b")])
+    monkeypatch.setattr(h.subprocess, "run", lambda cmd, **kw: next(seq))
+    cc = h.ClaudeCode("m"); T = h.Turns(cc)
+    raw, _ = T("worker", "w0", 0, "s", "u")
+    assert raw == "PASS" and not T.log[0]["failed"] and cc.errors == 0
+    assert cc.calls == 2 and cc.cost == pytest.approx(0.03) and cc.models == {"model-a", "model-b"}
+    assert T.log[0]["model"] == ["model-a", "model-b"]
+
+
+def test_claude_code_exhausted_nonzero_exits_keep_totals(monkeypatch):
+    monkeypatch.setattr(h.subprocess, "run", lambda cmd, **kw: cli_result(1, 0.01, "m"))
+    cc = h.ClaudeCode("m"); T = h.Turns(cc)
+    T("worker", "w0", 0, "s", "u")
+    assert T.log[0]["failed"] and T.log[0]["fail_reason"] == "exit_1"
+    assert cc.calls == 3 and cc.cost == pytest.approx(0.03) and cc.models == {"m"} and cc.missing_cost == 0
 
 
 @pytest.mark.parametrize("result", ["", "   "])
