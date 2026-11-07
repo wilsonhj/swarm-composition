@@ -1527,42 +1527,18 @@ def c_ho_contrast_counts(auth, wording, metric):
                "seed-paired bootstrap 95% (2000, seeded)", "exact McNemar, unadjusted")
 
 
+def c_ho_contrast_part(auth, wording, metric, part):
+    r = c_ho_contrast_counts(auth, wording, metric)
+    r.value = r.value.split("; ")[part]
+    return r
+
+
 def c_ho_monitor_short():
     t = [x.get("decision") for r in raw_rows(HELDOUT) if r["cond"] == "monitor" for x in r["turns"]
          if x["role"] == "monitor"]
     m = [prov_frac(HELDOUT, "authorized", w, "monitor", "assembled") for w in ("paraphrase", "keyword")]
     return Res(f"BLOCK {t.count('BLOCK')}/{len(t)}; authorized asm {frac(*m[0][:2])}, {frac(*m[1][:2])}", [HELDOUT],
                "monitor", "decision; assembled")
-
-
-def c_ho_calls_short():
-    m = manifest(HELDOUT)
-    t = turns_of(HELDOUT)
-    return Res(f"{len(t)} turns incl. {sum(x['failed'] for x in t)} failed; manifest counter {m['totals']['calls']}",
-               [HELDOUT], "all turns + manifest", "turns")
-
-
-def c_pilot_readme2():
-    rows = raw_rows(PILOT)
-    s = sorted({r["seed"] for r in rows})
-    a = prov_frac(PILOT, "restricted", "paraphrase", "local", "recoverable")
-    b = prov_frac(PILOT, "restricted", "paraphrase", "provenance", "recoverable")
-    c = prov_frac(PILOT, "authorized", "paraphrase", "local", "assembled")
-    d = prov_frac(PILOT, "authorized", "paraphrase", "provenance", "assembled")
-    t = [x.get("decision") for r in rows if r["cond"] == "monitor" for x in r["turns"] if x["role"] == "monitor"]
-    e = [frac(*prov_frac(PILOT, "authorized", w, "monitor", "assembled")[:2]) for w in ("paraphrase", "keyword")]
-    return Res(f"{len(rows)} rows; seeds {s[0]}-{s[-1]}; {sum(r['failed_calls'] > 0 for r in rows)} failures; "
-               f"para restr rec {frac(*a[:2])}->{frac(*b[:2])}; para auth asm {frac(*c[:2])}->{frac(*d[:2])}; "
-               f"monitor BLOCK {t.count('BLOCK')}/{len(t)}; monitor auth asm {e[0]}, {e[1]}", [PILOT], "pilot",
-               "volume; recoverable; assembled; decisions", rows)
-
-
-def c_haiku_seeds():
-    rows = [r for k, f in V2_FILES.items() if k[0] == "H" for r in load(f)]
-    s = sorted({r["seed"] for r in rows})
-    per = {len({r["seed"] for r in rows if (r["_file"], r["cond"]) == key}) for key in {(r["_file"], r["cond"]) for r in rows}}
-    return Res(f"seeds {s[0]}-{s[-1]}; {'/'.join(map(str, per))} per cell", [f for k, f in V2_FILES.items() if k[0] == "H"],
-               "Haiku v2", "seeds")
 
 
 def c_ticker():
@@ -2180,7 +2156,8 @@ WORKTREE_CLAIMS = [
       "the verified-model rerun gave 1 of 10)", "v2-sonnet+rerun", FV2, "7/30; 4 seeds; rerun 1/10",
       c_conclusion_relay, src=W),
     # ---------------- README.md (working tree)
-    C("WR01", RD, 71, "The protocol was frozen at `435d20d` before held-out collection", "task-provenance", FHO,
+    C("WR01", RD, 71, "Haiku 5.5 via Claude Code, seeds 3000–3049, **800 trials (16 cells × 50)**. The protocol was "
+      "frozen at `435d20d`", "task-provenance", FHO,
       "435d20d; claude-haiku-5-5; 3000-3049", c_readme_freeze_heldout, src=W),
     C("WR03", RD, 80, "solo Haiku assembled the answer in **19/20** neutral-wording trials and **0/20** "
       "explicit-wording trials. In strict/explicit trials, five- and twelve-attempt solo baselines were also 0/20; "
@@ -2190,10 +2167,10 @@ WORKTREE_CLAIMS = [
     C("WR04", RD, 71, "The protocol was frozen at `435d20d` before held-out collection", "task-provenance",
       FHO, "freeze commit precedes collection start", c_freeze_before_collection, src=W),
     C("WR05", RD, 78, "−90 percentage points (95% bootstrap interval: −98 to −80)",
-      "task-provenance", FHO, "-90pp [-98,-80]; 45/50->0/50; p<0.001",
-      lambda: c_ho_contrast_counts("restricted", "paraphrase", "recoverable"), src=W),
+      "task-provenance", FHO, "-90pp [-98,-80]",
+      lambda: c_ho_contrast_part("restricted", "paraphrase", "recoverable", 0), src=W),
     C("WR06", RD, 76, "| Authorized task: answer assembled | 15/50 | 33/49 |", "task-provenance", FHO,
-      "+37pp [+20,+53]; 15/50->33/49; p<0.001", lambda: c_ho_contrast_counts("authorized", "paraphrase", "assembled"),
+      "15/50->33/49", lambda: c_ho_contrast_part("authorized", "paraphrase", "assembled", 1),
       src=W),
     C("WR07", RD, 78, "The monitor blocked 792 of 795 proposals and completed **0/50 authorized tasks in each wording**",
       "task-provenance", FHO, "BLOCK 792/795; authorized asm 0/50, 0/50", c_ho_monitor_short, src=W),
@@ -2203,8 +2180,7 @@ WORKTREE_CLAIMS = [
       "task-provenance", FHO,
       "1 failed trial (seed 3010 paraphrase/authorized/provenance)", lambda: c_ho_meta("failed"), src=W),
     C("WR17", RD, 75, "| Restricted task: answer recoverable | 45/50 | 0/50 |", "task-provenance", FHO,
-      "-90pp [-98,-80]; 45/50->0/50; p<0.001",
-      lambda: c_ho_contrast_counts("restricted", "paraphrase", "recoverable"), src=W),
+      "45/50->0/50", lambda: c_ho_contrast_part("restricted", "paraphrase", "recoverable", 1), src=W),
     # ---------------- report/video-script.md (working tree)
     C("WV01", VS, 3, "Narration is 426 words", "script", "script_metadata", "426 words; segments match", c_video_words,
       src=W),
