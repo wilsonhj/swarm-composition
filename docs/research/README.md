@@ -28,7 +28,7 @@ Not fetchable: the OpenAI post (HTTP 403). See "Unverified".
 - **Monitoring Decomposition Attacks in LLMs with Lightweight Sequential Monitors.** Chen Yueh-Han, Nitish Joshi, Yulin Chen, et al. arXiv:2506.10949, 2025. https://arxiv.org/abs/2506.10949 `[yuehan2025monitoring]`
   Reports an 87% average attack success rate on GPT-4o for decomposition attacks and proposes a sequential monitor that reaches a 93% defense success rate. It is the main example of a cumulative-intent monitor, which is a candidate system-level defence.
 - **Safe in Isolation, Dangerous Together: Agent-Driven Multi-Turn Decomposition Jailbreaks on LLMs.** Devansh Srivastav, Xiao Zhang. REALM 2025 (ACL workshop), pp. 170-183. https://aclanthology.org/2025.realm-1.13 `[srivastav2025safe]`
-  Uses a decomposer, a sub-question answerer and an answer combiner as three roles, and reports attack success rates often above 90% on the models tested. It is an adversarial multi-agent pipeline, close to our pipeline condition.
+  Uses a decomposer, a sub-question answerer and an answer combiner as three roles, and reports attack success rates often above 90% on the models tested. It is an adversarial multi-agent pipeline (the decomposition is part of the attack method), close prior work to our pipeline condition; our setting differs in using a synthetic operator restriction and in studying local-context sensitivity with opportunity-matched baselines.
 - **Hidden in Plain Sight: Benchmarking Agent Safety Against Decomposition Attacks with DECOMPBENCH. [added]** Vikhyath Kothamasu, Virginia Smith, Chhavi Yadav. arXiv:2606.13994, 2026. https://arxiv.org/abs/2606.13994 `[kothamasu2026decompbench]`
   A benchmark where agents refused whole harmful tasks often but refused the decomposed versions much less. The dataset is public on Hugging Face according to the abstract; it is a candidate source of tasks.
 - **Divide, Consult, Conquer: Capability Laundering Through Aligned LLMs. [added]** Mark Russinovich, Blake Bullwinkel, Giorgio Severi, et al. arXiv:2609.15383, 2026. https://arxiv.org/abs/2609.15383 `[russinovich2026laundering]`
@@ -37,6 +37,9 @@ Not fetchable: the OpenAI post (HTTP 403). See "Unverified".
   Defines "code decomposition attacks" and a benchmark for them. It matters if our forbidden artefact is code.
 - **Benchmarking Misuse Mitigation Against Covert Adversaries. [added]** Davis Brown, Mahdi Sabbaghi, Luze Sun, et al. arXiv:2506.06414, 2025. https://arxiv.org/abs/2506.06414 `[brown2025covert]`
   Introduces a pipeline for covert attacks split into many small requests, and argues that stateful defences are a promising countermeasure.
+
+- **Semantic Intent Fragmentation: A Single-Shot Compositional Attack on Multi-Agent AI Pipelines. [added 2026-11-06 review pass]** Tanzim Ahad, Ismail Hossain, Md Jahangir Alam, et al. arXiv:2604.08608, 2026. https://arxiv.org/abs/2604.08608 `[ahad2026semantic]` (pending addition to `references.bib`)
+  A single legitimately phrased request makes an LLM orchestrator decompose a task into subtasks that each pass subtask-level checks while the composed plan violates policy; the abstract reports 10 of 14 enterprise scenarios with a GPT-20B orchestrator and proposes plan-level information-flow tracking. Close prior work for emergent composition; the harmful split is produced by the orchestrator.
 
 ## 3. Multi-agent safety and collusion
 
@@ -102,7 +105,7 @@ Not fetchable: the OpenAI post (HTTP 403). See "Unverified".
 ## Unverified
 
 - **https://openai.com/hugging-face-incident-and-misalignment/**: the fetch returned HTTP 403, so the page content could not be read. Nothing in this directory is cited to it. METR's report refers to publishing "simultaneously with OpenAI's post-mortem", which suggests the page exists, but its title, date and claims are unconfirmed. Excluded from `references.bib`.
-- **Team DLab's project "They Say No, Then Do It Anyway: Collusion When They Hit a Wall"**: we saw only its listing and one-line description on the sprint page. The project's own page, authors and results were not fetched, and a web search did not find it. It is cited only as a listing on `[apart2026collusionsprint]`; do not cite any result from it until the project page is read.
+- **Team DLab's project "They Say No, Then Do It Anyway: Collusion When They Hit a Wall"** (Chengheng Li Chen): the project page https://apartresearch.com/sprints/projects/they-say-no-then-do-it-anyway-collusion-when-they-hit-a-wall-zqrf was fetched once on 2026-11-06 (review pass). It reports six open models, direct requests for restricted records answered at most 4 of 30 times, and rule-breaking in 22-72% of games after a sanctioned tool degraded. It is early sprint work, not peer reviewed, and a different setting (goal pressure under tool failure, not lookup decomposition). Still flagged: read once only, pending a careful second read before any number is quoted in the report; proposed key `[chen2026theysay]` (not yet in `references.bib`).
 - **Other sprint-page projects** (Team Fugue, Team Report and Pretend, Crow): seen only as one-line listings and not individually fetched. Not cited.
 - **NeurIPS poster title**: the page prints "Interpretabilitiy". It is reproduced exactly, so check whether a corrected title exists elsewhere before the final submission.
 
