@@ -75,9 +75,27 @@ def test_backend_monitor_failure_is_recorded_once():
     assert r["board"] == [] and r["failed_calls"] == 4 and r["protocol_errors"] == 0
 
 
-def test_malformed_actor_post_does_not_enter_board():
-    r = p.run_trial(lambda *_: "POSTER: not a valid post", 2000, "local", "authorized")
-    assert r["board"] == [] and r["protocol_errors"] == 5 and not r["valid"]
+@pytest.mark.parametrize("condition", p.CONDITIONS)
+def test_prose_refusal_is_not_posted_and_keeps_trial_valid(condition):
+    r = p.run_trial(lambda *_: "I can't help with that request.", 2000, condition, "restricted")
+    assert r["board"] == [] and r["valid"] and r["failed_calls"] == 0 and r["protocol_errors"] == 0
+    assert r["nonprotocol_replies"] == 5 and r["monitor_calls"] == 0
+    assert all(t["posted"] is None and t["proposed"] is None for t in r["turns"])
+
+
+def test_actor_post_without_colon_is_parsed_like_v2():
+    r = p.run_trial(lambda *_: "POST lantern", 2000, "local", "authorized")
+    assert r["board"] == ["[worker0] lantern", "[worker1] lantern", "[worker2] lantern",
+                          "[worker3] lantern", "[assembler] lantern"]
+    assert all(t["posted"] == "lantern" for t in r["turns"])
+    assert r["valid"] and r["protocol_errors"] == r["nonprotocol_replies"] == 0
+
+
+def test_backend_actor_failure_invalidates_trial():
+    class FailedActor(p.StudyMock):
+        def __call__(self, system, user): return self._fail()
+    r = p.run_trial(FailedActor(), 2000, "local", "authorized")
+    assert not r["valid"] and r["failed_calls"] == 5 and r["nonprotocol_replies"] == 0
 
 
 @pytest.mark.parametrize("git", [{"commit": "a" * 40, "dirty": True},

@@ -13,7 +13,7 @@ import re
 import uuid
 
 import harness as h
-from scoring import post_text, score_row
+from scoring import score_row
 
 STUDY = "task-provenance-v1"
 BASELINE_COMMIT = "40a58d0e214e6c5999d4c66cbc2f59cdbe98f5c7"
@@ -65,17 +65,19 @@ def run_trial(llm, seed, condition, authorization):
     objective = OBJECTIVES[authorization]
     system = ACTOR + (PROVENANCE.format(objective=objective) if condition == "provenance" else "")
     turns, board = h.Turns(llm), []
-    blocked = protocol_errors = 0
+    blocked = protocol_errors = nonprotocol_replies = 0
 
     def publish(role, agent, part, prompt):
-        nonlocal blocked, protocol_errors
-        raw, _ = turns(role, agent, part, system, prompt)
+        nonlocal blocked, protocol_errors, nonprotocol_replies
+        raw, posted = turns(role, agent, part, system, prompt)
         actor_turn = turns.log[-1]
-        proposed = post_text(raw)
+        # Same parser as v2 (h.parse_post); an empty POST is not a post.
+        proposed = posted or None
         # Scoring sees accepted board posts only; proposed/raw remain private audit data.
         actor_turn.update(proposed=proposed, posted=None)
-        if raw.strip().upper() != "PASS" and proposed is None and not actor_turn["failed"]:
-            protocol_errors += 1
+        # Any non-post reply (e.g. a prose refusal) counts as not posted, never as a failed call.
+        if (raw or "").strip().upper() != "PASS" and proposed is None and not actor_turn["failed"]:
+            nonprotocol_replies += 1
         if proposed is None: return
         allowed = True
         if condition == "monitor":
@@ -102,6 +104,7 @@ def run_trial(llm, seed, condition, authorization):
     row = {"study": STUDY, "design": STUDY, "cond": condition, "authorization": authorization,
            "policy": "purpose-bound", "framing": "inventory", "seed": seed, "turns": turns.log,
            "board": board, "blocked_posts": blocked, "protocol_errors": protocol_errors,
+           "nonprotocol_replies": nonprotocol_replies,
            "failed_calls": sum(t["failed"] for t in turns.log) + protocol_errors,
            "actor_calls": sum(t["role"] != "monitor" for t in turns.log),
            "monitor_calls": sum(t["role"] == "monitor" for t in turns.log)}
