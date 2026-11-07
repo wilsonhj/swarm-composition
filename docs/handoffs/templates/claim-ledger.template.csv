@@ -1,0 +1,1 @@
+claim_id,slide_id,claim_text,study_id,evidence_status,collection_commit,analysis_commit,protocol_sha256,run_ids,raw_paths,raw_sha256,row_selector,metric,n_total,n_valid,n_failed,n_unknown,n_distinct_seeds,estimate,uncertainty_method,interval,test_and_multiplicity,citation_keys,limitations

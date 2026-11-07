@@ -1,4 +1,4 @@
-% Verified entries only. Every entry was fetched (abs page / landing page) on 2026-11-06.
+% Verified entries only. Original entries fetched 2026-11-06; handoff additions fetched 2026-11-07.
 % Entries with only arXiv metadata have no venue unless the page listed one.
 
 @misc{metr2026incident,
@@ -337,4 +337,109 @@
   year = {2026},
   howpublished = {Apart Research AI Collusion Research Sprint project report (Team DLab); early-stage sprint work, not peer reviewed},
   url = {https://apartresearch.com/sprints/projects/they-say-no-then-do-it-anyway-collusion-when-they-hit-a-wall-zqrf}
+}
+
+% Primary sources rechecked 2026-11-07 for the independent SAE handoff.
+@misc{shen2026organizations,
+  title = {{AI} Organizations are More Effective but Less Aligned than Individual Agents},
+  author = {Shen, Judy Hanwen and Zhu, Daniel and Srinivasan, Siddarth and Sleight, Henry and Wagner, Lawrence T. III and Matthews, Morgan Jane and Jones, Erik and Sohl-Dickstein, Jascha},
+  year = {2026},
+  eprint = {2604.10290},
+  archivePrefix = {arXiv},
+  url = {https://arxiv.org/abs/2604.10290},
+  note = {Abstract and companion post verified; https://alignment.anthropic.com/2026/ai-organizations/}
+}
+
+@misc{cloud2025subliminal,
+  title = {Subliminal Learning: Language models transmit behavioral traits via hidden signals in data},
+  author = {Cloud, Alex and Le, Minh and Chua, James and Betley, Jan and Sztyber-Betley, Anna and Hilton, Jacob and Marks, Samuel and Evans, Owain},
+  year = {2025},
+  eprint = {2507.14805},
+  archivePrefix = {arXiv},
+  url = {https://arxiv.org/abs/2507.14805},
+  note = {Training-mediated teacher/student transfer; abstract verified, not independently replicated}
+}
+
+@misc{wang2025personafeatures,
+  title = {Persona Features Control Emergent Misalignment},
+  author = {Wang, Miles and Dupré la Tour, Tom and Watkins, Olivia and others},
+  year = {2025},
+  eprint = {2506.19823},
+  archivePrefix = {arXiv},
+  url = {https://arxiv.org/abs/2506.19823v2},
+  note = {Version 2 abstract verified; individual-model SAE/model-diffing evidence, not a network propagation experiment}
+}
+
+@misc{wu2025axbench,
+  title = {{AxBench}: Steering {LLMs}? Even Simple Baselines Outperform Sparse Autoencoders},
+  author = {Wu, Zhengxuan and Arora, Aryaman and Geiger, Atticus and Wang, Zheng and Huang, Jing and Jurafsky, Dan and Manning, Christopher D. and Potts, Christopher},
+  year = {2025},
+  eprint = {2501.17148},
+  archivePrefix = {arXiv},
+  url = {https://arxiv.org/abs/2501.17148v3},
+  note = {Version 3 abstract verified; results scoped to its Gemma-2 steering and concept-detection benchmark}
+}
+
+@misc{nief2026lora,
+  title = {Subliminal Learning is a {LoRA} Artifact},
+  author = {Nief, Todd and Fu, Harvey Yiyun and Muchane, Mark and Holtzman, Ari},
+  year = {2026},
+  eprint = {2606.00831},
+  archivePrefix = {arXiv},
+  url = {https://arxiv.org/abs/2606.00831v2},
+  note = {DISPUTED: arXiv metadata checked 7 November 2026 states that follow-up work found some main claims incorrect and that a substantial revision is being prepared. Do not use as settled negative evidence; the warning does not identify which individual results remain valid}
+}
+
+@misc{morgulis2026subliminal,
+  title = {Subliminal Steering: Stronger Encoding of Hidden Signals},
+  author = {Morgulis, George and Hewitt, John},
+  year = {2026},
+  eprint = {2604.25783},
+  archivePrefix = {arXiv},
+  url = {https://arxiv.org/abs/2604.25783v2},
+  note = {Version 2 abstract verified; reports full-finetuning and SGD transfer in an activation-steered teacher setting, not a universal statement about every subliminal-learning setup}
+}
+
+@misc{chen2025personavectors,
+  title = {Persona Vectors: Monitoring and Controlling Character Traits in Language Models},
+  author = {Chen, Runjin and Arditi, Andy and Sleight, Henry and Evans, Owain and Lindsey, Jack},
+  year = {2025},
+  eprint = {2507.21509},
+  archivePrefix = {arXiv},
+  url = {https://arxiv.org/html/2507.21509v3},
+  note = {Version 3 checked 7 November 2026: sections 2.1--2.2 describe contrastive mean-activation extraction; Appendix M separately analyzes SAE decomposition}
+}
+
+@misc{google2025gemma3,
+  title = {Gemma 3 1B IT model card},
+  author = {{Google DeepMind}},
+  year = {2025},
+  howpublished = {Hugging Face model repository},
+  url = {https://huggingface.co/google/gemma-3-1b-it},
+  note = {Accessed 7 November 2026; artifact availability is verified, local integration and account access are not. Gemma terms apply}
+}
+
+@misc{google2025gemmascope2,
+  title = {Gemma Scope 2: 1B IT SAE and transcoder repository},
+  author = {{Google DeepMind}},
+  year = {2025},
+  howpublished = {Hugging Face model repository},
+  url = {https://huggingface.co/google/gemma-scope-2-1b-it},
+  note = {Accessed 7 November 2026; verify downloaded config because one example names a conflicting base model. Candidate identifiers are not a tested local installation}
+}
+
+@misc{saelens2026software,
+  title = {SAELens: Training Sparse Autoencoders on Language Models},
+  author = {{SAELens contributors}},
+  howpublished = {GitHub software repository},
+  url = {https://github.com/decoderesearch/SAELens},
+  note = {Accessed 7 November 2026; former jbloomAus repository redirects here. README describes PyTorch integration and v6 migration; pin the actually tested version}
+}
+
+@misc{aiaf2026swarm,
+  title = {Swarm Alignment Hackathon},
+  author = {{AI Alignment Foundation}},
+  year = {2026},
+  url = {https://aialignmentfoundation.org/hackathons/swarm-alignment-2026},
+  note = {Schedule checked 7 November 2026: LA video due 8 November at 10:00 Pacific; selected live presentations noon--15:00 Pacific; global report due 23:59 AoE}
 }
