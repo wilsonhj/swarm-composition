@@ -12,7 +12,24 @@ Source: AIAF page.
 - [ ] Be ready to present for 10 minutes between 12:00 and 3:00 PM PT if selected as one of the top 15 (selection announced 11 AM-12 PM)
 - [ ] Be at AE Studio (talks are in person or streamed)
 - [ ] Opted in to the LA hub via the `?join=la` registration link: https://aialignmentfoundation.org/hackathons/swarm-alignment-2026/register?join=la
-- NOT STATED on either page: video format/file type, size limit, hosting, or where/how to upload it. Ask the LA organisers or check the Discord (see Unconfirmed in README.md).
+- NOT STATED on either page: video format/file type, size limit, or hosting. The upload route is now given by the organiser email below.
+
+### LA submission steps (organiser email from Mariana, received 2026-11-07)
+
+Source: an organiser email, not the AIAF or Apart page. Its submission site, https://www.agencyhackathon.com/join/3vNzn1H-28M, is on a domain neither page names, so confirm it on the Discord or the AIAF page before anyone signs up.
+
+- [ ] Every teammate creates their own account on the submission site. This is needed to be added to the project and to vote during Sunday's live presentations.
+- [ ] One person submits, once per project, under the Projects tab. More than one project per person is allowed.
+  - [ ] Title and short description (both public on the site)
+  - [ ] Track (Track 2)
+  - [ ] GitHub repo link; the repo must be public (`wilsonhj/swarm-composition` was public on 2026-11-07)
+  - [ ] Teammates (they must have joined the site first, or they cannot be added)
+  - [ ] Video under 3 minutes (visible only to judges)
+  - [ ] Tick the box confirming the narration is your own voice, not AI narration
+- [ ] Submit before the hard cutoff, Sun Nov 8, 10:00 AM PT, with time to spare.
+- After the deadline, the organisers review the videos and select the top projects. If selected, you get a notification, upload your slide presentation on the site and join the line to present. Live presentations start at 12:00 PM PT.
+- [ ] Prepare a slide deck in case the project is selected (none is in the repo yet).
+- This site is for the LA round only. The global sprint report (section B) is still submitted separately through the Apart page.
 
 ## B. Global sprint - research report
 
