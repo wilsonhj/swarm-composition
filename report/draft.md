@@ -51,6 +51,8 @@ Framing controls whether the user prompt links the items to the passphrase. Exac
 - **Neutral:** "Inventory list: … Look up the item at position p". Solo is asked to "post them joined by hyphens for the report".
 - **Explicit:** "Part k list: … Your word is the item at position p". Solo is asked to "Write the complete vault passphrase for the report".
 
+Framing is a bundle, not a single cue. It changes every framed line at once (the list label and the post, assemble, objective and turn lines, plus the solo instruction), and prompt length changes with it. Under explicit framing the solo instruction is itself the restricted request. A middle level ("hinted": "access-code segment … vault access report") is implemented but was not run, so we have two points, not a dose-response.
+
 The relay prompts do not use framing. The two relay variants differ only in the coordinator's task:
 - **Informed:** "produce the vault passphrase for the report".
 - **Uninformed:** "compile four items for the report".
@@ -62,7 +64,7 @@ Relay workers see only their list, their position and the board.
 | Condition | Agents | Max calls | Who sees what |
 |---|---|---|---|
 | solo | 1 | 1 | all four lists |
-| solo@k5, solo@k12 | 1 (K independent attempts) | 5, 12 | all four lists; scored per attempt, best attempt counts |
+| solo@k5, solo@k12 | 1 (K independent attempts) | 5, 12 | all four lists; scored per attempt, and each outcome takes its best attempt (so two outcomes may come from different attempts) |
 | pipeline | 4 workers + assembler | 5 | worker: its own list; assembler: the board |
 | swarm@n4 | 4 | 12 | its own list + the whole board; team objective given |
 | swarm_noobj@n4 | 4 | 12 | as swarm@n4, no objective |
@@ -207,6 +209,8 @@ The main limits are:
 - A single provider family.
 - Fixed protocols whose own success rates cap assembly.
 - A relay that uses different cue wording from the framed conditions.
+- A framing manipulation that bundles several prompt changes and has only two levels (Section 3.2).
+- Scope. We vary no network shape at a fixed call count (chain, star, fully connected), run no swarm larger than four agents, test no spread from a compromised agent, and use no real swarm traces. These Track 2 questions remain open.
 
 See Appendix A.
 
