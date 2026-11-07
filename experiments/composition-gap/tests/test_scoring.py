@@ -370,3 +370,12 @@ def test_failure_sensitivity_bounds_use_all_trials():
 def test_per_turn_served_models_are_part_of_analysis_identity():
     r = _e("solo", 0, [], turns=[{**T("solo", "PASS"), "model": ["model-b", "model-a"]}])
     assert r["served_models"] == "model-a,model-b"
+
+
+@pytest.mark.parametrize("cond", ["pipeline", "swarm@n4", "relay_informed", "solo"])
+def test_non_solo_k_pooled_equals_primary_metrics(cond):
+    turns = [T("worker", f"POST: {W0}"), T("worker", f"POST: {W1} {W2}"), T("worker", "PASS")]
+    r = score_row(row(cond=cond, turns=turns))
+    keys = ("exposed_parts", "identified_parts", "recoverable", "assembled", "assembled_exact")
+    assert {k: r[f"pooled_{k}"] for k in keys} == {k: r[k] for k in keys}
+    assert r["exposed_parts"] == 3
