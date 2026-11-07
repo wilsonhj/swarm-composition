@@ -4,6 +4,8 @@ Track 2: The Science of Agent Networks. Swarm Alignment Hackathon, Nov 6-8 2026.
 
 Constraints (from https://apartresearch.com/sprints/swarm-alignment-2026): PDF on Apart's template; max 8 pages NOT counting references and appendices; abstract 150-250 words; authors and affiliations; REQUIRED appendix "Limitations and Dual-Use / Ethical Considerations". Pre-sprint work must be marked as preexisting in README and report (see 3.6). Page budget below totals 8.0.
 
+**Status (Sat Nov 7): superseded by `draft.md` for structure.** The report now presents two studies with separate protocols and evidence, never pooled: Study 1 = the frozen v2 composition study below (Sections 3–4 of the draft); Study 2 = the held-out task-provenance study (`docs/protocols/task-provenance-v1.md`, `docs/findings/provenance-heldout.md`; draft Section 5), whose development pilot is cited only as design-selection evidence. Discussion and Conclusion are Sections 6–7. Figures used: fig1 topologies, fig2 v2 heatmap, fig4 provenance held-out (shown as Figure 3); no swarm-size figure, because frozen v2 has only swarm@n4. The SAE sender study is unimplemented future work. The section skeleton below is the original Study 1 plan.
+
 Conventions: `[RESULT: ...]` = number to fill from the full run. `[PILOT: ...]` = pilot observation (n=3-10 seeds), to be replaced by the full run and never reported as a result. `[FIG]`/`[TAB]` = planned figure/table. Do not write any pilot value in the final text, and do not describe pilot findings as anything but exploratory.
 
 ---

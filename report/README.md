@@ -3,7 +3,12 @@
 Submission drafts for the Swarm Alignment Hackathon (Apart Research + AI Alignment Foundation), Track 2: The Science of Agent Networks.
 
 ## Files
-- `draft.md`: working report of completed v2 Haiku/Sonnet measurements; author, figure and layout TODOs remain. The provenance pilot is separate development evidence, and SAE work is a proposal.
+- `draft.md`: working report covering two separate studies: the completed v2 Haiku/Sonnet measurements and the task-provenance study (development pilot plus the completed held-out Haiku run, never pooled with v2). Remaining TODOs are author/team details and final layout. SAE work is an unimplemented proposal only.
+- `figures/`: figure scripts and rendered images for the report.
+- `references.md`: rendered references (generated from `../docs/research/references.bib` by `tools/render_refs.py`).
+- `tools/render_refs.py`: script that renders `references.md`.
+- `appendix-b.md`: Appendix B draft.
+- `claim-ledger.csv`: ledger tying each report claim to its source.
 - `outline.md`: full 8-page report skeleton with target lengths and `[RESULT]` / `[PILOT]` placeholders (pilot numbers must not appear in the final text).
 - `appendix-limitations-dual-use.md`: draft of the REQUIRED appendix "Limitations and Dual-Use / Ethical Considerations".
 - `video-script.md`: timed 3-minute script, visuals, and recording checklist (LA hub).
