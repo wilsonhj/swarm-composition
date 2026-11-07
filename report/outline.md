@@ -77,7 +77,7 @@ Structure, one to two sentences each:
 ### 3.6 Models, infrastructure, provenance, pre-sprint disclosure (0.3 p)
 - Haiku 5.5 via Claude Code (primary); optional Sonnet 5.5 and OpenRouter cross-model runs [RESULT: which completed; else say not run].
 - Run manifests (run id, commit, prompt hash, CLI version) and per-turn logs. Provider defaults and CLI versions are not pinned beyond what the manifest records.
-- Pre-sprint disclosure: use [the recorded UTC/Pacific timeline](../docs/findings/development-timeline.md) and confirm assets individually with the team. Earlier repository work is not automatically pre-sprint; commit dates do not certify every authoring date.
+- Pre-sprint disclosure: use [the recorded UTC/Pacific timeline](../docs/findings/development-timeline.md) and the author confirmed there are no pre-sprint assets.
 ### 3.7 Pilot -> design changes (0.25 p)
 - Exploratory pilots (2-10 seeds per cell, seeds 0-19) showed that disclosure was sensitive to policy wording and framing, that the neutral solo baseline already succeeded, and that the v1 relay changed policy and knowledge together and used non-uniform parsing and a buggy request metric. Consequently the frozen v2 design (i) crosses policy with framing, (ii) adds opportunity-matched solo@k baselines, (iii) applies uniform `POST:` parsing, (iv) replaces the legacy metrics with four outcome measures, (v) records failed calls and provenance, and (vi) evaluates on held-out seeds 1000-1019. The design was selected after seeing pilot seeds; no pilot number is reported as a result. The v1 full run (strict, seeds 0-19) is reported as an exploratory replication of the framing effect.
 

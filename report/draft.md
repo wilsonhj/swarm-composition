@@ -1,8 +1,8 @@
 # Who Knows the Goal? Local Context, Task Provenance, and Restricted Assembly When Work Is Split Across Agents
 
-DRAFT v2 (Sat Nov 7, 2026). Two studies with separate protocols and evidence, never pooled. Sources: Study 1, `docs/findings/v2-results.md` and `results/v2/analysis*.md`; Study 2, `docs/findings/provenance-heldout.md` and `results/task-provenance/heldout-haiku.jsonl*` (paths under `experiments/composition-gap/`). The [SAE sender intervention](../docs/protocols/sae-sender-study-proposal.md) is unimplemented future work. `[TODO]` marks items for the team.
+DRAFT v2 (Sat Nov 7, 2026). Two studies with separate protocols and evidence, never pooled. Sources: Study 1, `docs/findings/v2-results.md` and `results/v2/analysis*.md`; Study 2, `docs/findings/provenance-heldout.md` and `results/task-provenance/heldout-haiku.jsonl*` (paths under `experiments/composition-gap/`). The [SAE sender intervention](../docs/protocols/sae-sender-study-proposal.md) is unimplemented future work.
 
-**Authors:** [TODO: names, affiliations, emails]. Team [TODO]. LA hub (AE Studio) and global sprint. Track 2: The Science of Agent Networks.
+**Author:** Hirokazu James. Team HJ. LA hub (AE Studio) and global sprint. Track 2: The Science of Agent Networks.
 
 ## Abstract
 
@@ -86,7 +86,7 @@ Policy {none, strict} × framing {neutral, explicit} × 8 conditions, on held-ou
 
 Models ran through Claude Code (`claude -p`, no tools, provider-default sampling): Claude Haiku 5.5 (20 seeds, 4,720 calls) and Claude Sonnet 5.5 (10 seeds, 2,360 calls). Manifests record run id, commit, prompt hash, CLI version and served model. The Sonnet strict/explicit manifest listed two served model IDs (`claude-sonnet-5`, `claude-sonnet-5-5`); we added per-turn model logging and reran that cell on the same seeds (590 calls, all served by `claude-sonnet-5-5`). Run batches, commits and costs are in Appendix B.
 
-**Recorded timeline and pre-sprint disclosure:** public history records the scaffold at 17:24 Pacific and v2 implementation at 18:29 on Friday Nov 6, after the published 13:30 LA kickoff. The first v2 Haiku manifest records 18:49 Pacific; the Study 2 held-out manifest records collection from 06:01 to 06:57 UTC on Nov 7. These record commits and execution, not every asset's authoring date ([timeline](../docs/findings/development-timeline.md)). [TODO: identify any genuinely pre-sprint assets individually with every team member.]
+**Timeline and pre-sprint disclosure:** there are no pre-sprint assets; all code, pilots, runs and documents were produced during the sprint. Public history records the scaffold at 17:24 and v2 implementation at 18:29 Pacific on Friday Nov 6, after the 13:30 LA kickoff; the first v2 manifest records 18:49, and Study 2 collection ran 06:01–06:57 UTC on Nov 7 ([timeline](../docs/findings/development-timeline.md)).
 
 ## 4 Study 1 Results
 
