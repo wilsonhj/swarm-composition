@@ -66,7 +66,19 @@ Source: https://docs.adaptionlabs.ai (read Nov 6). These notes matter only if yo
 
 ## 5. Exploratory side project (not part of the submission)
 
-The session also built **SwarmWatch**, a Track 4 prototype that detects covert coordination from infrastructure logs only. It ships separately as `swarmwatch.zip`, or on branch `explore/swarmwatch` if that branch was imported.
+The session also built **SwarmWatch**, a Track 4 prototype that detects covert coordination from infrastructure logs only. It lives on its own branch, `explore/swarmwatch`, with unrelated history. It is deliberately **not** merged into `main`.
+
+To try it:
+
+```bash
+git fetch origin explore/swarmwatch
+git worktree add ../swarmwatch explore/swarmwatch
+cd ../swarmwatch
+pip install numpy scikit-learn matplotlib
+python experiments/run_scripted.py --seeds 10 --out results
+```
+
+That run takes about 40 seconds and needs no network.
 
 - Its results are synthetic and scripted: 10 seeds with adversary levels L0–L4. They have not been frozen or replicated.
 - Do not put them in the report or the video. They are not part of this study's protocol, and mixing them in would undercut the repo's held-out discipline.
