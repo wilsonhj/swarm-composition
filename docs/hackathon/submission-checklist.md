@@ -1,6 +1,6 @@
 # Submission checklist
 
-Sources: AIAF page https://aialignmentfoundation.org/hackathons/swarm-alignment-2026 and Apart page https://apartresearch.com/sprints/swarm-alignment-2026 (fetched 2026-11-06). Times: see README.md "Key deadlines".
+Sources: AIAF page https://aialignmentfoundation.org/hackathons/swarm-alignment-2026 and Apart page https://apartresearch.com/sprints/swarm-alignment-2026 (requirements rechecked 2026-11-07). Times: see README.md "Key deadlines".
 
 ## A. LA hub - 3-minute video
 
@@ -33,8 +33,11 @@ Format
 - [ ] All links in the report work
 
 Integrity (see judging-and-rules.md)
-- [ ] Pre-existing code marked as pre-existing in BOTH the README and the report
+- [ ] Genuinely pre-sprint code/results identified individually in BOTH README and report; no blanket classification based on when a later review occurred. Check the [UTC/Pacific timeline](../findings/development-timeline.md).
 - [ ] Every reference verified; no made-up results or references (can disqualify)
+- [ ] Completed v2 results, provenance development pilot, future held-out study and unimplemented SAE proposal clearly separated
+- [ ] Six-call relay not called K5-matched; three-round N8 swarm not called K12-matched; early stopping and realized opportunities disclosed
+- [ ] Paired counts include both / treatment-only / baseline-only / neither, plus operational failures and uncertainty; hypothetical power is not presented as measured study power
 
 Optional (not required)
 - [ ] Public GitHub repository (code link). Optional per the page; no further code-link requirements stated.

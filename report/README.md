@@ -3,10 +3,12 @@
 Submission drafts for the Swarm Alignment Hackathon (Apart Research + AI Alignment Foundation), Track 2: The Science of Agent Networks.
 
 ## Files
+- `draft.md`: working report of completed v2 Haiku/Sonnet measurements; author, figure and layout TODOs remain. The provenance pilot is separate development evidence, and SAE work is a proposal.
 - `outline.md`: full 8-page report skeleton with target lengths and `[RESULT]` / `[PILOT]` placeholders (pilot numbers must not appear in the final text).
 - `appendix-limitations-dual-use.md`: draft of the REQUIRED appendix "Limitations and Dual-Use / Ethical Considerations".
 - `video-script.md`: timed 3-minute script, visuals, and recording checklist (LA hub).
 - Related work lives in `../docs/research/related-work.md` (written separately; cite only what it verifies).
+- [Corrected submission memo](../docs/research/revised-sae-review-and-submission-memo.md): checked call budgets, literature corrections, hypothetical power and release scope. [Development timeline](../docs/findings/development-timeline.md): per-item UTC/Pacific provenance; earlier repository work is not automatically pre-sprint.
 
 ## Deadlines
 | Deliverable | Deadline | Source |
@@ -22,7 +24,7 @@ Apart's official template is a Google Doc (not LaTeX/Overleaf):
 
 1. Open the copy link: https://docs.google.com/document/d/1_1_27EyZriMlc8n8EBE2YScaeyMjm-8xjR097nmHXAE/copy?usp=sharing
    (The sprint page says to use the template linked on its Guidelines tab, https://apartresearch.com/sprints/swarm-alignment-2026#guidelines, since the one in an acceptance email may be older. Re-check that the link still matches.)
-2. Make a copy in your own Drive, then paste sections from `outline.md` (after filling placeholders) and Appendix A from `appendix-limitations-dual-use.md`.
+2. Make a copy in your own Drive, then paste the completed sections from `draft.md` and Appendix A from `appendix-limitations-dual-use.md`; use `outline.md` as a planning checklist. Resolve author/figure/layout TODOs and cite the correct study/version before export.
 3. File > Download > PDF (.pdf). Check: body <= 8 pages (references and appendices excluded), abstract 150-250 words, authors/affiliations present, Appendix titled "Limitations and Dual-Use / Ethical Considerations", file <= 25 MB.
 4. Submit via the form on the Apart sprint page. To replace a submission, resubmit with the same title before the deadline (do not email the PDF). Required fields: project title, abstract, PDF, interest in publishing, at least one track, team name, location, team member 1 name and email.
 
@@ -35,5 +37,7 @@ Apart's official template is a Google Doc (not LaTeX/Overleaf):
 - LA video upload method and format are NOT stated on either page: TODO ask the LA organisers (also in `video-script.md`).
 
 ## Rules to remember
-- Only work done during the weekend is judged; pre-sprint work/code must be marked as preexisting in the README and the report (the pilot runs may count: disclose them).
+- Only weekend work is judged. Disclose genuinely pre-sprint work/code in README and report after item-specific verification. The recorded v2 execution is during the event; do not label it pre-event just because it precedes an amendment. See the [timeline](../docs/findings/development-timeline.md).
 - Optional extras: public GitHub repo, 3-5 minute demo video, slides (<= 25 MB).
+
+Official requirements were rechecked on 7 November 2026: the eight-page limit excludes references **and appendices**; abstract 150–250 words; official template and limitations/dual-use appendix required. The global deadline is Nov 8 at 23:59 AoE; LA's three-minute video deadline is Nov 8 at 10:00 Pacific. Sources are the [Apart guidelines](https://apartresearch.com/sprints/swarm-alignment-2026#guidelines) and [LA schedule](https://aialignmentfoundation.org/hackathons/swarm-alignment-2026). The Markdown memo is not the final template PDF.

@@ -29,3 +29,9 @@ Hackathon research repo (Swarm Alignment Hackathon, Nov 6–8 2026, Track 2). Se
 - Repeated solo primary scores use the best single attempt; `pooled_*` diagnostics have a different observer threat model.
 - Report authorized utility alongside restricted disclosure. Monitor-blocked proposals are private logs, not accepted board posts.
 - `--max-usd` is an estimated threshold, not a guaranteed hard cap. Actual costs and retries can exceed reservations.
+
+## Submission memo and study boundaries
+- See `docs/research/revised-sae-review-and-submission-memo.md` and the source-linked `docs/findings/development-timeline.md`. Do not label all work preceding an amendment as pre-sprint; verify assets individually.
+- Preserve completed v2 results, the provenance development pilot, and the unimplemented SAE proposal as distinct studies. Do not replace the provenance primary comparison with the supplied memo's unmatched N8/K12 comparison.
+- Three-round swarm@nN has at most 3N calls; N8 matches a K24 maximum, N4 a K12 maximum, and six-call relay needs K6. Report realized calls and stopping rules too.
+- Offline `power.py` enumerates hypothetical paired designs. It does not establish observed effects, actual study power, or independence of repeated task seeds.

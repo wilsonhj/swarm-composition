@@ -137,9 +137,16 @@ def summarize(rows, by, include_unknown=False, validate=True):
         cell = {"key": key, "n_total": len(rs), "n_failed": sum(r["valid"] is False for r in rs),
                 "n_unknown": sum(r["valid"] == "unknown" for r in rs), "n_valid": n,
                 "served_models": sorted({m for r in rs if r.get("served_models") for m in r["served_models"].split(",")})}
+        # A custom --by that omits cond can pool several rows per seed; those rows are not independent,
+        # so use the seed-cluster bootstrap instead of the rowwise Wilson interval. Default cells are unaffected.
+        seeds = defaultdict(list)
+        for r in v: seeds[r["seed"]].append(r)
+        cell["seed_clustered"] = len(seeds) < n
         for m in ("assembled", "recoverable"):
             k = sum(bool(r[m]) for r in v)
-            cell[m] = (k, n, wilson(k, n))
+            ci = (boot_ci([[int(bool(r[m])) for r in g] for g in seeds.values()])
+                  if cell["seed_clustered"] else wilson(k, n))
+            cell[m] = (k, n, ci)
             cell[m + "_all_bounds"] = (k / len(rs), (k + len(rs) - n) / len(rs))
         for m in ("identified_parts", "exposed_parts"):
             by_seed = defaultdict(list)
@@ -178,6 +185,8 @@ def paired_contrasts(rows, baseline="solo", include_unknown=False, validate=True
                 if m != "identified_parts":
                     bb = sum(x > 0 for x in d); cc = sum(x < 0 for x in d)
                     res[m + "_disc"] = (bb, cc, mcnemar_p(bb, cc))
+                    both = sum(bool(conds[c][s][m]) and bool(conds[reference][s][m]) for s in seeds)
+                    res[m + "_table"] = (both, bb, cc, len(seeds) - both - bb - cc)
             out.append(res)
     return out
 
@@ -241,7 +250,12 @@ def render(rows, by, baseline, include_unknown, files_note="", check=False):
           f"- rows: {len(rows)}; unknown-validity rows {'treated as valid' if include_unknown else 'excluded from denominators'}"
           " (reported in n_unknown)",
           "- CIs: Wilson 95% for proportions; seed-bootstrap 95% (2000 resamples, seeded) for means; "
-          "metrics from posted messages only (see scoring.py)", ""]
+          "metrics from posted messages only (see scoring.py)"]
+    cells = summarize(rows, by, include_unknown, validate=False)
+    if any(c["seed_clustered"] for c in cells):
+        L += ["- Cells marked * pool several rows per seed; their proportion CIs use the seed-cluster bootstrap "
+              "(rows within a seed are not independent), not Wilson."]
+    L += [""]
     # Keep full identities for grouping, but avoid repeating constant metadata and
     # 64-character hashes in every cell. Full values remain in the metadata above/below.
     display_by = [k for k in by if k == "cond" or len({r.get(k) for r in rows}) > 1] or list(by)
@@ -261,9 +275,9 @@ def render(rows, by, baseline, include_unknown, files_note="", check=False):
     L += ["", "## Cells", "",
           "| " + " | ".join(display_by) + " | n_total | n_failed | n_unknown | n_valid | assembled | recoverable | mean identified | mean exposed" + bounds_header + served_header + " |",
           "|" + "---|" * (len(display_by) + 8 + (2 if failures else 0) + show_served)]
-    for c in summarize(rows, by, include_unknown, validate=False):
+    for c in cells:
         bounds = (f" | {_ci(c['assembled_all_bounds'])} | {_ci(c['recoverable_all_bounds'])}" if failures else "")
-        L.append("| " + display_key(c["key"]) + f" | {c['n_total']} | {c['n_failed']} | {c['n_unknown']} | {c['n_valid']} | "
+        L.append("| " + display_key(c["key"]) + ("*" if c["seed_clustered"] else "") + f" | {c['n_total']} | {c['n_failed']} | {c['n_unknown']} | {c['n_valid']} | "
                  f"{_rate(c['assembled'])} | {_rate(c['recoverable'])} | {_mean(c['identified_parts'])} | {_mean(c['exposed_parts'])}" + bounds
                  + (f" | {served(c['served_models'])}" if show_served else "") + " |")
     if show_served:
@@ -290,17 +304,23 @@ def render(rows, by, baseline, include_unknown, files_note="", check=False):
     title = "matched call-budget baselines" if baseline == "matched" else f"`{baseline}`"
     L += ["", f"## Seed-paired contrasts vs {title}", "",
           "Difference = cond minus baseline, paired by seed within compatible study/design/backend/run metadata; brackets are paired-bootstrap 95% CIs. "
-          "Discordant: +b = cond succeeded where baseline did not, -c = the reverse; p is the exact two-sided binomial (McNemar) test.", ""]
+          "Paired counts are both / treatment-only (b) / baseline-only (c) / neither; their sum is the evaluable pair count. "
+          "Discordant: +b = cond succeeded where baseline did not, -c = the reverse; p is the exact two-sided binomial (McNemar) test. "
+          "The exact McNemar p is the test; the bootstrap interval is descriptive only. With few, one-sided discordant pairs "
+          "it can exclude 0 while p > 0.05 (e.g. +0/-5 of 20 pairs: p = 0.062), so do not read it as significance. "
+          "p-values are unadjusted for multiple contrasts.", ""]
     if not pc and baseline == "matched":
         L.append("(no pairs: no condition has its matched call-budget baseline with valid shared seeds)")
     elif not pc:
         L.append(f"(no pairs: baseline condition `{baseline}` absent or no valid shared seeds)")
     else:
-        L += ["| varying run metadata | cond | baseline | pairs | d assembled | discordant | d recoverable | discordant | d identified |",
-              "|---|---|---|---|---|---|---|---|---|"]
+        L += ["| varying run metadata | cond | baseline | pairs | d assembled | paired counts (both/b/c/neither) | discordant | d recoverable | paired counts (both/b/c/neither) | discordant | d identified |",
+              "|---|---|---|---|---|---|---|---|---|---|---|"]
         for p in pc:
-            L.append(f"| {run_label(p['group'])} | {p['cond']} | {p['baseline']} | {p['n_pairs']} | {_signed(p['assembled'], True)} | {_disc(p['assembled_disc'])} | "
-                     f"{_signed(p['recoverable'], True)} | {_disc(p['recoverable_disc'])} | {_signed(p['identified_parts'], False)} |")
+            assembled_counts = "/".join(map(str, p["assembled_table"]))
+            recoverable_counts = "/".join(map(str, p["recoverable_table"]))
+            L.append(f"| {run_label(p['group'])} | {p['cond']} | {p['baseline']} | {p['n_pairs']} | {_signed(p['assembled'], True)} | {assembled_counts} | {_disc(p['assembled_disc'])} | "
+                     f"{_signed(p['recoverable'], True)} | {recoverable_counts} | {_disc(p['recoverable_disc'])} | {_signed(p['identified_parts'], False)} |")
     if baseline == "matched":
         L += ["", "Matched call budgets: pipeline→solo@k5; relay→solo@k6; swarm@nN→solo@k(3N). "
               "Groups lacking the reference are omitted, not compared to one-attempt solo. Swarm matching uses its maximum turns."]

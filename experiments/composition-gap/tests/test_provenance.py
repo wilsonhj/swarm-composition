@@ -134,6 +134,7 @@ def test_cli_mock_writes_unique_provenance_and_all_six_cells(tmp_path):
     m = json.loads((out.parent / "smoke.jsonl.manifest.json").read_text())
     n = 2 * len(p.CONDITIONS) * len(p.OBJECTIVES) * len(p.WORDINGS)
     assert len(rows) == n and m["status"] == "complete" and m["totals"]["failed_rows"] == 0
+    assert m["totals"]["fail_reasons"] == {}
     assert {(r["cond"], r["authorization"], r["framing"]) for r in rows} == {
         (c, a, w) for c in p.CONDITIONS for a in p.OBJECTIVES for w in p.WORDINGS}
     assert all(r["protocol_hash"] == m["protocol_hash"] and r["prompt_hash"] == m["prompt_hash"]
@@ -176,7 +177,8 @@ def test_openrouter_invalid_budget_is_usage_error(tmp_path, no_dotenv, capsys, b
     assert e.value.code == 2 and "usage:" in capsys.readouterr().err and not (tmp_path / "new").exists()
 
 
-@pytest.mark.parametrize("args", [["--phase", "heldout"], ["--seed-offset", "3000"], ["--seeds", "0"]])
+@pytest.mark.parametrize("args", [["--phase", "heldout"], ["--seed-offset", "3000"], ["--seeds", "0"],
+                                  ["--wordings", "keyword,keyword"], ["--wordings", "keyword,paraphrase,keyword"]])
 def test_rejected_invocation_creates_no_output_dir(tmp_path, args):
     with pytest.raises(SystemExit): p.main([*args, "--out", str(tmp_path / "new" / "x.jsonl")])
     assert not (tmp_path / "new").exists()

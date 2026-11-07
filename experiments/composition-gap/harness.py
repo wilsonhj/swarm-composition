@@ -80,14 +80,19 @@ def part_prompt(k, lists):
 
 class Backend:
     """Shared counters. `tl.failed` is a per-thread count of calls that exhausted retries; Turns compares
-    it before/after each call to flag failed turns. `cost` is None when the backend reports no cost."""
+    it before/after each call to flag failed turns, and logs `tl.fail_reason` (the last cause seen).
+    `fail_reasons` counts causes for the manifest. `cost` is None when the backend reports no cost."""
     def _init_counters(self, cost=0.0):
         self.lock, self.tl = threading.Lock(), threading.local()
         self.calls, self.errors, self.cost, self.missing_cost, self.models = 0, 0, cost, 0, set()
+        self.fail_reasons = {}
 
-    def _fail(self):
-        with self.lock: self.errors += 1
+    def _fail(self, reason="unknown"):
+        with self.lock:
+            self.errors += 1
+            self.fail_reasons[reason] = self.fail_reasons.get(reason, 0) + 1
         self.tl.failed = getattr(self.tl, "failed", 0) + 1
+        self.tl.fail_reason = reason
         return "PASS"
 
 
@@ -111,18 +116,28 @@ class Claude(Backend):
         self.in_tok = self.out_tok = 0
         self._init_counters(cost=None)  # the Messages API reports tokens, not dollars
     def __call__(self, system, user):
+        reason = "unknown"
         for a in range(4):
             try:
                 m = self.c.messages.create(model=self.model, max_tokens=MAX_TOKENS, system=system,
                                            messages=[{"role": "user", "content": user}])
-                text = m.content[0].text
-                with self.lock:
-                    self.in_tok += m.usage.input_tokens; self.out_tok += m.usage.output_tokens; self.calls += 1
-                    if getattr(m, "model", None): self.models.add(m.model)
-                return text
-            except Exception:
+            except Exception as e:
+                reason = type(e).__name__
                 time.sleep(2 ** a)
-        return self._fail()
+                continue
+            # A received response is billed: account for it before interpreting it, and never resend it.
+            with self.lock:
+                self.in_tok += m.usage.input_tokens; self.out_tok += m.usage.output_tokens; self.calls += 1
+                if getattr(m, "model", None): self.models.add(m.model)
+            self.tl.model = [m.model] if getattr(m, "model", None) else None
+            # Thinking blocks may precede the text block; join only text blocks (blocks without a type are text).
+            text = "".join(getattr(b, "text", "") or "" for b in m.content
+                           if getattr(b, "type", "text") == "text").strip()
+            stop = getattr(m, "stop_reason", None)
+            if stop == "max_tokens": return self._fail("stop_reason:max_tokens")
+            if not text: return self._fail("empty")
+            return text
+        return self._fail(reason)
 
 
 # claude -p gets only these variables: enough for the CLI to find its binary, config and the macOS keychain
@@ -148,24 +163,34 @@ class ClaudeCode(Backend):
     def __call__(self, system, user):
         cmd = ["claude", "-p", user, "--safe-mode", "--model", self.model, "--system-prompt", system,
                "--tools", "", "--strict-mcp-config", "--no-session-persistence", "--output-format", "json"]
+        reason, turn_models = "unknown", set()
         for a in range(3):
             try:
                 p = subprocess.run(cmd, capture_output=True, text=True, cwd=self.cwd, env=self.env, timeout=180)
                 d = json.loads(p.stdout)
-                if not d.get("is_error"):
+                ok = p.returncode == 0 and not d.get("is_error")
+                # Account every received response once (cost, served models) before classifying it,
+                # so failed attempts that are retried still appear in the totals and the turn's model list.
+                served = (d.get("modelUsage") or {}).keys()
+                with self.lock:
+                    c = d.get("total_cost_usd")
+                    if c is not None: self.cost += c
+                    elif ok: self.missing_cost += 1
+                    self.calls += 1
+                    self.models.update(served)
+                turn_models.update(served)
+                self.tl.model = sorted(turn_models) or None
+                if p.returncode != 0: reason = f"exit_{p.returncode}"  # process failed, whatever the JSON says
+                elif d.get("is_error"): reason = "is_error"
+                else:
                     text = d["result"].strip()
-                    with self.lock:
-                        c = d.get("total_cost_usd")
-                        if c is None: self.missing_cost += 1
-                        else: self.cost += c
-                        self.calls += 1
-                        self.models.update((d.get("modelUsage") or {}).keys())
-                    self.tl.model = sorted((d.get("modelUsage") or {}).keys()) or None
+                    # An empty reply is a generation failure, not an observed refusal (PASS); don't resample it.
+                    if not text: return self._fail("empty")
                     return text
-            except (json.JSONDecodeError, KeyError, AttributeError, TypeError, subprocess.TimeoutExpired):
-                pass
+            except (json.JSONDecodeError, KeyError, AttributeError, TypeError, subprocess.TimeoutExpired) as e:
+                reason = type(e).__name__
             time.sleep(2 ** a)
-        return self._fail()
+        return self._fail(reason)
 
 
 def load_env(path=None):
@@ -228,7 +253,7 @@ class OpenRouter(Backend):
             else:
                 self.inflight += reserve
                 refused = False
-        if refused: return self._fail()
+        if refused: return self._fail("budget")
         try:
             return self._send(system, user, reserve)
         finally:
@@ -237,6 +262,7 @@ class OpenRouter(Backend):
     def _send(self, system, user, reserve):
         body = json.dumps({"model": self.model, "max_tokens": MAX_TOKENS,
                            "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}]}).encode()
+        reason = "unknown"
         for a in range(3):
             try:
                 req = urllib.request.Request(self.URL, data=body, headers=self.headers, method="POST")
@@ -249,18 +275,22 @@ class OpenRouter(Backend):
                     self.cost += c; self.calls += 1
                     if d.get("model"): self.models.add(d["model"])
                 self.tl.model = [d["model"]] if d.get("model") else None
-                if ch.get("finish_reason") == "length" or not (text or "").strip():
-                    return self._fail()  # truncated or empty (e.g. reasoning used the token budget): not a real PASS
+                # Only a normal stop (or a missing field) is a real reply. "length" is truncation (e.g. reasoning
+                # used the token budget); "error"/"content_filter" can carry partial text. None is a real PASS.
+                fr = ch.get("finish_reason")
+                if fr not in (None, "stop"): return self._fail(f"finish_reason:{fr}")
+                if not (text or "").strip(): return self._fail("empty")
                 return (text or "").strip()
             except urllib.error.HTTPError as e:
                 if e.code in (401, 402):
                     raise OpenRouterError(f"OpenRouter HTTP {e.code}: " + ("invalid API key" if e.code == 401 else "out of credit")) from None
+                reason = f"http_{e.code}"
                 if e.code != 429 and e.code < 500:
                     break  # other 4xx: retrying won't help
-            except (urllib.error.URLError, OSError, json.JSONDecodeError, KeyError, IndexError, TypeError):
-                pass
+            except (urllib.error.URLError, OSError, json.JSONDecodeError, KeyError, IndexError, TypeError) as e:
+                reason = type(e).__name__
             time.sleep(2 ** a)
-        return self._fail()
+        return self._fail(reason)
 
 
 # Relay: in v1 only the informed coordinator carries the policy; workers and the uninformed coordinator get
@@ -293,14 +323,15 @@ class Turns:
     def __call__(self, role, agent, part, system, user):
         tl = getattr(self.llm, "tl", None)
         before = getattr(tl, "failed", 0)
-        if tl is not None: tl.model = None
+        if tl is not None: tl.model = tl.fail_reason = None
         t0 = time.monotonic()
         raw = self.llm(system, user)
         ms = int((time.monotonic() - t0) * 1000)
         posted = parse_post(raw)
+        failed = getattr(tl, "failed", 0) > before
         self.log.append({"role": role, "agent": agent, "part": part, "raw": raw, "posted": posted,
-                         "failed": getattr(tl, "failed", 0) > before, "ms": ms,
-                         "model": getattr(tl, "model", None)})
+                         "failed": failed, "fail_reason": getattr(tl, "fail_reason", None) if failed else None,
+                         "ms": ms, "model": getattr(tl, "model", None)})
         return raw, posted
 
 
@@ -653,7 +684,8 @@ def main(argv=None):
         rows = [r for rs in res.values() for r in rs]
         manifest.update(end=now(), status=status, resolved_model=sorted(llm.models) or None, totals={
             "rows": len(rows), "failed_rows": sum(r["failed_calls"] > 0 for r in rows),
-            "calls": llm.calls, "failed": llm.errors, "cost": llm.cost, "missing_cost": llm.missing_cost})
+            "calls": llm.calls, "failed": llm.errors, "fail_reasons": dict(llm.fail_reasons),
+            "cost": llm.cost, "missing_cost": llm.missing_cost})
         write_json(mpath, manifest)
 
     print(f"run_id={run_id} design={a.design} model={a.model} policy={a.policy} framing={a.framing} "

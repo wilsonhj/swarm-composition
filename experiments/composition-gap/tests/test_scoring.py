@@ -299,6 +299,21 @@ def test_paired_contrast_all_gain():
     assert p["assembled"][0] == 1.0 and p["assembled_disc"] == (5, 0, pytest.approx(2 / 32))
 
 
+def test_full_paired_table_contains_all_four_outcomes():
+    rows = []
+    for seed, (baseline, treatment) in enumerate([(True, True), (False, True), (True, False), (False, False)]):
+        secret = make_task(seed)[2]
+        rows.extend([_e("solo", seed, ["POST: " + secret] if baseline else ["PASS"]),
+                     _e("pipeline", seed, ["POST: " + secret] if treatment else ["PASS"])])
+    (p,) = analyze.paired_contrasts(rows)
+    assert p["assembled_table"] == p["recoverable_table"] == (1, 1, 1, 1)
+    assert sum(p["assembled_table"]) == p["n_pairs"] == 4
+    assert p["assembled"][0] == 0 and p["assembled_disc"] == (1, 1, 1.0)
+    report = analyze.render(rows, ["cond"], "solo", False)
+    assert "paired counts (both/b/c/neither)" in report and "1/1/1/1" in report
+    assert "bootstrap interval is descriptive only" in report and "unadjusted" in report
+
+
 def test_superseded_skipped(tmp_path, capsys):
     d = tmp_path / "superseded"; d.mkdir()
     f = d / "x.jsonl"; f.write_text('{"cond":"solo","seed":0}\n')
@@ -437,3 +452,32 @@ def test_documented_pilot_command_reproduces_committed_solo_contrasts(capsys, mo
     out = capsys.readouterr().out
     assert "## Seed-paired contrasts vs `solo`" in doc
     assert "## Seed-paired contrasts vs `solo`" in out and "(no pairs" not in out
+
+
+def _pooled_rows(n_seeds=10, n_conds=8, hit_seeds=5):
+    """Perfectly correlated outcomes across conditions within a seed."""
+    return [{"seed": s, "cond": f"c{c}", "model": "m", "policy": "p", "framing": "f", "valid": True,
+             "assembled": s < hit_seeds, "recoverable": s < hit_seeds,
+             "identified_parts": 4 if s < hit_seeds else 0, "exposed_parts": 4 if s < hit_seeds else 0}
+            for s in range(n_seeds) for c in range(n_conds)]
+
+
+def test_pooled_cell_proportion_ci_respects_seed_clustering():
+    cell = analyze.summarize(_pooled_rows(), ["model"], validate=False)[0]
+    k, n, (lo, hi) = cell["assembled"]
+    assert (k, n) == (40, 80) and cell["seed_clustered"]
+    row_wilson = analyze.wilson(40, 80)
+    seed_wilson = analyze.wilson(5, 10)
+    assert hi - lo > (row_wilson[1] - row_wilson[0]) * 1.5   # not the rowwise interval
+    assert lo < seed_wilson[0] + 0.1 and hi > seed_wilson[1] - 0.1
+
+
+def test_default_cells_keep_wilson_intervals():
+    rows = [r for r in _pooled_rows() if r["cond"] == "c0"]
+    cell = analyze.summarize(rows, ["model", "cond"], validate=False)[0]
+    assert cell["assembled"] == (5, 10, analyze.wilson(5, 10)) and not cell["seed_clustered"]
+
+
+def test_render_notes_seed_clustered_cells():
+    report = analyze.render(_pooled_rows(), ["model"], "solo", False)
+    assert "seed-cluster bootstrap" in report

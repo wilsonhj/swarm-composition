@@ -9,7 +9,19 @@ Original entries below were fetched on 2026-11-06 and checked against the source
 - [CHIVE](https://alignment.anthropic.com/2026/chive/), Karvonen, Ong, Kantamneni and Marks, 2026 `[karvonen2026chive]`. Uses measured counterfactual edits to evaluate behavioral explanations; generated explanations are not treated as ground truth.
 - [Petri 2.0](https://alignment.anthropic.com/2026/petri-v2/), Anthropic Alignment Science, 2026 `[anthropic2026petri]`. Discusses realism and evaluation-awareness mitigations and their limits. A motivation for future external-validity checks, not evidence that this toy task transfers.
 
-Files in this directory: `README.md` (this file), `metr-incident.md` (sourced incident summary), `related-work.md` (draft Related Work), `references.bib`.
+## Corrected submission memo and SAE boundary (7 November)
+
+The [revised memo](revised-sae-review-and-submission-memo.md) corrects call accounting and pre-sprint attribution, records checked hypothetical power calculations, and keeps completed v2 data, the provenance development pilot, and a future SAE proposal separate. The submission's main literature remains composition, organizational alignment and context/provenance; extended steering material is future work.
+
+- [Subliminal Learning](https://arxiv.org/abs/2507.14805), Cloud et al., 2025 `[cloud2025subliminal]`: student training on teacher outputs; not persistent trait acquisition through frozen-weight message exchange.
+- [Persona Features Control Emergent Misalignment](https://arxiv.org/abs/2506.19823v2), Wang et al., 2025 `[wang2025personafeatures]`: SAE-based model comparison and individual-model activation control; not an end-to-end network cascade.
+- [AxBench](https://arxiv.org/abs/2501.17148v3), Wu et al., 2025 `[wu2025axbench]`: simpler prompting/steering baselines motivate controls, with results scoped to its Gemma-2 benchmark.
+- [Subliminal Learning is a LoRA Artifact](https://arxiv.org/abs/2606.00831v2), Nief et al., 2026 `[nief2026lora]`: **disputed**. The author warning in arXiv metadata was directly checked on 7 November. Do not treat its broad restrictions as settled evidence.
+- [Subliminal Steering](https://arxiv.org/abs/2604.25783v2), Morgulis and Hewitt, 2026 `[morgulis2026subliminal]`: reports transfer under full fine-tuning and SGD in its steering-teacher setting; not proof of universal transfer.
+
+These abstract/metadata pages were fetched and checked; their experiments were not independently replicated. A paper being included in the bibliography does not endorse its disputed conclusions.
+
+Files in this directory: `README.md` (this file), `metr-incident.md` (sourced incident summary), `related-work.md` (draft Related Work), `references.bib`, and `revised-sae-review-and-submission-memo.md`.
 
 Sources marked **[added]** were not in the original candidate list; they were found by search and then fetched and verified.
 

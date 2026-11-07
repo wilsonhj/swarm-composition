@@ -34,7 +34,7 @@ Structure, one to two sentences each:
   3. Evidence on which factors move exposure, identification, recoverability and assembly: [RESULT: effect sizes with CIs, seed-paired contrasts].
   4. A relay analysis in which `relay_informed` and `relay_uninformed` differ only in the coordinator's task text: [RESULT].
   5. Release of code/data [TODO: repo URL; confirm release scope per Appendix A].
-- [FIG 1: schematic of the four topologies on one row; planned for page 1 or 2. Caption: "Conditions. Solo: one agent holds all four lists (solo@k: K independent attempts). Pipeline: four workers, one list each, then an assembler (5 calls). Swarm@n4: four agents on a fixed round-robin shared board for 3 rounds (up to 12 calls), with or without a team objective. Relay: a coordinator and four workers (6 calls). Call counts differ across conditions; solo@k5 and solo@k12 match them."]
+- [FIG 1: schematic of the four topologies on one row; planned for page 1 or 2. Caption: "Conditions. Solo: one agent holds all four lists (solo@k: K independent attempts). Pipeline: four workers, one list each, then an assembler (5 calls). Swarm@n4: four agents on a fixed round-robin shared board for 3 rounds (up to 12 calls), with or without a team objective. Relay: a coordinator and four workers (6 calls). K5 matches the pipeline; K12 matches the N4 maximum. An exact K6 relay baseline was not collected."]
 
 ## 2 Related Work (target 0.6 page)
 - Source: `../docs/research/related-work.md` (being written in parallel). Do NOT write citations from memory; pull only entries that file verifies.
@@ -54,7 +54,7 @@ Structure, one to two sentences each:
 - Policy, identical for every role within a run: `none` (unrestricted task-performance control) vs `strict` (names the vault passphrase). Framing / goal knowledge: `neutral` vs `explicit` (hinted available). Policy and knowledge are crossed, not confounded (the v1 relay changed both together; see 3.7).
 - Exact wording lives in Appendix B.1.
 ### 3.3 Conditions and opportunity matching (0.5 p)
-- solo (1 call); solo@k5 and solo@k12 (K independent attempts, success if any), matching the call budgets of pipeline/relay and of swarm@n4 respectively; pipeline (4 lookups + assembler = 5 calls); swarm@n4 and swarm_noobj@n4 (fixed sequential round-robin over a shared board, 3 rounds, agent j holds part j mod 4, up to 12 calls); relay_informed vs relay_uninformed (coordinator + 4 workers = 6 calls; differ ONLY in the coordinator's task text; same policy for all roles).
+- solo (1 call); solo@k5 and solo@k12 (K independent attempts, success if any), matching the pipeline and swarm@n4 maximum respectively; pipeline (4 lookups + assembler = 5 calls); swarm@n4 and swarm_noobj@n4 (fixed sequential round-robin over a shared board, 3 rounds, agent j holds part j mod 4, up to 12 calls); relay_informed vs relay_uninformed (6 calls; differ ONLY in coordinator task text; same policy for all roles). Relay has no exact K6 baseline in these data. N8 would require K24 for a matched maximum; N8/K12 is not adopted as a new study.
 - Larger swarms (n8, n12) only if run in v2; there several agents hold the same part and the call budget grows to 3N.
 - Describe the swarm as a fixed round-robin shared board (turn order and part assignment are fixed by the harness; no emergent role formation is claimed).
 - [TAB 1: condition x (agents, calls, who sees what, objective given?, matched baseline)]
@@ -64,18 +64,18 @@ Structure, one to two sentences each:
 - No LLM judge.
 ### 3.5 Seeds, denominators, statistics (0.25 p)
 - Held-out seeds 1000-1019 (pilots used 0-19), 20 seeds per cell. Per-row `failed_calls` recorded; analysis excludes failed rows and reports their counts per cell, so denominators are valid-row counts, not nominal 20.
-- Wilson (or bootstrap) CIs per cell; seed-paired contrasts (e.g. pipeline vs solo@k5 on the same seeds) with paired bootstrap CIs; multiple-comparison handling [TODO].
+- Wilson CIs per cell; seed-paired contrasts with paired-bootstrap CIs and exact McNemar p; report all four paired counts (both, treatment-only, baseline-only, neither), attempted/evaluable pairs and operational failures. Name the interval procedure and distinguish descriptive intervals from confirmatory claims. Multiple-comparison handling [TODO].
 - Analysis notes (from the architectural audit, all checked against the code):
   - `solo@kK` is scored per attempt and the best attempt is taken (max / any). Disclosures are never pooled across attempts, because no single agent made them.
-  - `solo` is the primary contrast. `solo@kK` is an upper-bound baseline: pipeline gets one assembly chance over 5 calls, while `solo@k5` succeeds if any of 5 attempts does.
-  - Relay prompts do not use `framing`, so the relay cells for each framing are replicates. Pool them, and do not report a framing effect for relay.
-  - Failed rows (`failed_calls > 0`) are excluded. Failure risk grows with calls per row, so report `n_failed` per cell, and rerun missing (cond, seed) pairs if any cell exceeds about 5% failures.
-  - Power: with 20 seeds per cell and about 7 contrasts per cell, exact McNemar tests are low-power and uncorrected. Lead with effect sizes and CIs.
+  - Stored historical contrasts use one-attempt `solo`; do not relabel their numbers as K-matched. For a new matched analysis select the appropriate K explicitly. Pipeline gets one assembly chance over 5 calls, while `solo@k5` succeeds if any of 5 attempts does.
+  - Relay prompts do not use `framing`; its framing cells are repeated trials on the same task seeds. Descriptive pooling must retain distinct-task counts and seed clustering, not imply independent extra tasks or a framing effect.
+  - Failed rows (`failed_calls > 0`) are excluded and shown separately. Report attempted/evaluable pairs and all-trial sensitivity bounds. Do not add post-outcome replacement trials; any new run and retry/exclusion policy must be versioned prospectively.
+  - Power depends on the paired joint distribution and effect size. The checked offline `power.py` examples are hypothetical, not measured study power. Do not reuse the unverified 45–54% range; lead with effect sizes, uncertainty and comparison scope.
   - The `claude -p` backend has no output-token cap, while the API backends use `max_tokens=300`. Haiku replies were short ("exactly one line"), so the cap does not bind. Check `finish_reason` before mixing in OpenRouter reasoning models.
 ### 3.6 Models, infrastructure, provenance, pre-sprint disclosure (0.3 p)
 - Haiku 5.5 via Claude Code (primary); optional Sonnet 5.5 and OpenRouter cross-model runs [RESULT: which completed; else say not run].
 - Run manifests (run id, commit, prompt hash, CLI version) and per-turn logs. Provider defaults and CLI versions are not pinned beyond what the manifest records.
-- Pre-sprint disclosure: [TODO: what existed before Nov 6 vs built during the sprint; Apart rules require this.]
+- Pre-sprint disclosure: use [the recorded UTC/Pacific timeline](../docs/findings/development-timeline.md) and confirm assets individually with the team. Earlier repository work is not automatically pre-sprint; commit dates do not certify every authoring date.
 ### 3.7 Pilot -> design changes (0.25 p)
 - Exploratory pilots (2-10 seeds per cell, seeds 0-19) showed that disclosure was sensitive to policy wording and framing, that the neutral solo baseline already succeeded, and that the v1 relay changed policy and knowledge together and used non-uniform parsing and a buggy request metric. Consequently the frozen v2 design (i) crosses policy with framing, (ii) adds opportunity-matched solo@k baselines, (iii) applies uniform `POST:` parsing, (iv) replaces the legacy metrics with four outcome measures, (v) records failed calls and provenance, and (vi) evaluates on held-out seeds 1000-1019. The design was selected after seeing pilot seeds; no pilot number is reported as a result. The v1 full run (strict, seeds 0-19) is reported as an exploratory replication of the framing effect.
 
