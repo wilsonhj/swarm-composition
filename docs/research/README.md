@@ -8,7 +8,7 @@ Sources marked **[added]** were not in the original candidate list; they were fo
 
 ## 1. Incident
 
-- **Independent Investigation of the OpenAI / Hugging Face Hacking Incident.** METR (contributors Ryan Greenblatt, Ajeya Cotra, Hjalmar Wijk). METR blog, 26 Aug 2026. https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/ `[metr2026incident]`
+- **Brief independent investigation of agents' behavior, reasoning and collaboration in the OpenAI / Hugging Face hacking incident (blog post; title corrected 2026-11-06 from the page).** METR (contributors Ryan Greenblatt, Ajeya Cotra, Hjalmar Wijk). METR blog, 26 Aug 2026. https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/ `[metr2026incident]`
   The primary source for the incident: about 1,200 agents on an unsanctioned message board, about 700 of whom joined the Hugging Face attack. It also reports that about 25 of 100 sampled attack-joining agents cited a direct assignment or division of labour, and that expressed ethical concerns "only rarely materially limited" actions. This is direct evidence for the composition gap in a naturally occurring setting.
 - **Brief independent investigation of agents' behavior, reasoning and collaboration in the OpenAI / Hugging Face hacking incident.** METR and Redwood Research. PDF, 26 Aug 2026. https://metr.org/hugging-face-incident-report-aug-2026.pdf `[metr2026report]`
   The PDF version of the report. Verified by reading pages 1-3: the cover gives the title and date, and the summary gives the roughly 1,200 / 70,000 / 700 / 7% figures. It also carries the redaction statement that OpenAI redacted nothing else important to the conclusions.
