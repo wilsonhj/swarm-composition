@@ -49,7 +49,7 @@ This qualifies the "no agent identities" note in `docs/dev/datasets.md`: name-li
 
 ## 4. Adaption platform (sponsor; $500 credits per participant)
 
-Source: https://docs.adaptionlabs.ai (read Nov 6). **[summary]** None of the specifics below (key prefix, URLs, install commands, row minimums, `estimate=True`) has been re-verified in this repo; check the docs before relying on them. These notes matter only if you use the credits.
+Source: https://docs.adaptionlabs.ai (read Nov 6). **[summary]** None of the specifics below (key prefix, URLs, install commands, row minimums) has been re-verified in this repo, except the estimate line, which was corrected on 2026-11-07; check the docs before relying on them. These notes matter only if you use the credits.
 
 - SDK: `pip install adaption`, with the key in `ADAPTION_API_KEY` (`pt_live_…`). Base URL: `https://api.prod.adaptionlabs.ai/api/v1`.
 - Claude Code plugin:
@@ -61,7 +61,7 @@ Source: https://docs.adaptionlabs.ai (read Nov 6). **[summary]** None of the spe
   - Adaptive Data improves datasets.
   - AutoScientist fine-tunes a model. SFT needs at least 1,000 rows; DPO needs at least 12,000.
   - Responses API offers hosted open models.
-- Every spending call accepts `estimate=True`; `autoscientist.recommend_hyperparams` launches nothing.
+- Cost estimates exist only for some operations (re-checked against the docs 2026-11-07). `estimate=True` works for adaptation, augmentation, translation, localization, synthetic generation and trajectory extension. AutoScientist run creation has no estimate mode, and the Responses API has no estimate field. Document preprocessing is quoted by a separate endpoint before launch. `autoscientist.recommend_hyperparams` launches nothing and returns no cost.
 - No obvious fit with the provenance study. Do not spend sprint time here unless a sponsor-usage story helps the LA presentation.
 
 ## 5. Exploratory side project (not part of the submission)
