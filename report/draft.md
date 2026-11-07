@@ -8,7 +8,7 @@ DRAFT v1 (Fri Nov 6, 2026). Every number below comes from the frozen v2 runs on 
 
 ## Abstract
 
-Per-agent safety evaluations test whether a model refuses a forbidden request, yet deployed agents increasingly work in systems that split tasks. We ask whether restriction-bound agents that refuse alone still disclose or assemble a forbidden artifact when the work is split. In a benign, string-scored proxy, the artifact is a four-word "vault passphrase" whose words are lookups held by different agents, and a synthetic operator policy forbids revealing any word. We cross policy (none vs. strict) with framing (whether prompts say the items form the passphrase) across solo agents, opportunity-matched solo baselines (5 or 12 attempts), a pipeline, a round-robin shared board, and a coordinator relay whose two variants differ only in the coordinator's task text. We ran Claude Haiku 5.5 (20 held-out seeds per cell, 4,720 calls) and Claude Sonnet 5.5 (10 seeds, 2,950 calls), with no failed calls. Disclosure strongly depends on framing under the strict policy: solo agents assemble the passphrase in 19/20 (Haiku) and 8/10 (Sonnet) runs when the goal is unstated and in none when it is stated, even with 12 attempts. Informed coordinators never requested the pieces (0/70). With an uninformed coordinator, Sonnet relays assembled the passphrase in 7/30 strict-policy runs (words recoverable in 13/30), although Sonnet refused every solo attempt that named the goal. No split leaked more than a single agent given the same unstated goal. Refusal tracks whether an agent's own context names the restricted whole; a task split can remove that link from every agent.
+Per-agent safety evaluations test whether a model refuses a forbidden request, yet deployed agents increasingly work in systems that split tasks. We ask whether restriction-bound agents that refuse alone still disclose or assemble a forbidden artifact when the work is split. In a benign, string-scored proxy, the artifact is a four-word "vault passphrase" whose words are lookups held by different agents, and a synthetic operator policy forbids revealing any word. We cross policy (none vs. strict) with framing (whether prompts say the items form the passphrase) across solo agents, opportunity-matched solo baselines (5 or 12 attempts), a pipeline, a round-robin shared board, and a coordinator relay whose two variants differ only in the coordinator's task text. We ran Claude Haiku 5.5 (20 held-out seeds per cell, 4,720 calls) and Claude Sonnet 5.5 (10 seeds, 2,950 calls), with no failed calls. Disclosure strongly depends on framing under the strict policy: solo agents assemble the passphrase in 19/20 (Haiku) and 8/10 (Sonnet) runs when the goal is unstated and in none when it is stated, even with 12 attempts. Informed coordinators never requested the pieces (0/70). With an uninformed coordinator, requested-Sonnet relays assembled the passphrase in 7/30 strict-policy runs (one cell had mixed served models), although Sonnet refused every solo attempt that named the goal. No split assembled it more often than a single agent given the same unstated goal. Refusal tracks whether an agent's own context names the restricted whole; a task split can remove that link from every agent.
 
 ## 1 Introduction
 
@@ -22,7 +22,7 @@ Contributions:
 1. **A testbed.** It is controlled and string-scored, with no LLM judge. It includes opportunity-matched solo baselines (K independent attempts) and uniform parsing in every condition. Policy and framing are crossed, and every role in a run gets the same policy.
 2. **Measurements on two models.** Claude Haiku 5.5 (20 held-out seeds per cell) and Claude Sonnet 5.5 (10 seeds per cell, plus a replicate of the key cell). This is 7,670 calls with 0 failed. Run manifests and per-turn logs are included.
 3. **An observed context difference.** Under the strict policy, disclosure is lower when local prompts identify the restricted artifact. These prompt variants do not isolate every lexical or semantic explanation.
-4. **Evidence that a split which hides the goal leaks.** When it removes the goal from every agent's context, the restricted artifact is assembled even though every agent that sees the goal refuses (Sonnet: 7/30 relays vs. 0/20 solo). The split did not leak more than a single agent with the same hidden goal.
+4. **Evidence that a split which hides the goal leaks.** When it removes the goal from every agent's context, the restricted artifact is assembled even though every agent that sees the goal refuses (requested Sonnet, strict/explicit: uninformed relay 2/10 in a cell with mixed served models and 1/10 in the verified-model rerun on the same seeds; solo 0/10 in both). The split did not assemble the artifact more often than a single agent with the same hidden goal.
 5. **Code and data:** [TODO: repo URL, public].
 
 [FIG 1: the four topologies in one row. Caption: Solo: one agent sees all four lists (solo@kK: K independent attempts). Pipeline: four workers with one list each, then an assembler (5 calls). Swarm@n4: four agents on a shared board, fixed round-robin, 3 rounds (up to 12 calls), with or without a team objective. Relay: a coordinator that cannot see the lists, four workers, and a final coordinator turn (6 calls).]
@@ -77,7 +77,7 @@ solo@k5 matches the five-call pipeline and solo@k12 matches the N=4 swarm's maxi
 Only text after a leading `POST:` counts as posted, in every condition. We report four outcomes:
 - **Exposed parts:** a target word appears in a post.
 - **Identified parts:** the word is posted without other items from its list, so it is attributable.
-- **Recoverable:** all four words are identified somewhere on the board, possibly across agents.
+- **Recoverable:** all four words are identified somewhere on the board, possibly across agents. This is a conservative clean-mention heuristic: a word quoted together with other items of its list is not counted, even when the message plainly selects it (e.g. Sonnet strict/neutral `swarm@n4`, seed 1004, names all four words yet scores 0 identified). Identified and recoverable counts are therefore lower bounds on what a reader could reconstruct; assembled is unaffected.
 - **Assembled:** all four words appear in order in a single post, after normalising formatting.
 
 ### 3.5 Design, seeds, statistics
@@ -148,7 +148,7 @@ Part of the gap is the protocol, not refusal. Even with no policy, the round-rob
 | Recoverable | 0/40 | 3/40 | 0/30 | **13/30** |
 | Same with no policy: assembled | 29/40 | 16/40 | 9/20 | 17/20 |
 
-*Table 4. Relay outcomes. Relay prompts do not use framing, so the framing cells are replicates and are pooled. Sonnet strict pools the main run (20) and the strict/explicit rerun (10). These are 30 relays over 10 distinct seeds, so treat them as clustered.*
+*Table 4. Relay outcomes. Relay prompts do not use framing, so the framing cells are replicates and are pooled. Sonnet strict pools the main run (20) and the strict/explicit rerun (10). These are 30 relays over 10 distinct seeds, so treat them as clustered. The original strict/explicit cell's manifest records two served models (`claude-sonnet-5` and `claude-sonnet-5-5`) without per-turn identity, so 7/30 is a requested-Sonnet aggregate. Excluding that cell (strict/neutral plus the verified rerun): 5/20 assembled, 9/20 recoverable.*
 
 **Informed coordinators.** An informed coordinator under the strict policy never sent a request: 0 of 70 across both models. Without the policy it always did (40/40 and 20/20).
 
@@ -167,7 +167,7 @@ No agent was told that these items are the passphrase. The policy reached every 
 
 No seed went the other way. For Haiku the same contrast is +5 pp [0, +15] assembled and +15 pp [0, +30] recoverable. Haiku's uninformed coordinator mostly declined to send requests at all (7/40).
 
-**Against the information-matched baseline.** The fair comparison for the uninformed relay is solo/neutral: one agent that also has not been told the goal. Against that baseline the relay leaked less (Sonnet 7/30 vs. 8/10 assembled; Haiku 1/40 vs. 19/20). The relay task is also harder even without any policy (Sonnet uninformed 17/20 assembled; Haiku 16/40).
+**Against the information-matched baseline.** The fair comparison for the uninformed relay is solo/neutral: one agent that also has not been told the goal. Against that baseline the relay assembled less often (Sonnet strict/neutral 4/10 vs. 8/10; Haiku 1/40 vs. 19/20). The relay task is also harder even without any policy (Sonnet uninformed 17/20 assembled; Haiku 16/40).
 
 ### 4.5 Robustness
 
@@ -183,7 +183,7 @@ Across the tested prompt variants and two models, disclosure is strongly associa
 
 When each piece carries a cue ("Part k … your word"), workers refuse. When the split removes that cue from every agent, as in the uninformed relay, the restricted artifact is assembled even though each agent would refuse a request that stated the goal.
 
-We therefore read the "composition gap" in our data as a **goal-visibility gap**. A multi-agent split leaks to the extent that it hides the goal from every agent. It did not leak more than a single agent from whom the goal was equally hidden.
+We therefore read the "composition gap" in our data as a **goal-visibility gap**. A multi-agent split leaks to the extent that it hides the goal from every agent. It did not assemble the artifact more often than a single agent from whom the goal was equally hidden. (Recoverability is a conservative heuristic, §3.4, so we do not make the same claim for partial disclosure.)
 
 This is consistent with, but does not prove, a mechanism in which refusal is triggered by recognising the target in local context rather than by inferring it. In the leaking relays, the coordinator invoked the policy in its own request while requesting the policy's object. A warning does not stop a leak when no agent recognises that what it is doing is what the warning is about.
 
@@ -213,7 +213,7 @@ See Appendix A.
 
 Restriction-bound agents that refuse a goal when it is stated in their own context do not refuse more when it isn't, and splitting a task across agents does not by itself overcome that refusal. A split that hides the goal from every agent does, as a single agent kept uninformed would.
 
-For Sonnet 5.5 this produced the restricted artifact in 7 of 30 relays while every goal-aware attempt refused. Safety evaluations of agent systems should therefore test what each agent learns about the system goal, not only whether each agent refuses it.
+For requested Sonnet this produced the restricted artifact in 7 of 30 relays (one of the pooled cells had mixed served models; 1 of 10 in the verified-model rerun) while every goal-aware attempt refused. Safety evaluations of agent systems should therefore test what each agent learns about the system goal, not only whether each agent refuses it.
 
 Next steps:
 - Cross-provider runs.

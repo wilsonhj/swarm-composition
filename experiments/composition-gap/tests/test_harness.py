@@ -409,6 +409,55 @@ def test_claude_backend_counts_failures(monkeypatch, behaviour):
     assert llm.cost is None
 
 
+def sdk_message(content, stop_reason="end_turn", model="claude-x-1"):
+    calls = []
+    class Msgs:
+        def create(self, **kw):
+            calls.append(kw)
+            return types.SimpleNamespace(content=content, stop_reason=stop_reason, model=model,
+                                         usage=types.SimpleNamespace(input_tokens=5, output_tokens=2))
+    return types.SimpleNamespace(Anthropic=lambda: types.SimpleNamespace(messages=Msgs())), calls
+
+
+def text_block(t): return types.SimpleNamespace(type="text", text=t)
+
+
+def test_claude_thinking_then_text_is_a_valid_reply(monkeypatch):
+    sdk, calls = sdk_message([types.SimpleNamespace(type="thinking", thinking="private"), text_block("POST: complete")])
+    monkeypatch.setitem(sys.modules, "anthropic", sdk)
+    llm = h.Claude("claude-x"); T = h.Turns(llm)
+    raw, posted = T("worker", "w0", 0, "s", "u")
+    assert raw == "POST: complete" and posted == "complete" and not T.log[0]["failed"]
+    assert len(calls) == 1 and llm.calls == 1 and llm.in_tok == 5
+
+
+@pytest.mark.parametrize("content,stop,reason", [
+    ([text_block("")], "max_tokens", "stop_reason:max_tokens"),
+    ([text_block("POST: amb")], "max_tokens", "stop_reason:max_tokens"),
+    ([text_block("  ")], "end_turn", "empty"),
+    ([types.SimpleNamespace(type="thinking", thinking="x")], "end_turn", "empty"),
+])
+def test_claude_truncated_or_empty_fails_without_retry_and_counts_usage(monkeypatch, content, stop, reason):
+    sdk, calls = sdk_message(content, stop)
+    monkeypatch.setitem(sys.modules, "anthropic", sdk)
+    llm = h.Claude("claude-x"); T = h.Turns(llm)
+    raw, _ = T("worker", "w0", 0, "s", "u")
+    assert raw == "PASS" and T.log[0]["failed"] and T.log[0]["fail_reason"] == reason
+    assert len(calls) == 1 and llm.calls == 1 and llm.in_tok == 5 and llm.models == {"claude-x-1"}
+
+
+def test_claude_turn_records_served_model_per_call(monkeypatch):
+    sdk, _ = sdk_message([text_block("PASS")], model="claude-x-served")
+    monkeypatch.setitem(sys.modules, "anthropic", sdk)
+    llm = h.Claude("claude-x"); T = h.Turns(llm)
+    T("worker", "w0", 0, "s", "u")
+    assert T.log[0]["model"] == ["claude-x-served"]
+    llm.c.messages.create = lambda **kw: types.SimpleNamespace(content=[text_block("PASS")], stop_reason="end_turn",
+                                                               model=None, usage=types.SimpleNamespace(input_tokens=1, output_tokens=1))
+    T("worker", "w1", 1, "s", "u")
+    assert T.log[1]["model"] is None  # no inheritance from the previous call
+
+
 def test_claude_backend_real_sdk_against_local_server(monkeypatch):
     """Exercises the installed anthropic SDK end to end against a localhost fake Messages API (no network).
     Skipped unless the `anthropic` extra is installed."""
@@ -536,6 +585,35 @@ def test_claude_code_failure_counted(monkeypatch):
     monkeypatch.setattr(h.subprocess, "run", run)
     cc = h.ClaudeCode("m")
     assert cc("s", "u") == "PASS" and len(seen) == 3 and cc.errors == 1 and cc.tl.failed == 1 and cc.calls == 0
+
+
+def test_claude_code_nonzero_exit_is_failure_even_with_success_json(monkeypatch):
+    body = json.dumps({"is_error": False, "result": "PASS", "total_cost_usd": 0.01, "modelUsage": {"m": {}}})
+    seen = []
+    def run(cmd, **kw):
+        seen.append(kw); return types.SimpleNamespace(stdout=body, returncode=1)
+    monkeypatch.setattr(h.subprocess, "run", run)
+    T = h.Turns(h.ClaudeCode("m"))
+    raw, _ = T("worker", "w0", 0, "s", "u")
+    assert raw == "PASS" and T.log[0]["failed"] and T.log[0]["fail_reason"] == "exit_1" and len(seen) == 3
+
+
+@pytest.mark.parametrize("result", ["", "   "])
+def test_claude_code_empty_result_is_failure_not_nondisclosure(monkeypatch, result):
+    run, seen = fake_run([json.dumps({"is_error": False, "result": result, "total_cost_usd": 0.01,
+                                      "modelUsage": {"m": {}}})])
+    monkeypatch.setattr(h.subprocess, "run", run)
+    cc = h.ClaudeCode("m"); T = h.Turns(cc)
+    raw, posted = T("worker", "w0", 0, "s", "u")
+    assert raw == "PASS" and posted is None and T.log[0]["failed"] and T.log[0]["fail_reason"] == "empty"
+    assert len(seen) == 1 and cc.calls == 1 and cc.cost == pytest.approx(0.01)
+
+
+def test_claude_code_genuine_pass_stays_valid(monkeypatch):
+    run, _ = fake_run([json.dumps({"is_error": False, "result": "PASS", "modelUsage": {"m": {}}})])
+    monkeypatch.setattr(h.subprocess, "run", run)
+    T = h.Turns(h.ClaudeCode("m"))
+    assert T("worker", "w0", 0, "s", "u")[0] == "PASS" and not T.log[0]["failed"]
 
 
 @pytest.mark.parametrize("choice", [

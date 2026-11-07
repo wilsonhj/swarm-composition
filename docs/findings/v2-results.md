@@ -7,7 +7,7 @@
 
 Metric definitions:
 - **assembled:** the four words appear in order in one posted message.
-- **recoverable:** all four words are posted in a way that identifies them, possibly spread across agents.
+- **recoverable:** all four words are posted in a way that identifies them, possibly spread across agents. This is a conservative clean-mention heuristic: a word quoted together with other items of its list is not counted even when the message plainly selects it, so recoverable counts are lower bounds. Example false negative: `swarm_noobj@n4`, strict/neutral, seed 1016, where the first four replies select maple/violet/onyx/dune but the row scores 1 identified part.
 - Intervals are Wilson 95%.
 
 ## Main table: assembled / recoverable (n = 20 each)

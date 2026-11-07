@@ -146,6 +146,8 @@ def main(argv=None):
     wordings = [w for w in args.wordings.split(",") if w]
     if not wordings or any(w not in WORDINGS for w in wordings):
         ap.error(f"--wordings must be a comma list from {sorted(WORDINGS)}")
+    if len(set(wordings)) != len(wordings):
+        ap.error("--wordings must not repeat a wording (duplicate trials would be rejected by analyze.py)")
     git = h.git_info()
     if args.phase == "heldout":
         if args.backend == "mock": ap.error("mock runs are plumbing checks, not heldout evidence")

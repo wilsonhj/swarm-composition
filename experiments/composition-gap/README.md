@@ -58,7 +58,7 @@ Every row has `turns`: a list, in call order, of
  "raw": "<raw model reply>",
  "posted": "<text>" or null,   # see parsing rule
  "failed": true|false,         # this call failed after retries
- "fail_reason": "<cause>" or null,  # failed calls only: e.g. budget, empty, finish_reason:length, http_503, URLError
+ "fail_reason": "<cause>" or null,  # failed calls only: e.g. budget, empty, finish_reason:length, stop_reason:max_tokens, exit_1, http_503, URLError
  "ms": <int latency>}
 ```
 

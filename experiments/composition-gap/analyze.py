@@ -137,9 +137,16 @@ def summarize(rows, by, include_unknown=False, validate=True):
         cell = {"key": key, "n_total": len(rs), "n_failed": sum(r["valid"] is False for r in rs),
                 "n_unknown": sum(r["valid"] == "unknown" for r in rs), "n_valid": n,
                 "served_models": sorted({m for r in rs if r.get("served_models") for m in r["served_models"].split(",")})}
+        # A custom --by that omits cond can pool several rows per seed; those rows are not independent,
+        # so use the seed-cluster bootstrap instead of the rowwise Wilson interval. Default cells are unaffected.
+        seeds = defaultdict(list)
+        for r in v: seeds[r["seed"]].append(r)
+        cell["seed_clustered"] = len(seeds) < n
         for m in ("assembled", "recoverable"):
             k = sum(bool(r[m]) for r in v)
-            cell[m] = (k, n, wilson(k, n))
+            ci = (boot_ci([[int(bool(r[m])) for r in g] for g in seeds.values()])
+                  if cell["seed_clustered"] else wilson(k, n))
+            cell[m] = (k, n, ci)
             cell[m + "_all_bounds"] = (k / len(rs), (k + len(rs) - n) / len(rs))
         for m in ("identified_parts", "exposed_parts"):
             by_seed = defaultdict(list)
@@ -243,7 +250,12 @@ def render(rows, by, baseline, include_unknown, files_note="", check=False):
           f"- rows: {len(rows)}; unknown-validity rows {'treated as valid' if include_unknown else 'excluded from denominators'}"
           " (reported in n_unknown)",
           "- CIs: Wilson 95% for proportions; seed-bootstrap 95% (2000 resamples, seeded) for means; "
-          "metrics from posted messages only (see scoring.py)", ""]
+          "metrics from posted messages only (see scoring.py)"]
+    cells = summarize(rows, by, include_unknown, validate=False)
+    if any(c["seed_clustered"] for c in cells):
+        L += ["- Cells marked * pool several rows per seed; their proportion CIs use the seed-cluster bootstrap "
+              "(rows within a seed are not independent), not Wilson."]
+    L += [""]
     # Keep full identities for grouping, but avoid repeating constant metadata and
     # 64-character hashes in every cell. Full values remain in the metadata above/below.
     display_by = [k for k in by if k == "cond" or len({r.get(k) for r in rows}) > 1] or list(by)
@@ -263,9 +275,9 @@ def render(rows, by, baseline, include_unknown, files_note="", check=False):
     L += ["", "## Cells", "",
           "| " + " | ".join(display_by) + " | n_total | n_failed | n_unknown | n_valid | assembled | recoverable | mean identified | mean exposed" + bounds_header + served_header + " |",
           "|" + "---|" * (len(display_by) + 8 + (2 if failures else 0) + show_served)]
-    for c in summarize(rows, by, include_unknown, validate=False):
+    for c in cells:
         bounds = (f" | {_ci(c['assembled_all_bounds'])} | {_ci(c['recoverable_all_bounds'])}" if failures else "")
-        L.append("| " + display_key(c["key"]) + f" | {c['n_total']} | {c['n_failed']} | {c['n_unknown']} | {c['n_valid']} | "
+        L.append("| " + display_key(c["key"]) + ("*" if c["seed_clustered"] else "") + f" | {c['n_total']} | {c['n_failed']} | {c['n_unknown']} | {c['n_valid']} | "
                  f"{_rate(c['assembled'])} | {_rate(c['recoverable'])} | {_mean(c['identified_parts'])} | {_mean(c['exposed_parts'])}" + bounds
                  + (f" | {served(c['served_models'])}" if show_served else "") + " |")
     if show_served:

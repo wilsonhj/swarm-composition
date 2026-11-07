@@ -121,14 +121,22 @@ class Claude(Backend):
             try:
                 m = self.c.messages.create(model=self.model, max_tokens=MAX_TOKENS, system=system,
                                            messages=[{"role": "user", "content": user}])
-                text = m.content[0].text
-                with self.lock:
-                    self.in_tok += m.usage.input_tokens; self.out_tok += m.usage.output_tokens; self.calls += 1
-                    if getattr(m, "model", None): self.models.add(m.model)
-                return text
             except Exception as e:
                 reason = type(e).__name__
                 time.sleep(2 ** a)
+                continue
+            # A received response is billed: account for it before interpreting it, and never resend it.
+            with self.lock:
+                self.in_tok += m.usage.input_tokens; self.out_tok += m.usage.output_tokens; self.calls += 1
+                if getattr(m, "model", None): self.models.add(m.model)
+            self.tl.model = [m.model] if getattr(m, "model", None) else None
+            # Thinking blocks may precede the text block; join only text blocks (blocks without a type are text).
+            text = "".join(getattr(b, "text", "") or "" for b in m.content
+                           if getattr(b, "type", "text") == "text").strip()
+            stop = getattr(m, "stop_reason", None)
+            if stop == "max_tokens": return self._fail("stop_reason:max_tokens")
+            if not text: return self._fail("empty")
+            return text
         return self._fail(reason)
 
 
@@ -160,7 +168,8 @@ class ClaudeCode(Backend):
             try:
                 p = subprocess.run(cmd, capture_output=True, text=True, cwd=self.cwd, env=self.env, timeout=180)
                 d = json.loads(p.stdout)
-                if d.get("is_error"): reason = "is_error"
+                if p.returncode != 0: reason = f"exit_{p.returncode}"  # process failed, whatever the JSON says
+                elif d.get("is_error"): reason = "is_error"
                 else:
                     text = d["result"].strip()
                     with self.lock:
@@ -170,6 +179,8 @@ class ClaudeCode(Backend):
                         self.calls += 1
                         self.models.update((d.get("modelUsage") or {}).keys())
                     self.tl.model = sorted((d.get("modelUsage") or {}).keys()) or None
+                    # An empty reply is a generation failure, not an observed refusal (PASS); don't resample it.
+                    if not text: return self._fail("empty")
                     return text
             except (json.JSONDecodeError, KeyError, AttributeError, TypeError, subprocess.TimeoutExpired) as e:
                 reason = type(e).__name__

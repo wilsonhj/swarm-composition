@@ -177,7 +177,8 @@ def test_openrouter_invalid_budget_is_usage_error(tmp_path, no_dotenv, capsys, b
     assert e.value.code == 2 and "usage:" in capsys.readouterr().err and not (tmp_path / "new").exists()
 
 
-@pytest.mark.parametrize("args", [["--phase", "heldout"], ["--seed-offset", "3000"], ["--seeds", "0"]])
+@pytest.mark.parametrize("args", [["--phase", "heldout"], ["--seed-offset", "3000"], ["--seeds", "0"],
+                                  ["--wordings", "keyword,keyword"], ["--wordings", "keyword,paraphrase,keyword"]])
 def test_rejected_invocation_creates_no_output_dir(tmp_path, args):
     with pytest.raises(SystemExit): p.main([*args, "--out", str(tmp_path / "new" / "x.jsonl")])
     assert not (tmp_path / "new").exists()
