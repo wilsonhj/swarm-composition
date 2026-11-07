@@ -545,3 +545,78 @@ def test_openrouter_normal_stop_not_failure(monkeypatch):
     patch(monkeypatch, [Resp({"choices": [{"message": {"content": "PASS"}, "finish_reason": "stop"}], "usage": {"cost": 0.001}})])
     llm = h.OpenRouter("a/b", key="k", reserve_usd=0.01)
     assert llm("s", "u") == "PASS" and llm.errors == 0
+
+
+# ---------------------------------------------------------------- runner review: OpenRouter usage errors
+
+@pytest.fixture
+def no_dotenv(monkeypatch):
+    monkeypatch.setattr(h, "load_env", lambda path=None: None)
+    monkeypatch.delenv("OPENROUTER_BUDGET_USD", raising=False)
+    monkeypatch.setenv("OPENROUTER_API_KEY", "test-not-a-key")
+
+
+@pytest.mark.parametrize("extra,budget_env", [(["--max-usd", "0"], None), (["--max-usd", "nan"], None),
+                                              (["--max-usd", "5", "--reserve-usd", "-1"], None),
+                                              ([], "0"), ([], "abc")])
+def test_cli_invalid_openrouter_budget_is_usage_error(tmp_path, keep_globals, no_dotenv, monkeypatch, capsys,
+                                                       extra, budget_env):
+    if budget_env is not None: monkeypatch.setenv("OPENROUTER_BUDGET_USD", budget_env)
+    out = tmp_path / "x.jsonl"
+    with pytest.raises(SystemExit) as e:
+        h.main(["--backend", "openrouter", "--model", "a/b", *extra, "--out", str(out)])
+    assert e.value.code == 2 and "usage:" in capsys.readouterr().err
+    assert not list(tmp_path.iterdir())
+
+
+def test_cli_openrouter_budget_falls_back_to_env(tmp_path, keep_globals, no_dotenv, monkeypatch):
+    monkeypatch.setenv("OPENROUTER_BUDGET_USD", "7.5")
+    seen = {}
+    class Stop(Exception): pass
+    def fake(model, max_usd, key=None, reserve_usd=None):
+        seen.update(model=model, max_usd=max_usd, reserve_usd=reserve_usd); raise Stop
+    monkeypatch.setattr(h, "OpenRouter", fake)
+    with pytest.raises(Stop):
+        h.main(["--backend", "openrouter", "--model", "a/b", "--out", str(tmp_path / "x.jsonl")])
+    assert seen == {"model": "a/b", "max_usd": 7.5, "reserve_usd": None}
+
+
+def test_cli_openrouter_requires_vendor_slug(tmp_path, keep_globals, no_dotenv):
+    with pytest.raises(SystemExit) as e:
+        h.main(["--backend", "openrouter", "--model", "plain", "--max-usd", "1", "--out", str(tmp_path / "x.jsonl")])
+    assert e.value.code == 2
+
+
+# ---------------------------------------------------------------- runner review: Makefile run-provenance
+
+ROOT = Path(__file__).resolve().parents[3]
+needs_make = pytest.mark.skipif(not __import__("shutil").which("make"), reason="make not installed")
+
+
+def make(*args, dry=True):
+    import subprocess
+    return subprocess.run(["make", "--no-print-directory", "-C", str(ROOT), *(["-n"] if dry else []), *args],
+                          capture_output=True, text=True, timeout=30)
+
+
+def provenance_cmd(r): return [l for l in r.stdout.splitlines() if "provenance.py" in l][0]
+
+
+@needs_make
+def test_make_run_provenance_default_unchanged():
+    r = make("run-provenance", "OUT=results/x.jsonl")
+    assert r.returncode == 0
+    assert provenance_cmd(r).endswith('provenance.py --backend mock --seeds 20 --out "results/x.jsonl"')
+
+
+@needs_make
+def test_make_run_provenance_openrouter_forwards_model_and_max_usd():
+    r = make("run-provenance", "OUT=results/x.jsonl", "BACKEND=openrouter", "MODEL=a/b", "MAX_USD=3")
+    assert r.returncode == 0
+    assert '--backend openrouter --model "a/b" --max-usd 3 --seeds 20' in provenance_cmd(r)
+
+
+@needs_make
+def test_make_run_provenance_openrouter_requires_model():
+    r = make("run-provenance", "OUT=results/x.jsonl", "BACKEND=openrouter", dry=False)
+    assert r.returncode != 0 and "MODEL is required" in r.stdout + r.stderr

@@ -129,3 +129,43 @@ def test_cli_rejects_invalid_or_unfrozen_run_before_backend(tmp_path, args):
     out = tmp_path / "x.jsonl"
     with pytest.raises(SystemExit): p.main([*args, "--out", str(out)])
     assert not out.exists()
+
+
+# ---------------------------------------------------------------- runner review: usage errors, no stray dirs
+
+@pytest.fixture
+def no_dotenv(monkeypatch):
+    monkeypatch.setattr(h, "load_env", lambda path=None: None)
+    monkeypatch.setenv("OPENROUTER_API_KEY", "test-not-a-key")
+
+
+@pytest.mark.parametrize("args", [["--model", "a/b"], ["--model", "plain", "--max-usd", "1"]])
+def test_openrouter_needs_slug_and_explicit_budget_and_leaves_no_dirs(tmp_path, monkeypatch, no_dotenv, args):
+    monkeypatch.setenv("OPENROUTER_BUDGET_USD", "5")  # the protocol requires an explicit --max-usd
+    def forbidden(*a, **kw): pytest.fail("OpenRouter must not be created for a rejected invocation")
+    monkeypatch.setattr(h, "OpenRouter", forbidden)
+    with pytest.raises(SystemExit) as e:
+        p.main(["--backend", "openrouter", *args, "--out", str(tmp_path / "new" / "x.jsonl")])
+    assert e.value.code == 2 and not (tmp_path / "new").exists()
+
+
+@pytest.mark.parametrize("budget", ["0", "-1", "nan", "inf"])
+def test_openrouter_invalid_budget_is_usage_error(tmp_path, no_dotenv, capsys, budget):
+    with pytest.raises(SystemExit) as e:
+        p.main(["--backend", "openrouter", "--model", "a/b", "--max-usd", budget,
+                "--out", str(tmp_path / "new" / "x.jsonl")])
+    assert e.value.code == 2 and "usage:" in capsys.readouterr().err and not (tmp_path / "new").exists()
+
+
+@pytest.mark.parametrize("args", [["--phase", "heldout"], ["--seed-offset", "3000"], ["--seeds", "0"]])
+def test_rejected_invocation_creates_no_output_dir(tmp_path, args):
+    with pytest.raises(SystemExit): p.main([*args, "--out", str(tmp_path / "new" / "x.jsonl")])
+    assert not (tmp_path / "new").exists()
+
+
+def test_existing_output_rejected_before_backend(tmp_path, monkeypatch):
+    out = tmp_path / "x.jsonl"
+    out.write_text("")
+    def forbidden(*a, **kw): pytest.fail("backend must not be created when the output exists")
+    monkeypatch.setattr(p, "StudyMock", forbidden)
+    with pytest.raises(SystemExit): p.main(["--out", str(out)])

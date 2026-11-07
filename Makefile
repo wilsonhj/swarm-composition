@@ -23,9 +23,10 @@ provenance-smoke: ## Offline provenance study + analysis (scripted mock, no mode
 	cd $(EXP_DIR) && $(UV) python provenance.py --seeds 2 --out /tmp/task-provenance-smoke.jsonl
 	cd $(EXP_DIR) && $(UV) python analyze.py /tmp/task-provenance-smoke.jsonl --baseline local --md /tmp/task-provenance-smoke.md
 
-run-provenance: ## Pilot only: make run-provenance OUT=results/task-provenance/pilot.jsonl [BACKEND=mock] (paths relative to experiment dir)
+run-provenance: ## Pilot only: make run-provenance OUT=results/task-provenance/pilot.jsonl [BACKEND=mock] [MODEL=<id>] (BACKEND=openrouter needs MODEL=vendor/model, uses MAX_USD) (paths relative to experiment dir)
 	@test -n "$(OUT)" || { echo 'OUT is required; see docs/protocols/task-provenance-v1.md'; exit 1; }
-	cd $(EXP_DIR) && $(UV) python provenance.py --backend $(or $(BACKEND),mock) --seeds $(SEEDS) --out "$(OUT)"
+	@test "$(BACKEND)" != openrouter || test -n "$(MODEL)" || { echo 'MODEL is required for BACKEND=openrouter, e.g. MODEL=vendor/model [MAX_USD=25]'; exit 1; }
+	cd $(EXP_DIR) && $(UV) python provenance.py --backend $(or $(BACKEND),mock) $(if $(MODEL),--model "$(MODEL)" )$(if $(filter openrouter,$(BACKEND)),--max-usd $(MAX_USD) )--seeds $(SEEDS) --out "$(OUT)"
 
 credits: ## Show OpenRouter credit usage/remaining (needs .env)
 	cd $(EXP_DIR) && $(UV) python credits.py
