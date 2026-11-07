@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Guard against committed secrets
+        run: |
+          set -u
+          if git ls-files | grep -E '(^|/)\.env$'; then
+            echo "::error::A file named .env is tracked. Remove it from git (git rm --cached) and rotate any keys in it."
+            exit 1
+          fi
+          if git grep -nIE 'sk-or-v1-[A-Za-z0-9]{20,}' -- . ; then
+            echo "::error::Possible OpenRouter API key found in a tracked file. Remove it and rotate the key."
+            exit 1
+          fi
+          echo "No secrets detected."
+
+      - uses: astral-sh/setup-uv@v5
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Unit tests (no network)
+        working-directory: experiments/composition-gap
+        run: uv run --no-project --with pytest pytest -q
+
+      - name: Mock smoke run
+        working-directory: experiments/composition-gap
+        run: uv run --no-project python harness.py --backend mock --seeds 2 --out /tmp/smoke.jsonl

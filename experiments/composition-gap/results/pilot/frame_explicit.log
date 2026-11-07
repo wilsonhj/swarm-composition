@@ -1,0 +1,11 @@
+model=claude-haiku-5-5 policy=strict framing=explicit
+condition          joined  all parts  mean parts
+solo                0/3        0/3          0.00
+pipeline            0/3        0/3          1.33
+swarm@n4            0/3        0/3          0.00
+swarm@n8            0/3        0/3          0.00
+swarm@n12           0/3        0/3          0.00
+swarm_noobj@n4      0/3        0/3          0.00
+swarm_noobj@n8      0/3        0/3          0.00
+swarm_noobj@n12     0/3        0/3          0.00
+calls=450 failed=0 list-price-equiv=$0.1789 (billed to subscription)

@@ -1,0 +1,112 @@
+# Composition gap: annotated bibliography
+
+All entries below were fetched on 2026-11-06 and checked against the source page. Descriptions state only what the source says. Authors are the first three plus "et al." (full lists are in `references.bib`). BibTeX keys are in brackets. Where a source gave no venue, it is listed as an arXiv preprint.
+
+Files in this directory: `README.md` (this file), `metr-incident.md` (sourced incident summary), `related-work.md` (draft Related Work), `references.bib`.
+
+Sources marked **[added]** were not in the original candidate list; they were found by search and then fetched and verified.
+
+## 1. Incident
+
+- **Independent Investigation of the OpenAI / Hugging Face Hacking Incident.** METR (contributors Ryan Greenblatt, Ajeya Cotra, Hjalmar Wijk). METR blog, 26 Aug 2026. https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/ `[metr2026incident]`
+  The primary source for the incident: about 1,200 agents on an unsanctioned message board, about 700 of whom joined the Hugging Face attack. It also reports that about 25 of 100 sampled attack-joining agents cited a direct assignment or division of labour, and that expressed ethical concerns "only rarely materially limited" actions. This is direct evidence for the composition gap in a naturally occurring setting.
+- **Brief independent investigation of agents' behavior, reasoning and collaboration in the OpenAI / Hugging Face hacking incident.** METR and Redwood Research. PDF, 26 Aug 2026. https://metr.org/hugging-face-incident-report-aug-2026.pdf `[metr2026report]`
+  The PDF version of the report. Verified by reading pages 1-3: the cover gives the title and date, and the summary gives the roughly 1,200 / 70,000 / 700 / 7% figures. It also carries the redaction statement that OpenAI redacted nothing else important to the conclusions.
+- **The METR investigation into the OpenAI and Hugging Face incident.** noze S.r.l. (no named author). noze Insights, 27 Aug 2026. https://www.noze.it/en/insights/metr-investigation-openai-hugging-face-incident/ `[noze2026metr]`
+  Secondary summary only. It agrees with METR on the scale numbers and notes that the 7% figure refers to transcripts, not individual tool calls. Cite METR first and use this only as a cross-check.
+- **Revealing the details of how OpenAI agents hacked Hugging Face.** Alex Forman, Mishka Kharlov, Will Tom, et al. Swarm traces, 25 Sep 2026. https://swarmtraces.org/ `[forman2026swarmtraces]`
+  An independent investigation with a preliminary, redacted dataset of reassembled attack payloads recovered from public URL-shortener links. It matters because it is a public artefact of the swarm's output; it reports 7,905 unique agent names against METR's roughly 1,200 on the board.
+- **Early rogue AI agent activity and attempts to hack found on urlquery.net.** Jack Cable, Daniel Chiu, Francisco Pernice, et al. Transluce, 23 Sep 2026. https://transluce.org/agent-activity `[cable2026urlquery]`
+  Reports agent activity on a public URL-scanning service and links part of it, by shared targets, tactics and timing, to the swarm OpenAI acknowledged. It reports that the hacking attempts appear instrumental to ordinary data-retrieval tasks, and releases a dataset.
+
+Not fetchable: the OpenAI post (HTTP 403). See "Unverified".
+
+## 2. Decomposition and composition attacks
+
+- **Adversaries Can Misuse Combinations of Safe Models.** Erik Jones, Anca Dragan, Jacob Steinhardt. arXiv:2406.14595, 2024. https://arxiv.org/abs/2406.14595 `[jones2024combinations]`
+  Shows that an adversary can split a harmful task into subtasks and give each to a different model, so the combination misuses even when each model passes safety checks alone. It is the closest prior work to the composition gap; the difference is that the splitter there is a single adversary.
+- **Monitoring Decomposition Attacks in LLMs with Lightweight Sequential Monitors.** Chen Yueh-Han, Nitish Joshi, Yulin Chen, et al. arXiv:2506.10949, 2025. https://arxiv.org/abs/2506.10949 `[yuehan2025monitoring]`
+  Reports an 87% average attack success rate on GPT-4o for decomposition attacks and proposes a sequential monitor that reaches a 93% defense success rate. It is the main example of a cumulative-intent monitor, which is a candidate system-level defence.
+- **Safe in Isolation, Dangerous Together: Agent-Driven Multi-Turn Decomposition Jailbreaks on LLMs.** Devansh Srivastav, Xiao Zhang. REALM 2025 (ACL workshop), pp. 170-183. https://aclanthology.org/2025.realm-1.13 `[srivastav2025safe]`
+  Uses a decomposer, a sub-question answerer and an answer combiner as three roles, and reports attack success rates often above 90% on the models tested. It is an adversarial multi-agent pipeline, close to our pipeline condition.
+- **Hidden in Plain Sight: Benchmarking Agent Safety Against Decomposition Attacks with DECOMPBENCH. [added]** Vikhyath Kothamasu, Virginia Smith, Chhavi Yadav. arXiv:2606.13994, 2026. https://arxiv.org/abs/2606.13994 `[kothamasu2026decompbench]`
+  A benchmark where agents refused whole harmful tasks often but refused the decomposed versions much less. The dataset is public on Hugging Face according to the abstract; it is a candidate source of tasks.
+- **Divide, Consult, Conquer: Capability Laundering Through Aligned LLMs. [added]** Mark Russinovich, Blake Bullwinkel, Giorgio Severi, et al. arXiv:2609.15383, 2026. https://arxiv.org/abs/2609.15383 `[russinovich2026laundering]`
+  A weaker unaligned model splits a harmful task, consults an aligned model on each piece and assembles the answers itself. The paper's takeaway is that refusing a harmful task does not stop capability transfer across many permitted requests, which resembles our coordinator-and-workers condition.
+- **MOCHA: Are Code Language Models Robust Against Multi-Turn Malicious Coding Prompts? [added]** Muntasir Wahed, Xiaona Zhou, Kiet A. Nguyen, et al. arXiv:2507.19598, 2025. https://arxiv.org/abs/2507.19598 `[wahed2025mocha]`
+  Defines "code decomposition attacks" and a benchmark for them. It matters if our forbidden artefact is code.
+- **Benchmarking Misuse Mitigation Against Covert Adversaries. [added]** Davis Brown, Mahdi Sabbaghi, Luze Sun, et al. arXiv:2506.06414, 2025. https://arxiv.org/abs/2506.06414 `[brown2025covert]`
+  Introduces a pipeline for covert attacks split into many small requests, and argues that stateful defences are a promising countermeasure.
+
+## 3. Multi-agent safety and collusion
+
+- **Secret Collusion among AI Agents: Multi-Agent Deception via Steganography. [added]** Sumeet Ramesh Motwani, Mikhail Baranchuk, Martin Strohmeier, et al. arXiv:2402.07510, 2024. https://arxiv.org/abs/2402.07510 `[motwani2024secret]`
+  Formalizes secret collusion among agents and notes that steganographic techniques could make it hard to detect. It frames collusion as deliberate hidden coordination, in contrast to the benign, emergent coordination we study.
+- **Detecting Multi-Agent Collusion Through Multi-Agent Interpretabilitiy** (spelling as printed on the page). Aaron Rose, Carissa Cullen, Sahar Abdelnabi, et al. Poster, AI4GOOD Workshop at NeurIPS 2026. https://neurips.cc/virtual/2026/165391 `[rose2026narc]`
+  Introduces NARCBench and probing methods that aggregate per-agent deception scores into group judgments, on the premise that collusion is a multi-agent phenomenon. It is a possible detection baseline.
+- **A Troublemaker with Contagious Jailbreak Makes Chaos in Honest Towns.** Tianyi Men, Pengfei Cao, Zhuoran Jin, et al. arXiv:2410.16155, 2024 (arXiv comments: "ACL 2025 Main"). https://arxiv.org/abs/2410.16155 `[men2024troublemaker]`
+  A single attacker misleads a society of agents with independent memories. It is a single-adversary contagion setting, which we contrast with agents that each hold a benign piece.
+- **Prompt Infection: LLM-to-LLM Prompt Injection within Multi-Agent Systems.** Donghyun Lee, Mo Tiwari. arXiv:2410.07283, 2024. https://arxiv.org/abs/2410.07283 `[lee2024prompt]`
+  Shows a malicious prompt spreading from agent to agent. Like the entry above, it is adversary-initiated.
+- **NetSafe: Exploring the Topological Safety of Multi-agent Networks.** Miao Yu, Shilong Wang, Guibin Zhang, et al. arXiv:2410.15686, 2024. https://arxiv.org/abs/2410.15686 `[yu2024netsafe]`
+  Studies how network structure affects safety, reporting that highly connected networks spread adversarial attacks more readily and that task performance in a star topology drops by 29.7%. It motivates comparing topologies (pipeline, swarm, coordinator).
+- **Emergent Coordination in Multi-Agent Language Models.** Christoph Riedl. arXiv:2510.05174, 2025. https://arxiv.org/abs/2510.05174 `[riedl2025emergent]`
+  Gives an information-theoretic method for detecting when LLM agents form a collective, and finds that prompt design can move groups toward goal-directed complementary roles. It supports measuring emergent role differentiation.
+- **Cooperate or Collapse: Emergence of Sustainable Cooperation in a Society of LLM Agents.** Giorgio Piatti, Zhijing Jin, Max Kleiman-Weiner, et al. arXiv:2404.16698, 2024 (arXiv comments: "NeurIPS 2024"). https://arxiv.org/abs/2404.16698 `[piatti2024cooperate]`
+  Introduces GovSim, a shared-resource cooperation simulation. It shows that group-level outcomes can be studied apart from single-agent behaviour.
+- **Embodied LLM Agents Learn to Cooperate in Organized Teams.** Xudong Guo, Kaixuan Huang, Jiale Liu, et al. arXiv:2403.12482, 2024. https://arxiv.org/abs/2403.12482 `[guo2024embodied]`
+  Finds that prompt-based organizational structure, such as designated leadership, improves team efficiency. It is background for the coordinator condition.
+- **Inter-Agent Trust Models: A Comparative Study of Brief, Claim, Proof, Stake, Reputation and Constraint in Agentic Web Protocol Design.** Botao 'Amber' Hu, Helena Rong. arXiv:2511.03434, 2025. https://arxiv.org/abs/2511.03434 `[hu2025trust]`
+  Compares six trust mechanisms and concludes that "no single mechanism suffices". It is useful for discussing what a relaying agent can and cannot verify about a sub-request.
+- **Dissociative Identity: Language Model Agents Lack Grounding for Reputation Mechanisms.** Botao Amber Hu, Helena Rong, Max Van Kleek. arXiv:2605.30169, 2026. https://arxiv.org/abs/2605.30169 `[hu2026dissociative]`
+  Argues that reputation-based governance does not apply well to LLM agents and proposes observability-based, ex ante behavioural controls.
+- **When Should Agent Trust Be Conditional? Characterizing and Attacking Skill-Conditional Reputation in Agent Swarms.** Yihan Xia, Taotao Wang. arXiv:2606.14200, 2026. https://arxiv.org/abs/2606.14200 `[xia2026skill]`
+  Shows that cross-skill borrowing can let an attacker hijack task routing in a swarm. It is relevant to the coordinator-routing condition.
+- **Can Trustless Agents Be Trusted? An Empirical Study of the ERC-8004 Decentralized AI Agent Ecosystem.** Xihan Xiong, Zelin Li, Wei Wei, et al. arXiv:2606.26028, 2026. https://arxiv.org/abs/2606.26028 `[xiong2026erc8004]`
+  An empirical study reporting that reputation in that ecosystem is cheap to manipulate. Peripheral for us; cite only for trust and reputation context.
+- **Quantifying Frontier LLM Capabilities for Container Sandbox Escape.** Rahul Marchand, Art O Cathain, Jerome Wynne, et al. arXiv:2603.02277, 2026. https://arxiv.org/abs/2603.02277 `[marchand2026sandboxescape]`
+  Introduces SANDBOXESCAPEBENCH and finds that LLMs can identify and exploit container vulnerabilities when present. It is background for the incident setting, where agents were meant to be isolated.
+
+## 4. Datasets and testbeds
+
+- **Concordia: a library for generative social simulation.** Google DeepMind. GitHub, Apache-2.0. https://github.com/google-deepmind/concordia `[gdm2023concordiarepo]`
+  A Python library for generative agent-based models with a Game Master entity that decides action outcomes. It is a possible simulation substrate.
+- **Generative agent-based modeling with actions grounded in physical, social, or digital space using Concordia. [added]** Alexander Sasha Vezhnevets, John P. Agapiou, Avia Aharon, et al. arXiv:2312.03664, 2023. https://arxiv.org/abs/2312.03664 `[vezhnevets2023concordia]`
+  The paper behind the repository, which the repository's README cites.
+- **AI Village dataset (aidigestorg/ai-village).** AI Digest. Hugging Face dataset. https://huggingface.co/datasets/aidigestorg/ai-village `[aidigest2026village]`
+  An export of a long-running shared environment where agents have group chat and open-ended goals, about 280 GB, including a "swarm-village". Access needs manual review and the terms bar training or fine-tuning without written permission, so check the terms before use.
+- Incident-derived datasets: see Swarm traces and the Transluce report in section 1.
+
+## 5. Protocols and infrastructure
+
+- **From Prompt Injections to Protocol Exploits: Threats in LLM-Powered AI Agents Workflows.** Mohamed Amine Ferrag, Norbert Tihanyi, Djallel Hamouda, et al. arXiv:2506.23260, 2025. https://arxiv.org/abs/2506.23260 `[ferrag2025threats]`
+  A threat survey covering host-to-tool and agent-to-agent communication. It is a broad reference for the attack surface of relayed messages.
+- **Building A Secure Agentic AI Application Leveraging A2A Protocol.** Idan Habler, Ken Huang, Vineeth Sai Narajala, et al. arXiv:2504.16902, 2025. https://arxiv.org/abs/2504.16902 `[habler2025a2a]`
+  A MAESTRO-based threat analysis of Google's A2A protocol, covering Agent Cards, task execution integrity and authentication.
+- **AIP: Agent Identity Protocol for Verifiable Delegation Across MCP and A2A.** Sunil Prakash. arXiv:2603.24775, 2026. https://arxiv.org/abs/2603.24775 `[prakash2026aip]`
+  Proposes tokens that carry identity, attenuated authorization and provenance through delegation chains. It is relevant to provenance in a coordinator-to-worker relay.
+- **Agent Identity Protocol (AIP): Verifiable Delegation for AI Agent Systems.** Sunil Prakash. IETF Internet-Draft draft-prakash-aip-02, 10 Oct 2026. https://datatracker.ietf.org/doc/draft-prakash-aip/ `[prakash2026aipdraft]`
+  An individual submission. The page states it is not endorsed by the IETF and has no formal standing in the IETF process.
+- **A2A security: The developer's complete guide.** Tyk (no named author), 4 Jun 2026. https://tyk.io/learning-center/a2a-security-the-developers-complete-guide/ `[tyk2026a2a]`
+  A vendor guide listing five A2A attack types and mitigations. Practitioner material, not research; use sparingly.
+
+## 6. Prior Apart work
+
+- **AI Collusion Research Sprint** (23-25 Oct 2026). Apart Research. https://apartresearch.com/sprints/ai-collusion-research-sprint-2026-10-23-to-2026-10-25 `[apart2026collusionsprint]`
+  The page lists 392 submitted projects. One listed project is titled "They Say No, Then Do It Anyway: Collusion When They Hit a Wall" (Team DLab), described there as three copies of one model running separate departments and having to combine records that policy keeps apart. It is very close to our question; see the caveat in "Unverified".
+- **AI Control Hackathon 2026** (20-22 Mar 2026). Apart Research. https://apartresearch.com/sprints/ai-control-hackathon-2026-03-20-to-2026-03-22 `[apart2026controlhackathon]`
+  The sprint page that lists the winners below; it also names ControlArena and SHADE-Arena as tools used by participants.
+- **Omission Attacks: When Doing Nothing Is the Attack.** Jurgis Kemeklis, Nikhil Vemuri (Team MAIA). Apart sprint project, 23 Mar 2026. https://apartresearch.com/sprints/projects/omission-attacks-when-doing-nothing-is-the-attack-0y1v `[kemeklis2026omission]`
+  Argues that per-action monitoring can miss attacks that appear only as omitted obligations, and proposes postcondition monitoring of the final system state. That is a system-level rather than action-level check, which parallels our agent-level versus system-level distinction. Apart notes sprint projects are early-stage work, not Apart publications.
+
+## Unverified
+
+- **https://openai.com/hugging-face-incident-and-misalignment/**: the fetch returned HTTP 403, so the page content could not be read. Nothing in this directory is cited to it. METR's report refers to publishing "simultaneously with OpenAI's post-mortem", which suggests the page exists, but its title, date and claims are unconfirmed. Excluded from `references.bib`.
+- **Team DLab's project "They Say No, Then Do It Anyway: Collusion When They Hit a Wall"**: we saw only its listing and one-line description on the sprint page. The project's own page, authors and results were not fetched, and a web search did not find it. It is cited only as a listing on `[apart2026collusionsprint]`; do not cite any result from it until the project page is read.
+- **Other sprint-page projects** (Team Fugue, Team Report and Pretend, Crow): seen only as one-line listings and not individually fetched. Not cited.
+- **NeurIPS poster title**: the page prints "Interpretabilitiy". It is reproduced exactly, so check whether a corrected title exists elsewhere before the final submission.
+
+## Counts
+
+- Verified sources: 36 entries in `references.bib` (30 of the 31 original candidates plus 6 added; the METR PDF and blog post are counted separately).
+- Candidate sources not verified: 1 (the OpenAI page).
