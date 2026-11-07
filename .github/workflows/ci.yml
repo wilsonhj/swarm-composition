@@ -65,9 +65,11 @@ jobs:
           path: ${{ runner.temp }}/swarm-v2-replay/
           retention-days: 14
 
-      - name: Mock smoke run (v1 and v2)
+      - name: Mock smoke run (v1, v2 and task provenance)
         working-directory: experiments/composition-gap
         run: |
           uv run --no-project python harness.py --backend mock --design v1 --seeds 2 --out /tmp/smoke-v1.jsonl
           uv run --no-project python harness.py --backend mock --design v2 --seeds 2 \
             --conds solo,solo@k5,pipeline,swarm@n4,relay_informed,relay_uninformed --out /tmp/smoke-v2.jsonl
+          uv run --no-project python provenance.py --seeds 2 --out /tmp/smoke-provenance.jsonl
+          uv run --no-project python analyze.py /tmp/smoke-provenance.jsonl --baseline local --md /tmp/provenance-analysis.md

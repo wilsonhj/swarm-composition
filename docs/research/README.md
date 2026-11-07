@@ -1,8 +1,27 @@
 # Composition gap: annotated bibliography
 
-All entries below were fetched on 2026-11-06 and checked against the source page. Descriptions state only what the source says. Authors are the first three plus "et al." (full lists are in `references.bib`). BibTeX keys are in brackets. Where a source gave no venue, it is listed as an arXiv preprint.
+Original entries below were fetched on 2026-11-06 and checked against the source page; the provenance-study additions were fetched on 2026-11-07. Descriptions state only what the source says. Authors are the first three plus "et al." (full lists are in `references.bib`). BibTeX keys are in brackets. Where a source gave no venue, it is listed as an arXiv preprint.
 
-Files in this directory: `README.md` (this file), `metr-incident.md` (sourced incident summary), `related-work.md` (draft Related Work), `references.bib`.
+## Provenance-study additions (7 November)
+
+- [AI Organizations are More Effective but Less Aligned than Individual Agents](https://arxiv.org/abs/2604.10290), Shen et al., 2026 `[shen2026organizations]`. Abstract and [companion post](https://alignment.anthropic.com/2026/ai-organizations/) fetched. Direct prior work comparing individual agents with organizations on twelve business/ethics tasks; model-dependent results. It limits broad novelty claims for this repository.
+- [Recommendations for Technical AI Safety Research Directions](https://alignment.anthropic.com/2025/recommended-directions/), Anthropic Alignment Science, 2025 `[anthropic2025directions]`. Proposes inter-query defenses and multi-agent governance, motivating a focused provenance/publication-control intervention.
+- [CHIVE](https://alignment.anthropic.com/2026/chive/), Karvonen, Ong, Kantamneni and Marks, 2026 `[karvonen2026chive]`. Uses measured counterfactual edits to evaluate behavioral explanations; generated explanations are not treated as ground truth.
+- [Petri 2.0](https://alignment.anthropic.com/2026/petri-v2/), Anthropic Alignment Science, 2026 `[anthropic2026petri]`. Discusses realism and evaluation-awareness mitigations and their limits. A motivation for future external-validity checks, not evidence that this toy task transfers.
+
+## Corrected submission memo and SAE boundary (7 November)
+
+The [revised memo](revised-sae-review-and-submission-memo.md) corrects call accounting and pre-sprint attribution, records checked hypothetical power calculations, and keeps completed v2 data, the provenance development pilot, and a future SAE proposal separate. The submission's main literature remains composition, organizational alignment and context/provenance; extended steering material is future work.
+
+- [Subliminal Learning](https://arxiv.org/abs/2507.14805), Cloud et al., 2025 `[cloud2025subliminal]`: student training on teacher outputs; not persistent trait acquisition through frozen-weight message exchange.
+- [Persona Features Control Emergent Misalignment](https://arxiv.org/abs/2506.19823v2), Wang et al., 2025 `[wang2025personafeatures]`: SAE-based model comparison and individual-model activation control; not an end-to-end network cascade.
+- [AxBench](https://arxiv.org/abs/2501.17148v3), Wu et al., 2025 `[wu2025axbench]`: simpler prompting/steering baselines motivate controls, with results scoped to its Gemma-2 benchmark.
+- [Subliminal Learning is a LoRA Artifact](https://arxiv.org/abs/2606.00831v2), Nief et al., 2026 `[nief2026lora]`: **disputed**. The author warning in arXiv metadata was directly checked on 7 November. Do not treat its broad restrictions as settled evidence.
+- [Subliminal Steering](https://arxiv.org/abs/2604.25783v2), Morgulis and Hewitt, 2026 `[morgulis2026subliminal]`: reports transfer under full fine-tuning and SGD in its steering-teacher setting; not proof of universal transfer.
+
+These abstract/metadata pages were fetched and checked; their experiments were not independently replicated. A paper being included in the bibliography does not endorse its disputed conclusions.
+
+Files in this directory: `README.md` (this file), `metr-incident.md` (sourced incident summary), `related-work.md` (draft Related Work), `references.bib`, and `revised-sae-review-and-submission-memo.md`.
 
 Sources marked **[added]** were not in the original candidate list; they were found by search and then fetched and verified.
 
@@ -108,8 +127,6 @@ Each entry below was fetched on 2026-11-06 (arXiv API metadata and abstract, or 
 
 - **Multi-Agent Risks from Advanced AI.** Lewis Hammond, Alan Chan, Jesse Clifton, et al. arXiv:2502.14143, 2025 (Cooperative AI Foundation Technical Report #1). https://arxiv.org/abs/2502.14143 `[hammond2025multiagent]`
   A taxonomy of multi-agent risks: three failure modes (miscoordination, conflict, collusion) and seven risk factors, including information asymmetries and emergent agency. The standard framing reference for the event.
-- **AI Organizations are More Effective but Less Aligned than Individual Agents.** Judy Hanwen Shen, Daniel Zhu, Siddarth Srinivasan, et al. arXiv:2604.10290, 2026; companion post on the Anthropic Alignment Science Blog. https://arxiv.org/abs/2604.10290 `[shen2026aiorgs]`
-  Across 12 tasks in two settings, organizations of aligned models produce solutions with higher utility but greater misalignment than a single aligned model. The closest system-level result to ours; it scores the joint output's ethics under a shared goal, whereas we score leakage of a restricted string.
 - **Red-Teaming Auto Mode: Improving Blocking Classifiers Against Malign Coding Agents.** Alex Remedios, Simon Storf, Fabien Roger, John Hughes. Anthropic Alignment Science Blog, 22 Oct 2026. https://alignment.anthropic.com/2026/red-teaming-auto-mode/ `[remedios2026automode]`
   Production blocking monitors fail to block over 55% of red-team attacks; among the most effective strategies are multi-agent and compaction attacks that spread a side task so that no single context contains a blockable action. The monitor-side counterpart to our agent-side question.
 - **Monitoring computer use via hierarchical summarization.** Theodore Sumers et al. (Anthropic Safeguards Research Team). Anthropic Alignment Science Blog, 27 Feb 2025. https://alignment.anthropic.com/2025/summarization-for-monitoring/index.html `[sumers2025summarization]`
@@ -134,5 +151,5 @@ Each entry below was fetched on 2026-11-06 (arXiv API metadata and abstract, or 
 
 ## Counts
 
-- Verified sources: 47 entries in `references.bib` (30 of the 31 original candidates plus 8 added, 2 of them after the external review, plus 9 added in the alignment review; the METR PDF and blog post are counted separately).
+- Verified sources: 55 entries in `references.bib` (30 of the 31 original candidates plus 8 added, 2 of them after the external review; 9 provenance-study additions; and 8 alignment-review additions, whose ninth source, Shen et al., is the provenance entry `shen2026organizations`; the METR PDF and blog post are counted separately).
 - Candidate sources not verified: 1 (the OpenAI page).

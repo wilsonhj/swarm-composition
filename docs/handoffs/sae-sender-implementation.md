@@ -310,10 +310,12 @@ Three different promises must be separated:
 
 ### Available now: existing v2 replay
 
-From a checkout of this handoff PR's exact commit, with Python 3.11:
+From the repository root with Python 3.11, against a clean worktree of the pinned
+snapshot (later `main` commits changed `analyze.py`):
 
 ```bash
-python3 docs/handoffs/tools/replay_v2.py --out /tmp/swarm-v2-replay
+git worktree add --detach /tmp/swarm-v2-snapshot 59c8b7a84e88728d7fb67672dc57d2066bb3aff9
+python3 docs/handoffs/tools/replay_v2.py --repo /tmp/swarm-v2-snapshot --out /tmp/swarm-v2-replay
 cd /tmp/swarm-v2-replay
 sha256sum -c SHA256SUMS
 ```
@@ -409,7 +411,7 @@ engineering status. If steering or transfer is absent, report the null pilot and
 its precision. Never relabel completion pressure as evidence.
 
 Suggested three-minute video: 25 seconds for the synthetic restriction question
-and why composition matters (`jones2024combinations`, `shen2026aiorgs`);
+and why composition matters (`jones2024combinations`, `shen2026organizations`);
 35 seconds for the experimental unit and controls; 60 seconds for audited original
 results and uncertainty; 30 seconds for the achieved SAE gate and its limits;
 30 seconds for reproducibility command, related-work boundaries and takeaway.

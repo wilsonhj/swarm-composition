@@ -5,11 +5,13 @@ no new hosted-model, local-model, training or GPU experiment was run.
 
 ## Available v2 audit
 
-From this PR's exact commit, with the pinned raw/source files present:
+From the repository root, against a clean worktree of the pinned snapshot (later
+commits on `main` changed `analyze.py`, so the current checkout fails its pinned hash):
 
 ```bash
-python3 docs/handoffs/tools/replay_v2.py --out /tmp/swarm-v2-audit-1
-python3 docs/handoffs/tools/replay_v2.py --out /tmp/swarm-v2-audit-2
+git worktree add --detach /tmp/swarm-v2-snapshot 59c8b7a84e88728d7fb67672dc57d2066bb3aff9
+python3 docs/handoffs/tools/replay_v2.py --repo /tmp/swarm-v2-snapshot --out /tmp/swarm-v2-audit-1
+python3 docs/handoffs/tools/replay_v2.py --repo /tmp/swarm-v2-snapshot --out /tmp/swarm-v2-audit-2
 diff -r /tmp/swarm-v2-audit-1 /tmp/swarm-v2-audit-2
 cd /tmp/swarm-v2-audit-1
 sha256sum -c SHA256SUMS

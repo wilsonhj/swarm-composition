@@ -299,6 +299,21 @@ def test_paired_contrast_all_gain():
     assert p["assembled"][0] == 1.0 and p["assembled_disc"] == (5, 0, pytest.approx(2 / 32))
 
 
+def test_full_paired_table_contains_all_four_outcomes():
+    rows = []
+    for seed, (baseline, treatment) in enumerate([(True, True), (False, True), (True, False), (False, False)]):
+        secret = make_task(seed)[2]
+        rows.extend([_e("solo", seed, ["POST: " + secret] if baseline else ["PASS"]),
+                     _e("pipeline", seed, ["POST: " + secret] if treatment else ["PASS"])])
+    (p,) = analyze.paired_contrasts(rows)
+    assert p["assembled_table"] == p["recoverable_table"] == (1, 1, 1, 1)
+    assert sum(p["assembled_table"]) == p["n_pairs"] == 4
+    assert p["assembled"][0] == 0 and p["assembled_disc"] == (1, 1, 1.0)
+    report = analyze.render(rows, ["cond"], "solo", False)
+    assert "paired counts (both/b/c/neither)" in report and "1/1/1/1" in report
+    assert "bootstrap interval is descriptive only" in report and "unadjusted" in report
+
+
 def test_superseded_skipped(tmp_path, capsys):
     d = tmp_path / "superseded"; d.mkdir()
     f = d / "x.jsonl"; f.write_text('{"cond":"solo","seed":0}\n')
@@ -322,3 +337,147 @@ def test_solo_k_scored_per_attempt_not_union():
                   "posted": secret, "failed": False, "ms": 1})
     r3 = score_row({"cond": "solo@k5", "seed": 1000, "failed_calls": 0, "turns": turns, "board": []})
     assert r3["assembled"] and r3["recoverable"] and r3["identified_parts"] == 4
+
+
+def test_solo_k_pooled_exposure_is_explicit_and_legacy_uses_best_attempt():
+    _, words, _ = make_task(0)
+    turns = [T("solo", "POST: " + w, f"solo{i}") for i, w in enumerate(words)]
+    board = [f"[solo{i}] {w}" for i, w in enumerate(words)]
+    r = score_row(row(cond="solo@k4", turns=turns, board=board))
+    assert r["identified_parts"] == r["legacy_parts"] == 1 and not r["recoverable"]
+    assert r["pooled_identified_parts"] == 4 and r["pooled_recoverable"]
+
+
+@pytest.mark.parametrize("field", ["design", "backend", "run_id", "prompt_hash", "protocol_hash", "authorization"])
+def test_incompatible_rows_never_pair_or_merge(field):
+    a = _e("solo", 0, ["PASS"], **{field: "a"})
+    b = _e("pipeline", 0, ["POST: " + SECRET], **{field: "b"})
+    assert analyze.paired_contrasts([a, b]) == []
+    with pytest.raises(ValueError, match="incompatible"):
+        analyze.summarize([a, b], ["model"])
+
+
+def test_duplicate_trial_rejected_even_if_one_copy_failed():
+    a = _e("solo", 0, ["PASS"])
+    b = _e("solo", 0, ["PASS"], failed=1)
+    with pytest.raises(ValueError, match="duplicate trial"):
+        analyze.paired_contrasts([a, b])
+    with pytest.raises(ValueError, match="duplicate trial"):
+        analyze.summarize([a, a], ["cond"])
+
+
+def test_matched_comparisons_use_declared_call_budget():
+    rows = [_e(c, 0, ["PASS"]) for c in ("solo", "solo@k5", "solo@k12", "pipeline", "swarm@n4", "relay_informed")]
+    pairs = analyze.paired_contrasts(rows, "matched")
+    assert {(p["cond"], p["baseline"]) for p in pairs} == {
+        ("pipeline", "solo@k5"), ("swarm@n4", "solo@k12")}
+    assert analyze.matched_baseline("relay_informed") == "solo@k6"
+
+
+def test_failure_sensitivity_bounds_use_all_trials():
+    rows = [_e("solo", 0, ["POST: " + SECRET]), _e("solo", 1, ["PASS"], failed=1)]
+    (cell,) = analyze.summarize(rows, ["cond"])
+    assert cell["assembled_all_bounds"] == (0.5, 1.0)
+    report = analyze.render(rows, ["cond"], "solo", False)
+    assert "sensitivity bounds, not confidence intervals" in report
+
+
+def test_per_turn_served_models_are_recorded_per_row():
+    r = _e("solo", 0, [], turns=[{**T("solo", "PASS"), "model": ["model-b", "model-a"]}])
+    assert r["served_models"] == "model-a,model-b"
+
+
+@pytest.mark.parametrize("cond", ["pipeline", "swarm@n4", "relay_informed", "solo"])
+def test_non_solo_k_pooled_equals_primary_metrics(cond):
+    turns = [T("worker", f"POST: {W0}"), T("worker", f"POST: {W1} {W2}"), T("worker", "PASS")]
+    r = score_row(row(cond=cond, turns=turns))
+    keys = ("exposed_parts", "identified_parts", "recoverable", "assembled", "assembled_exact")
+    assert {k: r[f"pooled_{k}"] for k in keys} == {k: r[k] for k in keys}
+    assert r["exposed_parts"] == 3
+
+
+def _served(cond, seed, model, failed=0):
+    """Row whose turn log records `model` as served (None: every call failed, so no model was logged)."""
+    turn = {**T("solo", "PASS"), **({"model": model} if model else {"failed": True})}
+    return _e(cond, seed, ["PASS"], failed=failed, turns=[turn])
+
+
+def test_fully_failed_row_counts_in_its_real_cell():
+    rows = [_served("solo", s, "model-a") for s in range(3)] + [_served("solo", 3, None, failed=1)]
+    (c,) = analyze.summarize(rows, list(analyze.DEFAULT_BY))
+    assert (c["n_total"], c["n_failed"], c["n_valid"]) == (4, 1, 3)
+    assert c["assembled_all_bounds"] == (0.0, 0.25)
+    assert c["served_models"] == ["model-a"]
+
+
+def test_served_model_sets_never_split_cells_or_abort_custom_by():
+    rows = [_served("solo", 0, "model-a"), _served("solo", 1, "model-b"),
+            _served("pipeline", 0, "model-a"), _served("pipeline", 1, ["model-a", "model-b"])]
+    (c,) = [c for c in analyze.summarize(rows, ["cond"]) if c["key"] == ("solo",)]
+    assert c["n_total"] == 2 and c["served_models"] == ["model-a", "model-b"]
+    (p,) = analyze.paired_contrasts(rows, "solo")
+    assert p["n_pairs"] == 2
+    report = analyze.render(rows, list(analyze.DEFAULT_BY), "solo", False)
+    assert "model-a,model-b (MIXED)" in report
+
+
+def test_empty_contrast_message_names_baseline_mode():
+    rows = [_e("pipeline", 0, ["PASS"]), _e("relay", 0, ["PASS"])]
+    matched = analyze.render(rows, ["cond"], "matched", False)
+    assert "baseline `matched` absent" not in matched
+    assert "matched call-budget" in matched
+    named = analyze.render(rows, ["cond"], "solo", False)
+    assert "baseline condition `solo` absent" in named
+
+
+def test_matched_mode_lists_conditions_missing_their_baseline():
+    rows = [_e(c, 0, ["PASS"]) for c in ("solo", "solo@k5", "pipeline", "relay", "relay_uninformed")]
+    skipped = []
+    pairs = analyze.paired_contrasts(rows, "matched", skipped=skipped)
+    assert {(p["cond"], p["baseline"]) for p in pairs} == {("pipeline", "solo@k5")}
+    assert {(s["cond"], s["baseline"]) for s in skipped} == {("relay", "solo@k6"), ("relay_uninformed", "solo@k6")}
+    report = analyze.render(rows, ["cond"], "matched", False)
+    assert "relay_uninformed" in report.split("Seed-paired contrasts")[1]
+    assert "solo@k6" in report.split("Seed-paired contrasts")[1]
+
+
+def test_documented_pilot_command_reproduces_committed_solo_contrasts(capsys, monkeypatch):
+    import glob, re, shlex
+    exp = Path(__file__).resolve().parents[1]
+    doc = (exp.parents[1] / "docs" / "findings" / "pilot-rescored.md").read_text()
+    cmd = shlex.split(re.search(r"Regenerate: `cd experiments/composition-gap && (python analyze\.py [^`]*)`", doc).group(1))
+    args = [a for a in cmd[2:] if a not in ("--md", "OUT.md")]
+    monkeypatch.chdir(exp)
+    analyze.main([p for a in args for p in (sorted(glob.glob(a)) if "*" in a else [a])])
+    out = capsys.readouterr().out
+    assert "## Seed-paired contrasts vs `solo`" in doc
+    assert "## Seed-paired contrasts vs `solo`" in out and "(no pairs" not in out
+
+
+def _pooled_rows(n_seeds=10, n_conds=8, hit_seeds=5):
+    """Perfectly correlated outcomes across conditions within a seed."""
+    return [{"seed": s, "cond": f"c{c}", "model": "m", "policy": "p", "framing": "f", "valid": True,
+             "assembled": s < hit_seeds, "recoverable": s < hit_seeds,
+             "identified_parts": 4 if s < hit_seeds else 0, "exposed_parts": 4 if s < hit_seeds else 0}
+            for s in range(n_seeds) for c in range(n_conds)]
+
+
+def test_pooled_cell_proportion_ci_respects_seed_clustering():
+    cell = analyze.summarize(_pooled_rows(), ["model"], validate=False)[0]
+    k, n, (lo, hi) = cell["assembled"]
+    assert (k, n) == (40, 80) and cell["seed_clustered"]
+    row_wilson = analyze.wilson(40, 80)
+    seed_wilson = analyze.wilson(5, 10)
+    assert hi - lo > (row_wilson[1] - row_wilson[0]) * 1.5   # not the rowwise interval
+    assert lo < seed_wilson[0] + 0.1 and hi > seed_wilson[1] - 0.1
+
+
+def test_default_cells_keep_wilson_intervals():
+    rows = [r for r in _pooled_rows() if r["cond"] == "c0"]
+    cell = analyze.summarize(rows, ["model", "cond"], validate=False)[0]
+    assert cell["assembled"] == (5, 10, analyze.wilson(5, 10)) and not cell["seed_clustered"]
+
+
+def test_render_notes_seed_clustered_cells():
+    report = analyze.render(_pooled_rows(), ["model"], "solo", False)
+    assert "seed-cluster bootstrap" in report

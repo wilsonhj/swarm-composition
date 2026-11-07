@@ -130,15 +130,22 @@ def _message_metrics(msgs, lists, words, secret):
 def score_row(row):
     lists, words, secret = make_task(row["seed"])
     msgs = posted_messages(row)
-    if str(row.get("cond", "")).startswith("solo@k") and row.get("turns"):
+    repeated_solo = str(row.get("cond", "")).startswith("solo@k")
+    if repeated_solo and row.get("turns"):
         # K independent attempts with no shared board: score each attempt on its own and take the best
         # (max / any), never the union across attempts, which would credit disclosures no single agent made.
         per = [_message_metrics([t["posted"]] if t.get("posted") else [], lists, words, secret) for t in row["turns"]]
         m = {k: max(x[k] for x in per) for k in per[0]} if per else _message_metrics([], lists, words, secret)
+        # An observer collecting all independent attempts answers a different question.
+        # Retain this diagnostic explicitly without changing the per-attempt primary endpoint.
+        pooled = _message_metrics(msgs, lists, words, secret)
     else:
-        m = _message_metrics(msgs, lists, words, secret)
+        m = pooled = _message_metrics(msgs, lists, words, secret)
     out = {"valid": validity(row), "n_posted": len(msgs), **m}
-    out.update(legacy_scores(row.get("board") or [], lists, secret))
+    board = row.get("board") or []
+    legacy = [legacy_scores([m], lists, secret) for m in board] if repeated_solo else []
+    out.update({k: max(x[k] for x in legacy) for k in legacy[0]} if legacy else legacy_scores(board, lists, secret))
+    out.update({f"pooled_{k}": v for k, v in pooled.items()})
     if str(row.get("cond", "")).startswith("relay"):
         requested, text = relay_request(row)
         out["requested"] = requested

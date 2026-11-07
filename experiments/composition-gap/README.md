@@ -58,6 +58,7 @@ Every row has `turns`: a list, in call order, of
  "raw": "<raw model reply>",
  "posted": "<text>" or null,   # see parsing rule
  "failed": true|false,         # this call failed after retries
+ "fail_reason": "<cause>" or null,  # failed calls only: e.g. budget, empty, finish_reason:length, stop_reason:max_tokens, exit_1, http_503, URLError
  "ms": <int latency>}
 ```
 
@@ -75,7 +76,7 @@ One JSON line per (condition, seed), written and flushed as each trial finishes 
 
 Each run writes `<out>.manifest.json` at start and rewrites it at the end (when appending to a file that already has one, `<out>.manifest.<run_id[:8]>.json`):
 
-`run_id` (uuid4), `design`, `argv`, `git` (`commit` from `git rev-parse HEAD`, `dirty` = tracked files modified; null if git is unavailable), `prompt_hash` (sha256 of `prompts`: every system prompt, frame, coordinator text and template the selected design/policy/framing can send) and `prompts`, `backend`, `backend_version` (`claude --version`, the anthropic SDK version, or a note), `model` (requested), `resolved_model` (claude-code `modelUsage` keys, the Anthropic / OpenRouter response `model`), `python`, `policy`, `framing`, `conds`, `sampling` (`max_tokens` 300 for the API backends, null where not applied (claude-code CLI); `temperature` null = provider default), `seeds` (offset, count, range), `max_usd`, `reserve_usd`, `start`, `end`, `status` (`running` / `complete` / `aborted: ...`), `totals` (`rows`, `failed_rows`, `calls`, `failed`, `cost` (null if the backend reports none), `missing_cost`).
+`run_id` (uuid4), `design`, `argv`, `git` (`commit` from `git rev-parse HEAD`, `dirty` = tracked files modified; null if git is unavailable), `prompt_hash` (sha256 of `prompts`: every system prompt, frame, coordinator text and template the selected design/policy/framing can send) and `prompts`, `backend`, `backend_version` (`claude --version`, the anthropic SDK version, or a note), `model` (requested), `resolved_model` (claude-code `modelUsage` keys, the Anthropic / OpenRouter response `model`), `python`, `policy`, `framing`, `conds`, `sampling` (`max_tokens` 300 for the API backends, null where not applied (claude-code CLI); `temperature` null = provider default), `seeds` (offset, count, range), `max_usd`, `reserve_usd`, `start`, `end`, `status` (`running` / `complete` / `aborted: ...`), `totals` (`rows`, `failed_rows`, `calls` (received responses; for claude-code this includes failed attempts that were retried, whose reported cost and models are also counted), `failed`, `fail_reasons` (count per cause), `cost` (null if the backend reports none), `missing_cost`).
 
 ## Flags
 
@@ -94,7 +95,7 @@ Each run writes `<out>.manifest.json` at start and rewrites it at the end (when 
 | `--workers` | `8` | concurrent trials (threads) |
 | `--out` | `results.jsonl` | output file; must not exist unless `--append` |
 | `--append` | off | allow adding rows to an existing `--out` |
-| `--max-usd` | env `OPENROUTER_BUDGET_USD`, else 250 | OpenRouter hard spend cap |
+| `--max-usd` | env `OPENROUTER_BUDGET_USD`, else 250 | OpenRouter estimated spend threshold; actual charges can exceed it |
 | `--reserve-usd` | `max(0.01, 3 x running mean cost per call)` | OpenRouter per-call reservation |
 
 ## Backends
@@ -112,7 +113,7 @@ python credits.py
 - `mock`: deterministic stand-in, no key; for plumbing.
 - `claude`: Anthropic API (optional extra `anthropic`, tested with 0.40.0 and 2.6.0). Failures after 4 attempts are counted (`failed`, per-turn `failed`) like the other backends. Reports tokens, not dollars (`cost` null).
 - `claude-code`: shells out to `claude -p --safe-mode` using the local subscription login; prints list-price-equivalent cost. The subprocess gets only an allowlisted environment: `PATH HOME USER LOGNAME SHELL LANG LC_ALL LC_CTYPE TMPDIR TERM` and `CLAUDE_CONFIG_DIR` if set (`HOME`/`USER` are what the CLI needs to read the subscription login from the macOS keychain). `ANTHROPIC_*` and `OPENROUTER_*` are never passed.
-- `openrouter`: stdlib only (no installs). `--model` must be an OpenRouter slug (`vendor/model`). Key from `OPENROUTER_API_KEY`, else the repo-root `.env` (existing env vars are not overridden). Cost per call is read from `usage.cost`. `--max-usd` is a hard cap: before sending, a call reserves `--reserve-usd` and is refused (counted as failed, returns `PASS`, one warning) if spent + in-flight reservations + reserve >= max; on completion the reservation is replaced by the actual cost. A response without `usage.cost` is charged the reservation and counted in `missing_cost` (printed in the summary and manifest). Retries 3x with backoff on 429/5xx/network errors; 401/402 abort the run. Optional header env: `OPENROUTER_APP_NAME` (X-Title, default `swarm-composition`), `OPENROUTER_REFERER`.
+- `openrouter`: stdlib only (no installs). `--model` must be an OpenRouter slug (`vendor/model`). Key from `OPENROUTER_API_KEY`, else the repo-root `.env` (existing env vars are not overridden). Cost per call is read from `usage.cost`. `--max-usd` is an estimated guard: before sending, a call reserves `--reserve-usd` and is refused (counted as failed, returns `PASS`, one warning) if spent + in-flight reservations + reserve >= max; on completion the reservation is replaced by the actual cost. Actual charges can exceed reservations, including for retries; missing `usage.cost` is imputed at the reserve, which is not a guaranteed upper bound. Use provider-side key limits for strict expenditure constraints. Missing-cost responses increment `missing_cost` (printed in the summary and manifest). Retries 3x with backoff on 429/5xx/network errors; 401/402 abort the run. Optional header env: `OPENROUTER_APP_NAME` (X-Title, default `swarm-composition`), `OPENROUTER_REFERER`.
 - `credits.py` prints key usage, limit and remaining via `GET /api/v1/key`; it never prints the key.
 
 Tests (no network): `uv run --no-project --with pytest==9.2.0 pytest -q` (or `make test`).
@@ -125,10 +126,26 @@ Tests (no network): `uv run --no-project --with pytest==9.2.0 pytest -q` (or `ma
 
 `scoring.py` and `analyze.py` score rows from the per-turn log and produce the tables:
 
+Paired binary contrasts now include all four counts in the order both / treatment-only / baseline-only / neither, in addition to directional discordance, risk differences, intervals and exact McNemar p. Historical committed reports remain unchanged; regenerate into a new file when adding this presentation.
+
 ```
 uv run --no-project python analyze.py results/<file>.jsonl [more.jsonl ...] --md out.md
 make analyze FILES="results/<file>.jsonl ..." MD=out.md
 ```
+
+The CLI now defaults to `--baseline matched`: pipeline vs `solo@k5`, relay vs `solo@k6`, and a swarm of N agents vs `solo@k(3N)` (its maximum call budget). It explicitly omits comparisons lacking that baseline; the committed v2 run did not include `solo@k6`. Use `--baseline solo` to reproduce the original one-attempt contrasts. A call-count match does not equalize information or realized token usage.
+
+Analysis groups by study/design/backend/model/authorization/policy/framing/run/prompt/protocol identity. `--run-id ID` selects inputs before analysis. Duplicate trials are errors, including passing the same file twice; a custom `--by` that merges incompatible runs is rejected. Separate replications are reported separately. Missing legacy provenance is shown as missing and never inferred from a different run. Labels and high seed numbers do not establish a prospective freeze.
+
+Repeated-solo primary metrics are maxima/any over individual attempts. Explicit `pooled_*` scorer diagnostics measure a different observer collecting every attempt; they do not replace primary metrics. Legacy repeated-solo reproduction also uses per-attempt maxima.
+
+## Prospective task-provenance study
+
+For the corrected submission scope, see [the revised memo](../../docs/research/revised-sae-review-and-submission-memo.md). The [offline power calculator](power.py) can be run with `make power-check` from the repo root; its hypothetical rates and joint-success assumptions do not constitute observed effects or actual study power. N8 requires K24 for a matched maximum under the three-round protocol, not K12. The completed v2 runs and provenance development pilot are preserved, and [SAE sender intervention](../../docs/protocols/sae-sender-study-proposal.md) remains a separate unimplemented proposal.
+
+`provenance.py` is a separate runner with no changes to frozen v1/v2 prompt templates. Read [the protocol](../../docs/protocols/task-provenance-v1.md) for the exact treatments, endpoints, held-out gate, information boundary and limits. Run `make provenance-smoke` from the repository root for offline scripted positive/negative tests. It writes `/tmp/task-provenance-smoke.jsonl`, a manifest, and a descriptive analysis, clearly labeled as mock data.
+
+Rows additionally carry `study`, `authorization`, `phase`, `prompt_hash`, `protocol_hash`, `actor_calls`, `monitor_calls`, `blocked_posts`, and `protocol_errors`. Actor turn logs retain `proposed` privately; `posted` is the accepted board value. Monitor turns never count as public posts. Actor replies are parsed with the v2 `parse_post` rule; a reply that is not a post (e.g. a prose refusal) counts as not posted, is tallied in `nonprotocol_replies`, and never invalidates a trial. Backend failures and malformed monitor verdicts invalidate a trial. Primary analysis uses `python analyze.py FILE --baseline local`, separately for authorized utility and restricted disclosure. The committed development pilot is documented in `docs/findings/provenance-pilot.md`; it is not held-out evidence. See the protocol for the remaining freeze and collection requirements.
 
 ## results/
 

@@ -11,10 +11,13 @@ the already collected provenance held-out run, and historical accounting gaps.
 This handoff is independent of [PR #1](https://github.com/wilsonhj/swarm-composition/pull/1).
 It adds a plan and audit tools; it does not implement or report an SAE experiment.
 
-One concrete offline replay is already available, from the repository root:
+One concrete offline replay is already available. Run it from the repository root
+against a clean worktree of the pinned snapshot (as CI does); later commits on `main`
+changed `analyze.py`, so replaying the current checkout fails its pinned hash by design:
 
 ```bash
-python3 docs/handoffs/tools/replay_v2.py --out /tmp/swarm-v2-replay
+git worktree add --detach /tmp/swarm-v2-snapshot 59c8b7a84e88728d7fb67672dc57d2066bb3aff9
+python3 docs/handoffs/tools/replay_v2.py --repo /tmp/swarm-v2-snapshot --out /tmp/swarm-v2-replay
 ```
 
 Use Python 3.11 and a new output directory. The command verifies pinned inputs and
