@@ -11,7 +11,7 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[2]
-CLAIM_IDS = {"WD26", "WD36", "WD65", "WD68"}
+CLAIM_IDS = {"WD26", "WD36", "WD65", "WD68", "WB19", "WB24"}
 
 
 class CheckClaimsTest(unittest.TestCase):
@@ -111,6 +111,36 @@ class CheckClaimsTest(unittest.TestCase):
             tampered = Path(bare) / checker.HISTORY_DIR / "report/draft.md"
             tampered.write_text(tampered.read_text() + "x")
             self.assertIsNone(checker.doc_text("report/draft.md", checker.HEAD_PASS))
+
+    def test_duplicate_run_replacing_another_fails_claim_check(self):
+        appb = self.repo / "report/appendix-b.md"
+        original = appb.read_text()
+        self.addCleanup(appb.write_text, original)
+        lines = original.splitlines(keepends=True)
+        first = next(i for i, ln in enumerate(lines) if ln.startswith("| 55325c9a | none / explicit |"))
+        self.assertTrue(lines[first + 1].startswith("| 55325c9a | none / neutral |"))
+        lines[first + 1] = lines[first]
+        appb.write_text("".join(lines))
+        result, output = self.check()
+        self.assertEqual(result, 2, output)
+        self.assertIn("WB19", output)
+        self.assertIn("duplicate rows", output)
+        self.assertIn("missing:", output)
+
+    def test_duplicate_field_replacing_call_count_fails_claim_check(self):
+        appb = self.repo / "report/appendix-b.md"
+        original = appb.read_text()
+        self.addCleanup(appb.write_text, original)
+        lines = original.splitlines(keepends=True)
+        first = next(i for i, ln in enumerate(lines) if ln.startswith("| status |"))
+        self.assertTrue(lines[first + 1].startswith("| manifest `totals.calls` |"))
+        lines[first + 1] = lines[first]
+        appb.write_text("".join(lines))
+        result, output = self.check()
+        self.assertEqual(result, 2, output)
+        self.assertIn("WB24", output)
+        self.assertIn("duplicate rows", output)
+        self.assertIn("missing:", output)
 
     def checker_full(self):
         spec = importlib.util.spec_from_file_location("claim_checker_full", self.repo / "report/tools/check_claims.py")

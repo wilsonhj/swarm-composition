@@ -1879,10 +1879,12 @@ def c_appb_transcript_header():
 def c_appb_v2_runs_table():
     header, rows = appb_tables("### B.4.1", "| batch")
     bad = []
+    keys = []
     for r in rows:
         batch, cell, run_id, commit, seeds, n, calls, cost, models = r
         tag = {"55325c9a": "H", "9c37b82a": "S", "3f64a2ee": "R"}[batch]
         pol, fr = [x.strip() for x in cell.replace("(rerun)", "").split("/")]
+        keys.append((tag, pol, fr))
         rel = V2_FILES[(tag, pol, fr)]
         m = manifest(rel)
         rr = raw_rows(rel)
@@ -1893,7 +1895,8 @@ def c_appb_v2_runs_table():
         turns = sum(len(x["turns"]) for x in rr)
         if got != want or turns != m["totals"]["calls"] or batch not in rel:
             bad.append(f"{batch} {cell}: {got} vs {want}; turns {turns}")
-    return Res(f"{len(rows) - len(bad)}/{len(V2_FILES)} rows identical; calls = logged turns in every file"
+    ident = _identity_problems(keys, V2_FILES)
+    return Res(f"{len(rows) - len(bad)}/{len(V2_FILES)} rows identical; calls = logged turns in every file" + ident
                + (f"; diffs {bad}" if bad else ""), all_v2(), "B.4.1 table vs manifests and raw turns", "manifest fields")
 
 
@@ -1965,8 +1968,9 @@ def c_appb_ho_table():
         "CLI-reported cost (USD)": f"{m['totals']['cost']:.4f} (`missing_cost = {m['totals']['missing_cost']}`)",
     }
     bad = [f"{r[0]}: {r[1]!r} vs {want.get(r[0])!r}" for r in rows if want.get(r[0]) != r[1]]
+    ident = _identity_problems([(r[0],) for r in rows], [(field,) for field in want])
     hash_ok = sha256(PROTOCOL) == m["protocol_hash"] and m["git"]["commit"] == m["freeze_commit"]
-    return Res(f"{len(rows) - len(bad)}/{len(want)} fields identical; protocol file hash = manifest: {hash_ok}"
+    return Res(f"{len(rows) - len(bad)}/{len(want)} fields identical; protocol file hash = manifest: {hash_ok}" + ident
                + (f"; diffs {bad}" if bad else ""), [HELDOUT], "B.4.2 table vs manifest/raw", "manifest fields")
 
 
