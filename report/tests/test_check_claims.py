@@ -86,6 +86,38 @@ class CheckClaimsTest(unittest.TestCase):
                 self.assertEqual(result, 2, output)
                 row[field] = original
 
+    def test_duplicate_row_replacing_a_cell_fails_table_audit(self):
+        appb = self.repo / "report/appendix-b.md"
+        original = appb.read_text()
+        self.addCleanup(appb.write_text, original)
+        lines = original.splitlines(keepends=True)
+        first = next(i for i, ln in enumerate(lines) if ln.startswith("| claude-haiku-5-5 | none | explicit | pipeline |"))
+        self.assertTrue(lines[first + 1].startswith("| claude-haiku-5-5 | none | explicit | relay_informed |"))
+        lines[first + 1] = lines[first]
+        appb.write_text("".join(lines))
+        spec = next(c for c in self.checker_full().CLAIMS if c["cid"] == "WB03")
+        value = spec["fn"]().value
+        self.assertNotEqual(value, "32/32 rows identical")
+        self.assertIn("duplicate rows", value)
+        self.assertIn("none/explicit/relay_informed", value)
+
+    def test_historical_documents_load_without_git_history(self):
+        checker = self.checker_full()
+        with tempfile.TemporaryDirectory() as bare:
+            shutil.copytree(ROOT / checker.HISTORY_DIR, Path(bare) / checker.HISTORY_DIR)
+            checker.ROOT = Path(bare)  # no .git: f1c1387 cannot be resolved
+            for doc in checker.HISTORY_SHA256:
+                self.assertIsNotNone(checker.doc_text(doc, checker.HEAD_PASS), doc)
+            tampered = Path(bare) / checker.HISTORY_DIR / "report/draft.md"
+            tampered.write_text(tampered.read_text() + "x")
+            self.assertIsNone(checker.doc_text("report/draft.md", checker.HEAD_PASS))
+
+    def checker_full(self):
+        spec = importlib.util.spec_from_file_location("claim_checker_full", self.repo / "report/tools/check_claims.py")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1009,6 +1009,13 @@ NR = "not-recomputable"
 
 # The first pass fact-checked the documents as committed at this revision (pinned so it stays stable).
 HEAD_PASS = "f1c1387"
+# Copies of the documents at HEAD_PASS, so the historical rows survive a squash merge that drops that commit.
+HISTORY_DIR = "report/claims-history/" + HEAD_PASS
+HISTORY_SHA256 = {  # sha256 of `git show f1c1387:<doc>`
+    "README.md": "0051000edc840b9061effa1fe98596da774835a0e0d04ef11d35d914b5774572",
+    "report/draft.md": "d28f55154e513c0ef46ab7ab60c51e39f70bd13197f6f5dbe38ed88589262f85",
+    "report/video-script.md": "39ff6cd3bc155fe303d4873e3d4a57a44802591def6766dbf21a73b5305e8d0e",
+}
 WORKTREE = "worktree"
 
 
@@ -1704,6 +1711,17 @@ def _cells_expected(files, by, include_bounds=False):
     return exp
 
 
+def _identity_problems(keys, expected):
+    """Duplicate and omitted row identities: a row duplicated over another must not pass as complete."""
+    seen, dups = set(), []
+    for k in keys:
+        if k in seen:
+            dups.append("/".join(k))
+        seen.add(k)
+    omitted = ["/".join(k) for k in expected if k not in seen]
+    return (f"; duplicate rows: {dups[:4]}" if dups else "") + (f"; missing: {omitted[:4]}" if omitted else "")
+
+
 def c_appb_cells(heading, files, by, include_bounds=False):
     header, rows = appb_tables(heading, "#### Cells")
     exp = _cells_expected(files, by, include_bounds)
@@ -1716,8 +1734,8 @@ def c_appb_cells(heading, files, by, include_bounds=False):
         elif r[nk:] != exp[key]:
             bad.append(f"{'/'.join(key)}: {[x for x, y in zip(r[nk:], exp[key]) if x != y]} vs "
                        f"{[y for x, y in zip(r[nk:], exp[key]) if x != y]}")
-    missing = len(exp) - len(rows)
-    return Res(f"{len(rows) - len(bad)}/{len(exp)} rows identical" + (f"; {missing} missing" if missing else "")
+    ident = _identity_problems([tuple(r[:nk]) for r in rows], exp)
+    return Res(f"{len(rows) - len(bad)}/{len(exp)} rows identical" + ident
                + (f"; diffs: {bad[:4]}" if bad else ""), files, f"table under {heading} / Cells",
                "every cell field (rates, Wilson CIs, means, seed-bootstrap CIs)", method="analyze._rate/_mean formatting")
 
@@ -1741,8 +1759,9 @@ def c_appb_requests(heading, files):
         want = [str(n), A._rate((q, n, A.wilson(q, n))), A._rate((s, n, A.wilson(s, n)))]
         if row[4:] != want:
             bad.append(f"{'/'.join(row[:4])}: {row[4:]} vs {want}")
-    return Res(f"{len(rows) - len(bad)}/{len(exp)} rows identical" + (f"; diffs: {bad[:4]}" if bad else ""), files,
-               f"table under {heading} / Relay coordinator requests", "requested; request names secret")
+    ident = _identity_problems([tuple(r[:4]) for r in rows], exp)
+    return Res(f"{len(rows) - len(bad)}/{len(exp)} rows identical" + ident + (f"; diffs: {bad[:4]}" if bad else ""),
+               files, f"table under {heading} / Relay coordinator requests", "requested; request names secret")
 
 
 def c_appb_ho_contrasts():
@@ -1756,7 +1775,9 @@ def c_appb_ho_contrasts():
                                    A._disc(p["recoverable_disc"]), A._signed(p["identified_parts"], False)]
     bad = [f"{r[0]}/{r[1]}" for r in rows if exp.get((r[0], r[1])) != r[2:]]
     zero = sum("p=0.000" in "|".join(r) for r in rows)
-    return Res(f"{len(rows) - len(bad)}/{len(exp)} rows identical" + (f"; diffs: {bad}" if bad else ""), [HELDOUT],
+    ident = _identity_problems([(r[0], r[1]) for r in rows], exp)
+    return Res(f"{len(rows) - len(bad)}/{len(exp)} rows identical" + ident + (f"; diffs: {bad}" if bad else ""),
+               [HELDOUT],
                "B.2.4 contrasts table", "paired differences, discordant counts, p",
                note=f"{zero} rows display p=0.000 (exact p < 0.001; the handoff asks not to show rounded zero p)")
 
@@ -2329,6 +2350,11 @@ def analysis_commit():
 def doc_text(doc, rev):
     if rev is None:
         return (ROOT / doc).read_text()
+    if rev == HEAD_PASS:
+        f = ROOT / HISTORY_DIR / doc
+        if not f.is_file() or hashlib.sha256(f.read_bytes()).hexdigest() != HISTORY_SHA256.get(doc):
+            return None
+        return f.read_text()
     p = subprocess.run(["git", "-C", str(ROOT), "show", f"{rev}:{doc}"], capture_output=True, text=True)
     return p.stdout if p.returncode == 0 else None
 
