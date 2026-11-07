@@ -1,0 +1,2 @@
+task-provenance-v1: 320 rows, 1921 calls, 0 failed rows
+Analyze: python analyze.py results/task-provenance/pilot-haiku-2026-11-07.jsonl --baseline local --md results/task-provenance/pilot-haiku-2026-11-07.jsonl.analysis.md
