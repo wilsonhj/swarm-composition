@@ -3,17 +3,19 @@ UV      := uv run --no-project
 DATE    := $(shell date +%Y-%m-%d)
 SEEDS   ?= 20
 MAX_USD ?= 25
+PYTEST  := pytest==9.2.0
 
 .DEFAULT_GOAL := help
-.PHONY: help test smoke credits pilot-haiku run-openrouter clean
+.PHONY: help test smoke credits pilot-haiku run-openrouter run-v2 analyze clean
 
 help: ## List available targets
-	@grep -E '^[a-zA-Z_-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-16s %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z0-9_-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-16s %s\n", $$1, $$2}'
 
 test: ## Run pytest (no network)
-	cd $(EXP_DIR) && $(UV) --with pytest pytest -q
+	cd $(EXP_DIR) && $(UV) --with $(PYTEST) pytest -q
 
-smoke: ## Mock-backend smoke run (writes /tmp/smoke.jsonl)
+smoke: ## Mock-backend smoke run (overwrites /tmp/smoke.jsonl and its manifest)
+	rm -f /tmp/smoke.jsonl /tmp/smoke.jsonl.manifest.json
 	cd $(EXP_DIR) && $(UV) python harness.py --backend mock --seeds 2 --out /tmp/smoke.jsonl
 
 credits: ## Show OpenRouter credit usage/remaining (needs .env)
@@ -29,6 +31,13 @@ run-openrouter: ## OpenRouter run: make run-openrouter MODEL=<id> [SEEDS=20] [MA
 	cd $(EXP_DIR) && $(UV) python harness.py --backend openrouter --model $(MODEL) \
 		--policy strict --framing neutral --seeds $(SEEDS) --max-usd $(MAX_USD) \
 		--out results/$(DATE)_$(subst /,-,$(MODEL))_strict_neutral.jsonl
+
+run-v2: ## Confirmatory v2 run (claude-code, Haiku, seeds 1000-1019); see run_v2.sh
+	cd $(EXP_DIR) && bash run_v2.sh
+
+analyze: ## Score + analyse rows: make analyze FILES="results/a.jsonl results/b.jsonl" [MD=out.md] (paths relative to experiments/composition-gap)
+	@test -n "$(FILES)" || { echo 'FILES is required, e.g. make analyze FILES="results/x.jsonl"'; exit 1; }
+	cd $(EXP_DIR) && $(UV) python analyze.py $(FILES) $(if $(MD),--md $(MD))
 
 clean: ## Remove __pycache__ and .pytest_cache (never results)
 	find . -type d \( -name __pycache__ -o -name .pytest_cache \) -not -path "./.git/*" -prune -exec rm -rf {} +

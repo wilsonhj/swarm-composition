@@ -5,8 +5,9 @@ requires-python = ">=3.11"
 dependencies = []
 
 [project.optional-dependencies]
-anthropic = ["anthropic>=0.40"]
-dev = ["pytest"]
+# Claude backend tested against anthropic 0.40.0 and 2.6.0 (tests/test_harness.py::test_claude_backend_real_sdk_against_local_server)
+anthropic = ["anthropic>=0.40,<3"]
+dev = ["pytest==9.2.0"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -7,11 +7,18 @@ on:
 permissions:
   contents: read
 
+env:
+  PYTEST: pytest==9.2.0
+  GITLEAKS_VERSION: 8.30.1
+  GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # full history for gitleaks
 
       - name: Guard against committed secrets
         run: |
@@ -26,16 +33,28 @@ jobs:
           fi
           echo "No secrets detected."
 
+      - name: gitleaks (full git history, pinned binary)
+        run: |
+          set -euo pipefail
+          tgz="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -sSfL -o "$tgz" "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/${tgz}"
+          echo "${GITLEAKS_SHA256}  ${tgz}" | sha256sum -c -
+          tar -xzf "$tgz" gitleaks
+          ./gitleaks git --redact --verbose --exit-code 1 .
+
       - uses: astral-sh/setup-uv@v5
 
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Unit tests (no network)
+      - name: Unit tests (no network; anthropic installed so the real-SDK localhost test runs)
         working-directory: experiments/composition-gap
-        run: uv run --no-project --with pytest pytest -q
+        run: uv run --no-project --with "$PYTEST" --with "anthropic>=0.40,<3" pytest -q
 
-      - name: Mock smoke run
+      - name: Mock smoke run (v1 and v2)
         working-directory: experiments/composition-gap
-        run: uv run --no-project python harness.py --backend mock --seeds 2 --out /tmp/smoke.jsonl
+        run: |
+          uv run --no-project python harness.py --backend mock --design v1 --seeds 2 --out /tmp/smoke-v1.jsonl
+          uv run --no-project python harness.py --backend mock --design v2 --seeds 2 \
+            --conds solo,solo@k5,pipeline,swarm@n4,relay_informed,relay_uninformed --out /tmp/smoke-v2.jsonl
