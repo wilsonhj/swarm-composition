@@ -65,6 +65,13 @@ Structure, one to two sentences each:
 ### 3.5 Seeds, denominators, statistics (0.25 p)
 - Held-out seeds 1000-1019 (pilots used 0-19), 20 seeds per cell. Per-row `failed_calls` recorded; analysis excludes failed rows and reports their counts per cell, so denominators are valid-row counts, not nominal 20.
 - Wilson (or bootstrap) CIs per cell; seed-paired contrasts (e.g. pipeline vs solo@k5 on the same seeds) with paired bootstrap CIs; multiple-comparison handling [TODO].
+- Analysis notes (from the architectural audit, all checked against the code):
+  - `solo@kK` is scored per attempt and the best attempt is taken (max / any). Disclosures are never pooled across attempts, because no single agent made them.
+  - `solo` is the primary contrast. `solo@kK` is an upper-bound baseline: pipeline gets one assembly chance over 5 calls, while `solo@k5` succeeds if any of 5 attempts does.
+  - Relay prompts do not use `framing`, so the relay cells for each framing are replicates. Pool them, and do not report a framing effect for relay.
+  - Failed rows (`failed_calls > 0`) are excluded. Failure risk grows with calls per row, so report `n_failed` per cell, and rerun missing (cond, seed) pairs if any cell exceeds about 5% failures.
+  - Power: with 20 seeds per cell and about 7 contrasts per cell, exact McNemar tests are low-power and uncorrected. Lead with effect sizes and CIs.
+  - The `claude -p` backend has no output-token cap, while the API backends use `max_tokens=300`. Haiku replies were short ("exactly one line"), so the cap does not bind. Check `finish_reason` before mixing in OpenRouter reasoning models.
 ### 3.6 Models, infrastructure, provenance, pre-sprint disclosure (0.3 p)
 - Haiku 5.5 via Claude Code (primary); optional Sonnet 5.5 and OpenRouter cross-model runs [RESULT: which completed; else say not run].
 - Run manifests (run id, commit, prompt hash, CLI version) and per-turn logs. Provider defaults and CLI versions are not pinned beyond what the manifest records.

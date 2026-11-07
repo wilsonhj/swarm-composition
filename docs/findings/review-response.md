@@ -30,3 +30,20 @@ Maps each review finding to the action taken and where. "This branch" = the docu
 | Literature novelty claims | `related-work.md` no longer claims prior work conflates agent- and system-level safety or always requires an adversarial participant. Srivastav & Zhang (REALM 2025) fetched and described as close prior work; Semantic Intent Fragmentation (Ahad et al., 2026) added; Apart DLab project page fetched once and described as early, unreviewed sprint work (still flagged) | This branch: `docs/research/related-work.md`, `docs/research/README.md`. New BibTeX keys `ahad2026semantic`, `chen2026theysay` still need adding to `references.bib` |
 | Overbroad pilot summaries | See finding A | This branch: `docs/findings/pilot-results.md` |
 | "Self-organising" overstates the protocol | Replaced with "fixed round-robin shared board" in all files owned by this branch | This branch: `README.md`, `docs/research/related-work.md`, `report/outline.md` |
+
+## Architectural audit (Nov 6, 2026)
+
+Every factual claim was checked against the code at c9a4617.
+- **Accurate:** 17 of 20 claims.
+- **Inaccurate:** claim 3 said pilot manifests are committed; none exist, and the full and v2 results were untracked at audit time. Claim 15 said raw row fields embed failed-call PASS data; in v2, a failed call posts nothing.
+- **Minor:** the test count was 117 passed plus 1 skipped, not 118 passing.
+
+| Audit item | Verdict | Action |
+|---|---|---|
+| Module globals `SYS`/`FRAME` | No validity risk. They are set once before any thread starts, and 37 shuffled test orders all passed. | None |
+| Duplicated parsing (`parse_post` vs `post_text`) | No effect on v2 numbers, because v2 turns carry the harness's parse. Every reply so far is `POST:` or `PASS`. | Documented. Run the off-format check before the final analysis. |
+| Single-experiment scope | By design. | None |
+| `claude -p` has no max-tokens cap | Not binding for Haiku: the longest reply was 32 characters. A real risk for OpenRouter reasoning models: an empty or truncated reply would score as PASS. | Before any OpenRouter run, treat `finish_reason == "length"` or empty content as a failed call (harness change deferred until the v2 run finishes). |
+| Retry-then-PASS | Failed rows are already excluded from every rate and paired contrast. | `analyze.py` now prints the failed-row count and warns on duplicate (cell, seed) rows. |
+| *Found while checking the audit:* `solo@kK` metrics pooled across attempts | **Bug.** It inflated the opportunity-matched baseline. | Fixed: `scoring.py` now scores each attempt on its own and takes the best. Regression test added. |
+| *Found while checking the audit:* relay ignores framing | Design property. | Documented in the report methods (3.5). `analyze.py` has a relay-request table. |

@@ -188,8 +188,14 @@ def render(rows, by, baseline, include_unknown, files_note="", check=False):
          "**Exploratory: pilot/v1 data or design-selection seeds. Intervals are descriptive; nothing here is confirmatory.**", ""]
     if files_note:
         L += [files_note, ""]
+    nf = sum(r.get("valid") is False for r in rows)
+    keys = [(r.get("model"), r.get("policy"), r.get("framing"), r.get("cond"), r.get("seed"))
+            for r in rows if is_valid(r, include_unknown)]
+    dups = len(keys) - len(set(keys))
     L += [f"- designs: {', '.join(vals('design'))}", f"- run_ids: {', '.join(vals('run_id'))}",
           f"- backends: {', '.join(vals('backend'))}", f"- models: {', '.join(vals('model'))}",
+          f"- failed rows excluded (failed_calls>0): {nf}/{len(rows)}"
+          + (f"; **WARNING: {dups} duplicate valid (cell, seed) rows: cell rates count all, paired contrasts use only the first**" if dups else ""),
           f"- rows: {len(rows)}; unknown-validity rows {'treated as valid' if include_unknown else 'excluded from denominators'}"
           " (reported in n_unknown)",
           "- CIs: Wilson 95% for proportions; seed-bootstrap 95% (2000 resamples, seeded) for means; "
@@ -200,6 +206,19 @@ def render(rows, by, baseline, include_unknown, files_note="", check=False):
     for c in summarize(rows, by, include_unknown):
         L.append("| " + " | ".join(c["key"]) + f" | {c['n_total']} | {c['n_failed']} | {c['n_unknown']} | {c['n_valid']} | "
                  f"{_rate(c['assembled'])} | {_rate(c['recoverable'])} | {_mean(c['identified_parts'])} | {_mean(c['exposed_parts'])} |")
+    relay = [r for r in rows if str(r.get("cond", "")).startswith("relay") and is_valid(r, include_unknown)]
+    if relay:
+        L += ["", "## Relay coordinator requests", "",
+              "From `scoring.relay_request` (coordinator's first turn posted). Relay prompts do not use `framing`, so "
+              "framing cells are replicates for relay.", "",
+              "| " + " | ".join(by) + " | n_valid | requested | request names secret |", "|" + "---|" * (len(by) + 3)]
+        groups = {}
+        for r in relay:
+            groups.setdefault(cell_key(r, by), []).append(r)
+        for k in sorted(groups):
+            g = groups[k]; n = len(g)
+            req = sum(bool(r.get("requested")) for r in g); sec = sum(bool(r.get("request_names_secret")) for r in g)
+            L.append("| " + " | ".join(k) + f" | {n} | {_rate((req, n, wilson(req, n)))} | {_rate((sec, n, wilson(sec, n)))} |")
     pc = paired_contrasts(rows, baseline, include_unknown)
     L += ["", f"## Seed-paired contrasts vs `{baseline}`", "",
           "Difference = cond minus baseline, paired by seed within (model, policy, framing); brackets are paired-bootstrap 95% CIs. "
