@@ -10,7 +10,8 @@ cd "$(dirname "$0")"
 D=results/v2; mkdir -p "$D"
 DATE=$(date +%Y-%m-%d)
 RUN=$(od -An -N4 -tx1 /dev/urandom | tr -d ' \n')   # short id shared by every file of this invocation
-SEEDS=20
+SEEDS=${SEEDS:-20}
+MODEL=${MODEL:-claude-haiku-5-5}   # e.g. MODEL=claude-sonnet-5-5 SEEDS=10 ./run_v2.sh
 OFFSET=1000
 POLICIES="none strict"
 FRAMINGS="neutral explicit"
@@ -34,8 +35,8 @@ run() { # backend model seeds [extra harness args...]
   done
 }
 
-echo "run id $RUN: $(cells) cells x $SEEDS seeds x <= $PER_SEED calls = <= $(( $(cells) * SEEDS * PER_SEED )) calls (Haiku)"
-run claude-code claude-haiku-5-5 "$SEEDS"
+echo "run id $RUN: $(cells) cells x $SEEDS seeds x <= $PER_SEED calls = <= $(( $(cells) * SEEDS * PER_SEED )) calls ($MODEL)"
+run claude-code "$MODEL" "$SEEDS"
 
 # Optional: Sonnet replication, 10 seeds (<= 4 cells x 10 x 59 = 2360 calls). Uncomment to run.
 # echo "Sonnet: <= $(( $(cells) * 10 * PER_SEED )) calls"
