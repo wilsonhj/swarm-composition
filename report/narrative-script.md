@@ -1,6 +1,6 @@
 # Narrative Script: What This Repo Is and Why It Matters
 
-A short spoken explainer (about 2.5 minutes at 150 words/min, ~380 words of narration) for someone meeting the project for the first time: what the repo studies, how the harness works, and how it maps onto the hackathon tracks. It complements, and does not replace, the timed LA hub video script in `report/video-script.md`. Every number below comes from a frozen run; sources are listed at the end. Study 1 and Study 2 are never pooled.
+A short spoken explainer (about 575 words of narration, just under 4 minutes at 150 words/min) for someone meeting the project for the first time: what the repo studies, how the harness works, and how it maps onto the hackathon tracks. It complements, and does not replace, the timed LA hub video script in `report/video-script.md`. Every number below comes from a frozen run; sources are listed at the end. Study 1 and Study 2 are never pooled.
 
 ---
 
