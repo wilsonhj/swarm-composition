@@ -145,11 +145,19 @@ Each entry below was fetched on 2026-11-06 (arXiv API metadata and abstract, or 
 ## Unverified
 
 - **https://openai.com/hugging-face-incident-and-misalignment/**: the fetch returned HTTP 403, so the page content could not be read. Nothing in this directory is cited to it. METR's report refers to publishing "simultaneously with OpenAI's post-mortem", which suggests the page exists, but its title, date and claims are unconfirmed. Excluded from `references.bib`.
-- **Team DLab's project "They Say No, Then Do It Anyway: Collusion When They Hit a Wall"** (Chengheng Li Chen): the project page https://apartresearch.com/sprints/projects/they-say-no-then-do-it-anyway-collusion-when-they-hit-a-wall-zqrf was fetched once on 2026-11-06 (review pass). It reports six open models, direct requests for restricted records answered at most 4 of 30 times, and rule-breaking in 22-72% of games after a sanctioned tool degraded. It is early sprint work, not peer reviewed, and a different setting (goal pressure under tool failure, not lookup decomposition). Still flagged: read once only, pending a careful second read before any number is quoted in the report; proposed key `[chen2026theysay]` (not yet in `references.bib`).
 - **Other sprint-page projects** (Team Fugue, Team Report and Pretend, Crow): seen only as one-line listings and not individually fetched. Not cited.
 - **NeurIPS poster title**: the page prints "Interpretabilitiy". It is reproduced exactly, so check whether a corrected title exists elsewhere before the final submission.
 
-## Counts
+## Evidence and current inventory
 
-- Verified sources: 55 entries in `references.bib` (30 of the 31 original candidates plus 8 added, 2 of them after the external review; 9 provenance-study additions; and 8 alignment-review additions, whose ninth source, Shen et al., is the provenance entry `shen2026organizations`; the METR PDF and blog post are counted separately).
-- Candidate sources not verified: 1 (the OpenAI page).
+**Chen/DLab verification status:** the second fetch on 7 November is recorded in `related-work.md` and the `chen2026theysay` bibliography entry (updated in PR #5). This is a checked sprint-project source, not peer-reviewed work; the old pending-second-read flag is superseded.
+
+[Methods and publication-status map](methods-evidence.md) links actual code to primary research and distinguishes peer-reviewed proceedings from preprints, software and reports. [Claim audit](claim-audit.md) states what was checked and what remains limited. A fetched source is not necessarily peer reviewed, and a numeric claim check is not a semantic fact check.
+
+The bibliography is the current inventory; fixed counts in earlier review notes are historical snapshots. Inspect the inventory without network access:
+
+```bash
+python3 -c "import re,pathlib; s=pathlib.Path('docs/research/references.bib').read_text(); print(len(re.findall(r'^@\w+\s*\{',s,re.M)))"
+```
+
+The unread OpenAI page above remains excluded. Other unverified candidates remain separate from checked sources.

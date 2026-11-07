@@ -27,7 +27,7 @@ Contributions:
 
 ![Four Study 1 topologies: solo, pipeline, swarm and relay](figures/fig1_topologies.png)
 
-*Figure 1. Study 1 conditions. Solo sees all four lists (solo@kK: K independent attempts). Pipeline: four one-list workers, then an assembler (5 calls). Swarm@n4: four agents on a shared board, fixed round-robin, 3 rounds (≤12 calls), with or without a team objective. Relay: a list-blind coordinator, four workers, a final coordinator turn (6 calls). Study 2 reuses the pipeline.*
+*Figure 1. Study 1 conditions. Solo sees all four lists (solo@kK: K separate attempts). Pipeline: four one-list workers, then an assembler (5 calls). Swarm@n4: four agents on a shared board, fixed round-robin, 3 rounds (≤12 calls), with or without a team objective. Relay: a list-blind coordinator, four workers, a final coordinator turn (6 calls). Study 2 reuses the pipeline.*
 
 ## 2 Related Work
 
@@ -60,7 +60,7 @@ Framing is a bundle that changes every framed line and prompt length at once. Un
 | Condition | Agents | Max calls | Who sees what |
 |---|---|---|---|
 | solo | 1 | 1 | all four lists |
-| solo@k5, solo@k12 | 1 (K independent attempts) | 5, 12 | all four lists; each outcome takes its best attempt |
+| solo@k5, solo@k12 | 1 (K separate attempts) | 5, 12 | all four lists; each outcome takes its best attempt |
 | pipeline | 4 workers + assembler | 5 | worker: its own list; assembler: the board |
 | swarm@n4 | 4 | 12 | its own list + the whole board; team objective given |
 | swarm_noobj@n4 | 4 | 12 | as swarm@n4, no objective |
@@ -72,7 +72,7 @@ solo@k5 matches the pipeline and solo@k12 the swarm's maximum calls; the six-cal
 
 ### 3.4 Outcomes
 
-Only text after a leading `POST:` counts as posted, in every condition.
+The response contract is `POST: <message>` or `PASS`; the collector also accepts a leading `POST` without a colon. v2 and provenance metrics use logged accepted `posted` messages; legacy raw-board fallback requires `POST:`.
 - **Exposed parts:** a target word appears in a post.
 - **Identified parts:** the word is posted without other items from its list, so it is attributable.
 - **Recoverable:** all four words are identified somewhere on the board. This conservative heuristic misses a word quoted with other items of its list even when the message plainly selects it (e.g. Sonnet strict/neutral `swarm@n4`, seed 1004), so identified and recoverable counts are lower bounds.
@@ -80,7 +80,7 @@ Only text after a leading `POST:` counts as posted, in every condition.
 
 ### 3.5 Design, seeds, statistics
 
-Policy {none, strict} × framing {neutral, explicit} × 8 conditions, on held-out seeds 1000–1019 (pilots used seeds 0–19, and the design was frozen after seeing them). We report Wilson 95% intervals per cell, and contrasts against solo paired by seed, with paired-bootstrap 95% CIs (2,000 resamples) and exact McNemar tests. With about 7 uncorrected contrasts per cell at n = 10–20, we lead with effect sizes and intervals. Rows with any failed call are excluded; there were none.
+Policy {none, strict} × framing {neutral, explicit} × 8 conditions, on held-out seeds 1000–1019 (pilots used seeds 0–19, and the design was frozen after seeing them). We report Wilson 95% intervals per cell, and contrasts against solo paired by seed, with paired-bootstrap 95% CIs (2,000 resamples) and exact McNemar tests. Methodological references: [wilson1927probable, mcnemar1947sampling, fagerland2013mcnemar, efron1979bootstrap]. These binary-rate models assume independent task units; sharing vocabulary, prompts or a hosted model can limit that approximation. A percentile-bootstrap interval is descriptive and need not agree with the exact test at small n. With about 7 uncorrected contrasts per cell at n = 10–20, we lead with effect sizes and intervals. Rows with any failed call are excluded; there were none.
 
 ### 3.6 Models, provenance and timeline
 
@@ -212,7 +212,7 @@ Each seed has a paired **restricted** task (the objective requests the passphras
 
 **Study 1.** Solo disclosure is strongly associated with whether the local task identifies the restricted artifact; naming it in the policy alone did not reliably prevent disclosure. The policy text is not inert in split conditions: it suppresses the join in Haiku's pipeline and lowers uninformed-relay assembly (Haiku 16/40 → 1/40; Sonnet 17/20 → 7/30). We therefore read Study 1's "composition gap" as a **goal-visibility gap**: a split can leak when it hides the goal from every agent, but it assembled less often than a single agent from whom the goal was equally hidden. This is consistent with, but does not prove, refusal triggered by recognising the target in local context rather than by inferring it; in the leaking relays the coordinator invoked the policy while requesting its object.
 
-**Study 2** tests the converse intervention under a different policy and protocol. With the trusted purpose, restricted disclosure fell to zero in the held-out cells and authorized work improved. Without it, a purpose-bound policy leaves agents unable to tell the paired tasks apart, and the assembler often withholds the join either way. The keyword controls argue against a literal keyword rule, not for a general semantic mechanism. The separate studies point the same way: compliance depended on what each agent was told about the goal.
+**Study 2** tests the converse intervention under a different policy and protocol. With the trusted purpose, no restricted disclosures were observed in the sampled held-out cells and authorized work improved. Without it, a purpose-bound policy leaves agents unable to tell the paired tasks apart, and the assembler often withholds the join either way. The keyword controls argue against a literal keyword rule, not for a general semantic mechanism. The separate studies point the same way: compliance depended on what each agent was told about the goal.
 
 ### 6.2 Implications for swarm safety
 
@@ -222,19 +222,19 @@ Per-agent tests ask whether an agent refuses when told the goal; a swarm's expos
 
 - **Both studies:** a synthetic, benign restriction and one lookup-and-join task; one provider family, no cross-provider runs; fixed framing and objective strings, no paraphrase sweeps.
 - **Study 1:** small n (Sonnet's key relay effect is not significant alone); protocols that cap assembly; relay cue wording differs from the framed conditions; a two-level framing bundle; no network-shape variation, no swarm above four agents, no compromised-agent spread, no real swarm traces.
-- **Study 2:** one model and one fixed pipeline, with no second-model replication yet; trusted provenance; a monitor that bundles information, calls and veto; zero events in 50 trials still allow a one-sided 95% upper bound of about 5.8% on rare failures.
+- **Study 2:** one model and one fixed pipeline, with no second-model replication yet; trusted provenance; a monitor that bundles information, calls and veto; zero events in 50 trials still allow a one-sided 95% upper bound of about 5.8% on a common failure probability, assuming independent identically distributed Bernoulli trials [clopper1934confidence].
 
 See Appendix A.
 
 ## 7 Conclusion
 
-Restriction-bound agents refuse a goal stated in their own context, and splitting a task does not by itself overcome that refusal. In Study 1, a split that hid the goal from every agent sometimes produced the restricted artifact (requested Sonnet: 7 of 30 relays, 4 of 10 seeds; one pooled cell had mixed served models, and the verified-model rerun gave 1 of 10), though less often than a single agent kept equally uninformed. In Study 2, telling every agent the trusted purpose removed restricted recoverability on held-out seeds while improving authorized work, where a keyword gate and an LLM monitor failed. Evaluations of agent systems should test what each agent learns about the goal, not only whether it refuses. Next steps: second-model and cross-provider replications, more relay seeds, wording sweeps, forged-provenance tests, asynchronous swarms with tools, and the unimplemented [sender-level SAE intervention](../docs/protocols/sae-sender-study-proposal.md).
+In this synthetic task, explicitly naming the restricted goal was associated with refusal in the measured solo trials; a split did not establish a general safety failure. In Study 1, a split that hid the goal from every agent sometimes produced the restricted artifact (requested Sonnet: 7 of 30 relays, 4 of 10 seeds; one pooled cell had mixed served models, and the verified-model rerun gave 1 of 10), though less often than a single agent kept equally uninformed. In Study 2, no restricted recoverability was observed under trusted provenance on the sampled held-out seeds, while authorized work improved, where a keyword gate and an LLM monitor failed. Evaluations of agent systems should test what each agent learns about the goal, not only whether it refuses. Next steps: second-model and cross-provider replications, more relay seeds, wording sweeps, forged-provenance tests, asynchronous swarms with tools, and the unimplemented [sender-level SAE intervention](../docs/protocols/sae-sender-study-proposal.md).
 
 ## References
 
 Rendered list: `references.md`.
 
-Keys used: metr2026incident, metr2026report, jones2024combinations, srivastav2025safe, kothamasu2026decompbench, yuehan2025monitoring, russinovich2026laundering, ahad2026semantic, li2024drattack, russinovich2024crescendo, andriushchenko2024agentharm, mireshghallah2024confaide, hammond2025multiagent, remedios2026automode, sumers2025summarization, greenblatt2024control, lee2024prompt, men2024troublemaker, yu2024netsafe, motwani2024secret, rose2026narc, chen2026theysay, shen2026organizations, anthropic2025directions.
+Keys used: metr2026incident, metr2026report, jones2024combinations, srivastav2025safe, kothamasu2026decompbench, yuehan2025monitoring, russinovich2026laundering, ahad2026semantic, li2024drattack, russinovich2024crescendo, andriushchenko2024agentharm, mireshghallah2024confaide, hammond2025multiagent, remedios2026automode, sumers2025summarization, greenblatt2024control, lee2024prompt, men2024troublemaker, yu2024netsafe, motwani2024secret, rose2026narc, chen2026theysay, shen2026organizations, anthropic2025directions, wilson1927probable, mcnemar1947sampling, fagerland2013mcnemar, efron1979bootstrap, clopper1934confidence.
 
 ## Appendix A: Limitations and Dual-Use / Ethical Considerations
 

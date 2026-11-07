@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "canonical_source": "docs/guide/architecture.md",
+  "scope": "Reviewed source/export integrity pins; not proof of scientific claims or rendering semantics",
+  "diagrams": [
+    {
+      "name": "01-study-dataflow",
+      "source_sha256": "30a54013b524e17ef80b2dc3270d21ee180c8eb32ed62faa6906da22208adf3e",
+      "svg_sha256": "8c565aab39dd3e721650fe6a95404250072faad83325d40bcdb2838a4b692b84"
+    },
+    {
+      "name": "02-v2-topologies",
+      "source_sha256": "0a193ba3fc2669c0407cdbe9e85083c65299ea15b06b46a6dd7a2d9e08f7cc86",
+      "svg_sha256": "9fda5998701fa548be4132f6d9385521e5e41cd241861c0edeae5865d3f50ec8"
+    },
+    {
+      "name": "03-provenance-boundary",
+      "source_sha256": "43b97b379657d4931aa28f4a9e4bf4577033ac7d0c0af83fae133acca7b50228",
+      "svg_sha256": "929afd712e17ea86c13d5558344a97fa887662d9c3199fb87aefe2073291e191"
+    },
+    {
+      "name": "04-sae-proposal",
+      "source_sha256": "5657a0e562d856f8d9e97252f81d6da37016da82cbbdc738a0832a11c14ba7cd",
+      "svg_sha256": "932c81d9fc7dcd13ea28e9e3f8f45830646be6d23f053fc025a144c6dab88c22"
+    }
+  ]
+}

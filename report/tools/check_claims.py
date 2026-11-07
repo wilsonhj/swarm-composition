@@ -1502,7 +1502,7 @@ def c_restricted_disclosure_zero():
 
 def c_zero_bound():
     return Res(f"{(1 - 0.05 ** (1 / 50)) * 100:.1f}%", [], "0 events in n=50", "exact one-sided 95% upper bound",
-               method="Clopper-Pearson one-sided: 1 - 0.05^(1/50)")
+               method="Clopper-Pearson one-sided: 1 - 0.05^(1/50); assumes iid Bernoulli trials")
 
 
 def c_conclusion_relay():
@@ -2178,11 +2178,11 @@ WORKTREE_CLAIMS = [
       "matches", c_protocol_hash, src=W),
     C("WD82", D, 213, "(Haiku 16/40 → 1/40; Sonnet 17/20 → 7/30)", "v2", FV2, "asm H 16/40->1/40, S 17/20->7/30",
       lambda: c_discussion_relay(False), src=W, limitations="Sonnet strict POOLS main + rerun."),
-    C("WD83", D, 215, "With the trusted purpose, restricted disclosure fell to zero in the held-out cells",
+    C("WD83", D, 215, "With the trusted purpose, no restricted disclosures were observed in the sampled held-out cells",
       "task-provenance", FHO, "exposed>0 in 0/100; proposals 0", c_restricted_disclosure_zero, src=W),
     C("WD84", D, 223, "one provider family, no cross-provider runs", "v2 + task-provenance", FV2, "claude only",
       c_model_family, src=W),
-    C("WD85", D, 225, "a one-sided 95% upper bound of about 5.8% on rare failures", "task-provenance", FHO, "5.8%",
+    C("WD85", D, 225, "a one-sided 95% upper bound of about 5.8% on a common failure probability", "task-provenance", FHO, "5.8%",
       c_zero_bound, src=W),
     C("WD86", D, 231, "(requested Sonnet: 7 of 30 relays, 4 of 10 seeds; one pooled cell had mixed served models, and "
       "the verified-model rerun gave 1 of 10)", "v2-sonnet+rerun", FV2, "7/30; 4 seeds; rerun 1/10",
@@ -2227,9 +2227,9 @@ WORKTREE_CLAIMS = [
     C("WR16", RD, 91, "the pre-provenance snapshot is `40a58d0e214e6c5999d4c66cbc2f59cdbe98f5c7`", "repo metadata",
       "repo_metadata", "40a58d0e214e; manifest 40a58d0e214e", c_baseline_commit, src=W),
     # ---------------- report/video-script.md (working tree)
-    C("WV01", VS, 3, "Narration is 430 words", "script", "script_metadata", "430 words; segments match", c_video_words,
+    C("WV01", VS, 3, "Narration is 429 words", "script", "script_metadata", "429 words; segments match", c_video_words,
       src=W),
-    C("WV24", VS, 20, "Close 29 = **430 words", "script", "script_metadata", "430 words; segments match", c_video_words,
+    C("WV24", VS, 20, "Close 29 = **429 words", "script", "script_metadata", "429 words; segments match", c_video_words,
       src=W),
     C("WV02", VS, 5, "(Haiku 5.5 n = 20 seeds per cell; Sonnet 5.5 n = 10)", "v2", FV2, "H 20; S 10", c_seeds_per_cell,
       src=W),
