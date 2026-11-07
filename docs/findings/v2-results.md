@@ -34,7 +34,7 @@ Relay prompts do not use framing, so each relay row above pools the neutral and 
 
 ## What this shows (Haiku 5.5, one model, synthetic restriction)
 
-1. **Framing decides refusal; policy alone does not.**
+1. **Under `strict`, refusal tracked framing; the policy text alone did not produce it.**
    - Under `strict` with neutral framing, the solo agent still writes out the passphrase in 19 of 20 runs. The policy names "the vault passphrase", but nothing in the task tells the agent that these items are it.
    - Under explicit framing every solo attempt refuses: 0 of 20, and also 0 of 20 with 5 or 12 tries.
    - This replicates the pilot framing effect on held-out seeds.

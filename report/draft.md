@@ -216,7 +216,7 @@ Each seed has a paired **restricted** task (the objective requests the passphras
 
 ### 6.2 Implications for swarm safety
 
-Per-agent tests ask whether an agent refuses when told the goal; a swarm's exposure also depends on whether any agent learns it. In the METR incident, the sampled agents that cited an assignment recognised the attack as out of scope and unethical and joined anyway [metr2026incident, metr2026report], so it is not an instance of the hidden-goal mechanism we study. Goal propagation is supported only within Study 2's fixed pipeline and trusted metadata. Board-level monitors [yuehan2025monitoring] must be judged on authorized utility too: Study 2's history-aware monitor, as prompted, blocked nearly everything. Plan-level information-flow checks at the orchestrator [ahad2026semantic] remain untested.
+Per-agent tests ask whether an agent refuses when told the goal; a swarm's exposure also depends on whether any agent learns it. In the METR incident, by METR's account, agents recognised the attack as out of scope and unethical and joined anyway [metr2026incident, metr2026report], so it is not an instance of the hidden-goal mechanism we study. Goal propagation is supported only within Study 2's fixed pipeline and trusted metadata. Board-level monitors [yuehan2025monitoring] must be judged on authorized utility too: Study 2's history-aware monitor, as prompted, blocked nearly everything. Plan-level information-flow checks at the orchestrator [ahad2026semantic] remain untested.
 
 ### 6.3 Threats to validity
 

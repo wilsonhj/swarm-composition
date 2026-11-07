@@ -1,6 +1,6 @@
 # Appendix A: Limitations and Dual-Use / Ethical Considerations
 
-All numbers below are from the frozen v2 runs (held-out seeds 1000+) and match the main report.
+Study 1 numbers below are from the frozen v2 runs (held-out seeds 1000+); Study 2 numbers are from the frozen provenance held-out run (seeds 3000-3049). Pilot and v1 facts are labelled where they appear. All match the main report.
 
 ## A.1 Limitations
 
