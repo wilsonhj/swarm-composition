@@ -408,7 +408,7 @@ engineering status. If steering or transfer is absent, report the null pilot and
 its precision. Never relabel completion pressure as evidence.
 
 Suggested three-minute video: 25 seconds for the synthetic restriction question
-and why composition matters (`jones2024combinations`, `shen2026organizations`);
+and why composition matters (`jones2024combinations`, `shen2026aiorgs`);
 35 seconds for the experimental unit and controls; 60 seconds for audited original
 results and uncertainty; 30 seconds for the achieved SAE gate and its limits;
 30 seconds for reproducibility command, related-work boundaries and takeaway.
