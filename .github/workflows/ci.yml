@@ -79,6 +79,11 @@ jobs:
           path: ${{ runner.temp }}/swarm-provenance-replay/
           retention-days: 14
 
+      - name: Verify report claims and mutation regressions
+        run: |
+          python report/tools/check_claims.py --quiet
+          python -m unittest discover -s report/tests -v
+
       - name: Mock smoke run (v1, v2 and task provenance)
         working-directory: experiments/composition-gap
         run: |

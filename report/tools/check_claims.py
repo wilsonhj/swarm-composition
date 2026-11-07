@@ -2014,12 +2014,13 @@ WORKTREE_CLAIMS = [
       "repo metadata", "repo_metadata", "scaffold 17:24; v2 18:29; first v2 Haiku manifest 18:49", c_timeline, src=W),
     C("WD25", D, 89, "Study 2 collection ran 06:01–06:57 UTC on Nov 7",
       "task-provenance", FHO, "06:01 UTC Nov 07 to 06:57 UTC Nov 07", c_ho_window, src=W),
-    *[C(f"WD{26 + i}", D, 97 + i, f"| {c} | ", "v2", FV2, w,
+    *[C(f"WD{26 + i}", D, 97 + i, f"| {c} | {printed} |", "v2", FV2, w,
         (lambda c=c: c_table_row([("H", "strict", "neutral"), ("H", "strict", "explicit"), ("S", "strict", "neutral"),
                                   ("S", "strict", "explicit"), ("R", "strict", "explicit")], c, "assembled")), src=W)
-      for i, (c, w) in enumerate((("solo", "19/20 | 0/20 | 8/10 | 0/10 | 0/10"),
-                                  ("solo@k5", "20/20 | 0/20 | 9/10 | 0/10 | 0/10"),
-                                  ("solo@k12", "20/20 | 0/20 | 10/10 | 0/10 | 0/10")))],
+      for i, (c, w, printed) in enumerate((
+          ("solo", "19/20 | 0/20 | 8/10 | 0/10 | 0/10", "19/20 | 0/20 | 8/10 | 0/10 (rerun 0/10)"),
+          ("solo@k5", "20/20 | 0/20 | 9/10 | 0/10 | 0/10", "20/20 | 0/20 | 9/10 | 0/10 (rerun 0/10)"),
+          ("solo@k12", "20/20 | 0/20 | 10/10 | 0/10 | 0/10", "20/20 | 0/20 | 10/10 | 0/10 (rerun 0/10)")))],
     C("WD29", D, 101, "(recoverable equals assembled for solo)", "v2", FV2, "0 of 210 rows differ",
       c_recoverable_equals_assembled_solo, src=W),
     C("WD30", D, 103, "(Haiku 19/20 strict vs. 20/20 none)", "v2-haiku", FV2, "19/20 | 20/20",
@@ -2032,10 +2033,13 @@ WORKTREE_CLAIMS = [
       "0.50; paired [+0.20,+0.80]", lambda: c_identified_mean("H", "swarm_noobj@n4"), src=W),
     C("WD34", D, 107, "and 0.30 for the Sonnet pipeline rerun", "v2-sonnet-rerun", FV2, "0.30",
       lambda: c_identified_mean("R", "pipeline", False), src=W),
-    *[C(f"WD{35 + i}", D, 113 + i, f"| {c} | ", "v2", FV2, w,
+    *[C(f"WD{35 + i}", D, 113 + i, f"| {c} | {printed} |", "v2", FV2, w,
         (lambda c=c: c_table_pair_row([("H", "strict", "neutral"), ("S", "strict", "neutral")], c)), src=W)
-      for i, (c, w) in enumerate((("solo", "19/19 | 8/8"), ("pipeline", "2/19 | 3/8"), ("swarm@n4", "0/19 | 0/7"),
-                                  ("swarm_noobj@n4", "0/11 | 0/6")))],
+      for i, (c, w, printed) in enumerate((
+          ("solo", "19/19 | 8/8", "19/20 | 19/20 | 8/10 | 8/10"),
+          ("pipeline", "2/19 | 3/8", "2/20 | 19/20 | 3/10 | 8/10"),
+          ("swarm@n4", "0/19 | 0/7", "0/20 | 19/20 | 0/10 | 7/10"),
+          ("swarm_noobj@n4", "0/11 | 0/6", "0/20 | 11/20 | 0/10 | 6/10")))],
     C("WD39", D, 124, "−85 pp [−100, −65] for the pipeline and −95 pp [−100, −85] for both swarms", "v2-haiku", FV2,
       "pipeline -85pp [-100,-65]; swarm@n4 -95pp [-100,-85]; swarm_noobj@n4 -95pp [-100,-85]; max p<0.001",
       c_haiku_sn_drops, src=W),
@@ -2093,12 +2097,17 @@ WORKTREE_CLAIMS = [
       "16 cells x 50; 800 trials", c_ho_cells16, src=W),
     C("WD63", D, 171, "seeds 3000–3049, 800 trials", "task-provenance", FHO, "held-out 3000-3049; pilot 2000-2019",
       c_heldout_seed_plan, src=W),
-    *[C(f"WD{64 + i}", D, 177 + i, f"| {c} | ", "task-provenance", FHO, w, (lambda c=c: c_ho_row(HELDOUT, c)), src=W)
-      for i, (c, w) in enumerate((
-          ("local", "45/50 / 17/50 | 47/50 / 15/50 | 49/50 / 14/50 | 47/50 / 12/50"),
-          ("provenance", "0/50 / 0/50 | 47/49 / 33/49 | 0/50 / 0/50 | 49/50 / 48/50"),
-          ("monitor", "0/50 / 0/50 | 0/50 / 0/50 | 0/50 / 0/50 | 0/50 / 0/50"),
-          ("keyword_gate", "46/50 / 16/50 | 48/50 / 14/50 | 0/50 / 0/50 | 0/50 / 0/50")))],
+    *[C(f"WD{64 + i}", D, 177 + i, f"| {c} | {printed} |", "task-provenance", FHO, w,
+        (lambda c=c: c_ho_row(HELDOUT, c)), src=W)
+      for i, (c, w, printed) in enumerate((
+          ("local", "45/50 / 17/50 | 47/50 / 15/50 | 49/50 / 14/50 | 47/50 / 12/50",
+           "45/50 / 17/50 | 47/50 / 15/50 | 49/50 / 14/50 | 47/50 / 12/50"),
+          ("provenance", "0/50 / 0/50 | 47/49 / 33/49 | 0/50 / 0/50 | 49/50 / 48/50",
+           "**0/50** / 0/50 | 47/49 / **33/49** | **0/50** / 0/50 | 49/50 / **48/50**"),
+          ("monitor", "0/50 / 0/50 | 0/50 / 0/50 | 0/50 / 0/50 | 0/50 / 0/50",
+           "0/50 / 0/50 | 0/50 / 0/50 | 0/50 / 0/50 | 0/50 / 0/50"),
+          ("keyword_gate", "46/50 / 16/50 | 48/50 / 14/50 | 0/50 / 0/50 | 0/50 / 0/50",
+           "46/50 / 16/50 | 48/50 / 14/50 | 0/50 / 0/50 | 0/50 / 0/50")))],
     C("WD68", D, 186, "**−90 pp [−98, −80]** | 0 / 45 | < 0.001", "task-provenance", FHO,
       "-90pp [-98,-80]; 0/45; 50 pairs; p<0.001", lambda: c_ho_contrast("restricted", "paraphrase", "recoverable"), src=W),
     C("WD69", D, 187, "+37 pp [+20, +53] | 21 / 3 (49 pairs) | < 0.001", "task-provenance", FHO,
@@ -2419,13 +2428,14 @@ def main(argv=None):
     elif not LEDGER.is_file():
         integrity.append(f"{LEDGER.relative_to(ROOT)} missing; run with --write")
     else:
-        disk = {r["claim_id"]: r for r in csv.DictReader(LEDGER.open())}
+        with LEDGER.open() as source:
+            disk = {r["claim_id"]: r for r in csv.DictReader(source)}
         for r in rows:
             d = disk.get(r["claim_id"])
             if d is None:
                 integrity.append(f"{r['claim_id']}: absent from ledger CSV")
                 continue
-            for k in ("value_as_written", "recomputed_value", "check_status", "raw_sha256", "raw_paths"):
+            for k in COLUMNS:
                 if d.get(k, "") != r[k]:
                     integrity.append(f"{r['claim_id']}: ledger {k}={d.get(k)!r} but recomputed {r[k]!r}")
         for cid in set(disk) - {r["claim_id"] for r in rows}:

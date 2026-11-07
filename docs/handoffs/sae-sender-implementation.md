@@ -9,8 +9,8 @@ None of those outcomes should delay the original study or change its protocol.
 
 Read repository `CLAUDE.md`, this contract, and the [source audit](sae-source-audit.md).
 Citation keys below resolve in [references.bib](../research/references.bib).
-The proposed interfaces and paths below are implementation targets. Only the
-explicitly labeled **available now** replay command is implemented by this PR.
+The SAE interfaces and paths below are implementation targets. The v2 and
+provenance replay commands in [verification](verification.md) are available now.
 
 ## 1. Establish the research boundary
 
@@ -96,7 +96,7 @@ Copy this common instruction into every agent task:
 
 | Agent | Owned paths / concrete assignment | Required handoff and acceptance |
 |---|---|---|
-| A: original-study curator | New `tools/audit/` and `artifacts/presentation/` only; read original studies | Extend the available v2 replay to an explicit provenance input allowlist after PR #1 is available. Rescore from accepted per-turn posts, reconcile manifests/failures, separate development from held-out, and build original-study claim rows. Frozen inputs remain byte-identical. |
+| A: original-study curator | New `tools/audit/` and `artifacts/presentation/` only; read original studies | Use the available v2 and provenance replays, reconcile manifests/failures, separate development from held-out, and build original-study claim rows. Frozen inputs remain byte-identical. |
 | B: environment and loader | `experiments/sae-sender/pyproject.toml`, lock, `sae_sender/loader.py`, `environment.md` | Lock an actually tested PyTorch/Transformers/SAELens environment. Verify licensed model access, artifact identity, tensor/site compatibility, activation scaling, and short unsteered generation. Supply G1 evidence and a CPU mock loader for other agents. |
 | C: routing and intervention | `sae_sender/context.py`, `intervention.py`, `backend.py`, corresponding tests | Implement explicit sender identity and per-call intervention, scoped hooks, fresh caches, serialized generation, instrumentation events. Pass the negative/control tests in section 5 before any sender-effect claim. Depends on B's hook contract. |
 | D: protocol and experimental runner | `docs/protocols/sae-sender-v1.md`, `sae_sender/run.py`, prompts/configs, runner tests | Freeze benign target, selected feature evidence, seed splits, delivery arms, sample/stopping/failure rules. Write append-safe JSONL and atomic manifest finalization; enforce explicit CPU mock versus local model modes. Depends on B/C contracts. |
@@ -341,11 +341,11 @@ count is not an independent sample size. Maximum call opportunity also differs:
 three-round `swarm@n8` allows 24 calls while `solo@k12` allows 12. Match opportunity
 explicitly or present that contrast with its limitation; log realized calls too.
 
-### Implementation targets: provenance and SAE replay
+### Available provenance replay and SAE implementation targets
 
-Agent A must add the original provenance replay using an explicit input allowlist
-and collection/analysis commits. Read the immutable protocol before selecting
-its metric. PR #1 now contains [held-out artifacts and findings](https://github.com/wilsonhj/swarm-composition/blob/a5258393ac6baf718b3a2b0042dae195b90f90bd/docs/findings/provenance-heldout.md),
+The original provenance replay is available as `tools/replay_provenance.py`, with
+an explicit input allowlist and collection/analysis commits; use the commands in
+[verification](verification.md#provenance-held-out-replay). PR #1 contains [held-out artifacts and findings](https://github.com/wilsonhj/swarm-composition/blob/a5258393ac6baf718b3a2b0042dae195b90f90bd/docs/findings/provenance-heldout.md),
 separate from its development pilot. Audit those existing artifacts first; do not
 repeat collection merely to recreate a table. Preserve the reported failure and
 the findings' pilot-monitor erratum; leave the frozen protocol text/hash intact.
