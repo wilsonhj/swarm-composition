@@ -4,7 +4,7 @@
 > intervals are very wide, and the policy/framing/prompt configuration changed between files. Do not cite these numbers
 > as findings; the report uses only the frozen full run.
 
-Regenerate: `cd experiments/composition-gap && python analyze.py results/pilot/*.jsonl --include-unknown --legacy-check --md OUT.md`
+Regenerate: `cd experiments/composition-gap && python analyze.py results/pilot/*.jsonl --include-unknown --legacy-check --baseline solo --md OUT.md`
 (superseded files are skipped by default; `results/full/` is an in-progress run and is not included).
 
 ## What changed in scoring
