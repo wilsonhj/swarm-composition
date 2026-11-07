@@ -172,7 +172,7 @@ def test_parse_post(raw, posted):
     assert h.parse_post(raw) == posted
 
 
-TURN_KEYS = {"role", "agent", "part", "raw", "posted", "failed", "ms"}
+TURN_KEYS = {"role", "agent", "part", "raw", "posted", "failed", "ms", "model"}
 
 
 @pytest.mark.parametrize("design,cond,n_turns", [
@@ -498,6 +498,15 @@ def test_claude_code_success_records_model_and_cost(monkeypatch):
     cc = h.ClaudeCode("claude-haiku-5-5")
     assert cc("s", "u") == "POST: x" and cc.calls == 1 and cc.cost == pytest.approx(0.002)
     assert cc.models == {"claude-haiku-5-5-20261001"} and seen[0]["env"] == cc.env
+
+
+def test_turns_record_model_per_call(monkeypatch):
+    run, _ = fake_run([json.dumps({"is_error": False, "result": "POST: a", "modelUsage": {"m-new": {}}}),
+                       json.dumps({"is_error": False, "result": "PASS", "modelUsage": {"m-old": {}, "m-new": {}}})])
+    monkeypatch.setattr(h.subprocess, "run", run)
+    tl = h.Turns(h.ClaudeCode("m"))
+    tl("worker", "w0", 0, "s", "u"); tl("worker", "w1", 1, "s", "u")
+    assert [t["model"] for t in tl.log] == [["m-new"], ["m-new", "m-old"]]
 
 
 def test_claude_code_failure_counted(monkeypatch):

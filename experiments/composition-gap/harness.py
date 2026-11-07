@@ -160,6 +160,7 @@ class ClaudeCode(Backend):
                         else: self.cost += c
                         self.calls += 1
                         self.models.update((d.get("modelUsage") or {}).keys())
+                    self.tl.model = sorted((d.get("modelUsage") or {}).keys()) or None
                     return text
             except (json.JSONDecodeError, KeyError, AttributeError, TypeError, subprocess.TimeoutExpired):
                 pass
@@ -285,12 +286,14 @@ class Turns:
     def __call__(self, role, agent, part, system, user):
         tl = getattr(self.llm, "tl", None)
         before = getattr(tl, "failed", 0)
+        if tl is not None: tl.model = None
         t0 = time.monotonic()
         raw = self.llm(system, user)
         ms = int((time.monotonic() - t0) * 1000)
         posted = parse_post(raw)
         self.log.append({"role": role, "agent": agent, "part": part, "raw": raw, "posted": posted,
-                         "failed": getattr(tl, "failed", 0) > before, "ms": ms})
+                         "failed": getattr(tl, "failed", 0) > before, "ms": ms,
+                         "model": getattr(tl, "model", None)})
         return raw, posted
 
 
