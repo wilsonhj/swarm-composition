@@ -21,7 +21,7 @@ The [revised memo](revised-sae-review-and-submission-memo.md) corrects call acco
 
 These abstract/metadata pages were fetched and checked; their experiments were not independently replicated. A paper being included in the bibliography does not endorse its disputed conclusions.
 
-Files in this directory: `README.md` (this file), `metr-incident.md` (sourced incident summary), `related-work.md` (draft Related Work), `references.bib`, and `revised-sae-review-and-submission-memo.md`.
+Files in this directory: `README.md` (this file), `metr-incident.md` (sourced incident summary), `related-work.md` (draft Related Work), `references.bib`, `revised-sae-review-and-submission-memo.md`, and `cowork-session-notes.md` (delta from a separate Cowork research session: judge panel, extra talks, Swarm Traces channel, Adaption platform; partly unverified, see its header).
 
 Sources marked **[added]** were not in the original candidate list; they were found by search and then fetched and verified.
 
