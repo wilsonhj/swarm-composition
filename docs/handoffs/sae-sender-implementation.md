@@ -41,7 +41,7 @@ convenient. Propose any essential core change separately and rerun its checks.
 | Item | Pinned evidence | Consequence |
 |---|---|---|
 | Main inspected | [`59c8b7a`](https://github.com/wilsonhj/swarm-composition/tree/59c8b7a84e88728d7fb67672dc57d2066bb3aff9) | This handoff starts independently from main. |
-| Original provenance implementation | [PR #1](https://github.com/wilsonhj/swarm-composition/pull/1), inspected head [`a525839`](https://github.com/wilsonhj/swarm-composition/tree/a5258393ac6baf718b3a2b0042dae195b90f90bd) | Includes a completed held-out run; unmerged paths must not be presumed available on main. |
+| Original provenance implementation | [PR #1](https://github.com/wilsonhj/swarm-composition/pull/1), inspected head [`a525839`](https://github.com/wilsonhj/swarm-composition/tree/a5258393ac6baf718b3a2b0042dae195b90f90bd) | Includes a completed held-out run. Unmerged at the inspected snapshot; merged into main on 7 Nov (e056c88). |
 | Provenance protocol freeze | [`435d20d`](https://github.com/wilsonhj/swarm-composition/blob/435d20d4d0d8e7bf24a391d077649b98e6d526ae/docs/protocols/task-provenance-v1.md) | Preserve this collection protocol; record later analysis revisions separately. |
 | Protocol file SHA256 | `5a8659fea984ee3203f380476e06cdc72829e4b574e88edbbcfbda5800ead978` | Verify before any original confirmatory collection. |
 | Separate SAE proposal | [pinned proposal](https://github.com/wilsonhj/swarm-composition/blob/a5258393ac6baf718b3a2b0042dae195b90f90bd/docs/protocols/sae-sender-study-proposal.md) | A proposal, not evidence that local steering runs. |
@@ -337,9 +337,9 @@ Haiku contributes 640 rows over 20 task seeds per cell; original Sonnet 320 over
 10; the Sonnet strict/explicit rerun adds 80 rows on the **same ten tasks**. The
 original Sonnet strict/explicit manifest lists both `claude-sonnet-5` and
 `claude-sonnet-5-5`; retain this fact and analyze the rerun separately. Overall row
-count is not an independent sample size. Maximum call opportunity also differs:
-three-round `swarm@n8` allows 24 calls while `solo@k12` allows 12. Match opportunity
-explicitly or present that contrast with its limitation; log realized calls too.
+count is not an independent sample size. In v2, maximum call opportunity is matched:
+three-round `swarm@n4` allows 12 calls, as does `solo@k12`. A larger swarm needs a
+matching baseline (three-round `swarm@n8` needs `solo@k24`); log realized calls too.
 
 ### Available provenance replay and SAE implementation targets
 

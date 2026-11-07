@@ -17,7 +17,9 @@ Exit status:
   0  every recomputable claim matches, the CSV agrees with a fresh recompute, every needle is found
   1  at least one claim's value as written differs from the recomputed value (a mismatch)
   2  integrity problem: CSV drift (stale recomputed values/statuses/hashes), a missing raw file,
-     or a needle no longer found in the document (draft changed: update the spec's line/needle/value)
+     a needle no longer found in the document (draft changed: update the spec's line/needle/value),
+     or any number on a cited line changed since the ledger was written (line_numbers; check the
+     new numbers, then --write)
 Stdlib + repository code only. No network, no API calls, never reads .env.
 """
 import argparse
@@ -26,6 +28,7 @@ import hashlib
 import io
 import json
 import os
+import re
 import subprocess
 import sys
 from collections import Counter, defaultdict
@@ -44,7 +47,10 @@ TEMPLATE_COLUMNS = ["claim_id", "slide_id", "claim_text", "study_id", "evidence_
                     "analysis_commit", "protocol_sha256", "run_ids", "raw_paths", "raw_sha256", "row_selector",
                     "metric", "n_total", "n_valid", "n_failed", "n_unknown", "n_distinct_seeds", "estimate",
                     "uncertainty_method", "interval", "test_and_multiplicity", "citation_keys", "limitations"]
-EXTRA_COLUMNS = ["value_as_written", "recomputed_value", "computation", "check_status"]
+# line_numbers pins every number on the cited line, not only those inside the needle, so an edit to an
+# unchecked number on a cited line fails the ledger comparison until the ledger is regenerated (--write)
+# and the change shows up in the ledger diff.
+EXTRA_COLUMNS = ["value_as_written", "recomputed_value", "computation", "check_status", "line_numbers"]
 COLUMNS = TEMPLATE_COLUMNS + EXTRA_COLUMNS
 PT = ZoneInfo("America/Los_Angeles")
 
@@ -1005,6 +1011,8 @@ def c_appb_zero_p():
 D, RD, VS, PH, VR = "report/draft.md", "README.md", "report/video-script.md", "docs/findings/provenance-heldout.md", \
     "docs/findings/v2-results.md"
 NR = "not-recomputable"
+APPA = "report/appendix-limitations-dual-use.md"
+PIN_WHY = "pinned only: the numbers on this line are not recomputed; any change to them fails the ledger check"
 
 
 # The first pass fact-checked the documents as committed at this revision (pinned so it stays stable).
@@ -1494,7 +1502,7 @@ def c_restricted_disclosure_zero():
 
 def c_zero_bound():
     return Res(f"{(1 - 0.05 ** (1 / 50)) * 100:.1f}%", [], "0 events in n=50", "exact one-sided 95% upper bound",
-               method="Clopper-Pearson one-sided: 1 - 0.05^(1/50)")
+               method="Clopper-Pearson one-sided: 1 - 0.05^(1/50); assumes iid Bernoulli trials")
 
 
 def c_conclusion_relay():
@@ -2146,11 +2154,11 @@ WORKTREE_CLAIMS = [
       "matches", c_protocol_hash, src=W),
     C("WD82", D, 213, "(Haiku 16/40 → 1/40; Sonnet 17/20 → 7/30)", "v2", FV2, "asm H 16/40->1/40, S 17/20->7/30",
       lambda: c_discussion_relay(False), src=W, limitations="Sonnet strict POOLS main + rerun."),
-    C("WD83", D, 215, "With the trusted purpose, restricted disclosure fell to zero in the held-out cells",
+    C("WD83", D, 215, "With the trusted purpose, no restricted disclosures were observed in the sampled held-out cells",
       "task-provenance", FHO, "exposed>0 in 0/100; proposals 0", c_restricted_disclosure_zero, src=W),
     C("WD84", D, 223, "one provider family, no cross-provider runs", "v2 + task-provenance", FV2, "claude only",
       c_model_family, src=W),
-    C("WD85", D, 225, "a one-sided 95% upper bound of about 5.8% on rare failures", "task-provenance", FHO, "5.8%",
+    C("WD85", D, 225, "a one-sided 95% upper bound of about 5.8% on a common failure probability", "task-provenance", FHO, "5.8%",
       c_zero_bound, src=W),
     C("WD86", D, 231, "(requested Sonnet: 7 of 30 relays, 4 of 10 seeds; one pooled cell had mixed served models, and "
       "the verified-model rerun gave 1 of 10)", "v2-sonnet+rerun", FV2, "7/30; 4 seeds; rerun 1/10",
@@ -2182,9 +2190,9 @@ WORKTREE_CLAIMS = [
     C("WR17", RD, 75, "| Restricted task: answer recoverable | 45/50 | 0/50 |", "task-provenance", FHO,
       "45/50->0/50", lambda: c_ho_contrast_part("restricted", "paraphrase", "recoverable", 1), src=W),
     # ---------------- report/video-script.md (working tree)
-    C("WV01", VS, 3, "Narration is 426 words", "script", "script_metadata", "426 words; segments match", c_video_words,
+    C("WV01", VS, 3, "Narration is 429 words", "script", "script_metadata", "429 words; segments match", c_video_words,
       src=W),
-    C("WV24", VS, 20, "Close 29 = **426 words", "script", "script_metadata", "426 words; segments match", c_video_words,
+    C("WV24", VS, 20, "Close 29 = **429 words", "script", "script_metadata", "429 words; segments match", c_video_words,
       src=W),
     C("WV02", VS, 5, "(Haiku 5.5 n = 20 seeds per cell; Sonnet 5.5 n = 10)", "v2", FV2, "H 20; S 10", c_seeds_per_cell,
       src=W),
@@ -2299,6 +2307,30 @@ WORKTREE_CLAIMS = [
       src=W, limitations="Corrected 7 Nov (was 'empty model list')."),
     C("WB26", APPB, 336, "its `p=0.000` means exact McNemar p < 0.001", "task-provenance", FHO,
       "18 displayed p=0.000; 18 exact p<0.001", c_appb_zero_p, src=W),
+    # Appendix A (limitations): numbers are not recomputed here; each cited line is pinned through
+    # line_numbers so any change to its numbers fails the ledger check until it is re-reviewed.
+    C("WA01", APPA, 3, 'Study 1 numbers below are from the frozen v2 runs (held-out ', "appendix-a", "pinned", "", src=W,
+      why=PIN_WHY),
+    C("WA02", APPA, 21, '**Worker position errors.**', "appendix-a", "pinned", "", src=W,
+      why=PIN_WHY),
+    C("WA03", APPA, 25, '**Design chosen on pilot seeds.**', "appendix-a", "pinned", "", src=W,
+      why=PIN_WHY),
+    C("WA04", APPA, 27, '**Small n and multiplicity.**', "appendix-a", "pinned", "", src=W,
+      why=PIN_WHY),
+    C("WA05", APPA, 31, '**Topology, opportunity and call counts.**', "appendix-a", "pinned", "", src=W,
+      why=PIN_WHY),
+    C("WA06", APPA, 35, '**Single provider family and run provenance.**', "appendix-a", "pinned", "", src=W,
+      why=PIN_WHY),
+    C("WA07", APPA, 39, '**Sequential turn-taking, no tools, short horizons.**', "appendix-a", "pinned", "", src=W,
+      why=PIN_WHY),
+    C("WA08", APPA, 45, '**Study 2 scope.**', "appendix-a", "pinned", "", src=W,
+      why=PIN_WHY),
+    C("WA09", APPA, 51, '**Could this help someone launder harmful requests through decomposition?**', "appendix-a", "pinned", "", src=W,
+      why=PIN_WHY),
+    C("WA10", APPA, 59, '- We do not publish an optimised "laundering" prompt library', "appendix-a", "pinned", "", src=W,
+      why=PIN_WHY),
+    C("WA11", APPA, 68, '- Goal propagation and coordinator-level intent checks. Our ', "appendix-a", "pinned", "", src=W,
+      why=PIN_WHY),
 ]
 CLAIMS += WORKTREE_CLAIMS
 
@@ -2326,8 +2358,21 @@ def doc_text(doc, rev):
     return p.stdout if p.returncode == 0 else None
 
 
+NUMBER = re.compile(r"[−+-]?\d+(?:[.,:]\d+)*")
+
+
+def line_numbers(spec):
+    """Every number on the claim's cited line, in order, as a pin against unchecked edits."""
+    t = doc_text(spec["doc"], None if spec["src"] == WORKTREE else spec["src"])
+    lines = t.splitlines() if t is not None else []
+    if not 0 < spec["line"] <= len(lines):
+        return "(line missing)"
+    return " ".join(NUMBER.findall(lines[spec["line"] - 1]))
+
+
 def build_row(spec, acommit):
     base = {k: "" for k in COLUMNS}
+    base["line_numbers"] = line_numbers(spec)
     base.update(claim_id=spec["cid"], slide_id=f"{spec['doc']}@{spec['src']}:{spec['line']}", claim_text=spec["needle"],
                 study_id=spec["study"], evidence_status=spec["evidence"], value_as_written=spec["written"],
                 citation_keys=spec["citations"], limitations=spec["limitations"])

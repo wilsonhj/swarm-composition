@@ -9,11 +9,14 @@ The two studies are loaded, summarised and plotted separately; they are never po
 
 Every plotted cell is computed with analyze.summarize (scoring.score_row underneath) and then cross-checked
 against the committed analysis markdown for the same files; any missing or mismatched cell aborts the script
-before a figure is written. No model calls. Output is deterministic (fixed SVG hash salt, no dates).
+before a figure is written. No model calls. Fixed SVG hash salt and absent timestamps reduce rendering
+variation within one environment; image bytes can differ across library, font and platform versions.
 
-Outputs (report/figures/): fig2_v2_heatmap.{png,svg}, fig4_provenance_heldout.{png,svg}, figure-data.json.
+Outputs (report/figures/ by default; use --out-dir to change):
+fig2_v2_heatmap.{png,svg}, fig4_provenance_heldout.{png,svg}, figure-data.json.
 fig3_v2_swarm_size is skipped when the frozen v2 data hold only one swarm size (they do: swarm@n4 only).
 """
+import argparse
 import json
 import sys
 import textwrap
@@ -289,6 +292,11 @@ def fig4(records):
 
 
 def main():
+    global OUT
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--out-dir", type=Path, default=OUT, help="output directory (default: report/figures)")
+    OUT = parser.parse_args().out_dir.resolve()
+    OUT.mkdir(parents=True, exist_ok=True)
     records = []
     groups, swarm_sizes = v2_data()
     # Cross-check every committed cell of both studies before any file is written.

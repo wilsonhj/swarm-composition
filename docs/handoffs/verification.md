@@ -116,8 +116,8 @@ reported cost, or say anything about future hosted-model behaviour.
 - Mock v1 and v2 smoke runs passed; outputs went to temporary paths.
 - `git diff --check`, replay script compilation, local Markdown links, cited
   bibliography keys, duplicate bibliography detection, JSON parsing, and CSV
-  header validation passed. The bibliography contains 49 unique keys after the
-  additions; existing entries were preserved.
+  header validation passed. The bibliography contains 60 unique keys after the
+  additions (recounted 7 Nov at main 3de7811); existing entries were preserved.
 
 The suite command used the cached offline environment:
 

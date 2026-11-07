@@ -124,3 +124,15 @@ Backend setup: [Claude Code](docs/dev/claude-code-cli.md), [OpenRouter](docs/dev
 The SAE sender intervention is a [separate, unimplemented proposal](docs/protocols/sae-sender-study-proposal.md).
 
 Built by **Hirokazu James (team HJ)** for the Swarm Alignment Hackathon, Nov 6–8, 2026, Track 2: Science of agent networks. The author confirms there are no pre-sprint assets; see the [development timeline](docs/findings/development-timeline.md).
+
+## Visual guide and research grounding
+
+![How trials become separate, auditable study artifacts](docs/guide/diagrams/01-study-dataflow.svg)
+
+- [Architecture diagrams](docs/guide/architecture.md): topologies, call budgets, publication gates, and the separate proposed SAE path.
+- [Code walkthrough](docs/guide/code-walkthrough.md): a reproducible task, actual call paths, and the difference between exposure, recoverability and assembly.
+- [Code-to-research evidence map](docs/research/methods-evidence.md): verified publication status, direct sources, and limits on what each source supports.
+- [Claim audit](docs/research/claim-audit.md): corrected overstatements, assumptions, and the limits of automated fact checks.
+- [Offline verification commands](docs/guide/README.md): historical replay, current claim checks, citations and plotted-value checks.
+
+Peer-reviewed work motivates specific methods; it does not validate this repository's implementation or turn a benign proxy into a real-world harm evaluation. The source map distinguishes proceedings, preprints, blogs, software and disputed evidence. The SAE path remains unimplemented.

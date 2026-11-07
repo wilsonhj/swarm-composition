@@ -2,7 +2,7 @@
 """Replay the pinned v2 artifact snapshot offline without altering source data.
 
 This verifies historical artifacts, not fresh hosted-model inference or the
-unmerged provenance study. Only Python's standard library is required.
+provenance study (see replay_provenance.py). Only Python's standard library is required.
 """
 import argparse
 import contextlib
