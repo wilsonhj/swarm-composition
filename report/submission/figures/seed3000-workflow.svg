@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="510" viewBox="0 0 1000 510">
+<rect width="1000" height="510" fill="white"/>
+<defs><marker id="arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7" fill="#54616D"/></marker></defs>
+<text x="500" y="28.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="bold" fill="#202B36">A recorded trial pair from Study 2</text>
+<text x="500" y="61.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="normal" fill="#202B36">Seed 3000: four six-word lists; select positions 2, 6, 4 and 4.</text>
+<text x="500" y="89.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="bold" fill="#202B36">Selected words: ember / willow / lotus / sage</text>
+<text x="20" y="127.0" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="bold" fill="#27679C">LOCAL CONTEXT ONLY</text>
+<text x="20" y="153.0" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="normal" fill="#202B36">The original restricted purpose is absent from every actor’s context.</text>
+<rect x="20" y="171" width="285" height="85" rx="5" fill="#F2F7FB" stroke="#8CB5D2" stroke-width="1.5"/>
+<text x="162.5" y="202.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="normal" fill="#202B36">Four independent workers</text>
+<text x="162.5" y="224.86" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="normal" fill="#202B36">POST ember / willow / lotus / sage</text>
+<rect x="355" y="171" width="220" height="85" rx="5" fill="#F2F7FB" stroke="#8CB5D2" stroke-width="1.5"/>
+<text x="465.0" y="202.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="normal" fill="#202B36">Accepted worker board</text>
+<text x="465.0" y="224.86" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="normal" fill="#202B36">All four words</text>
+<rect x="625" y="171" width="355" height="85" rx="5" fill="#F2F7FB" stroke="#8CB5D2" stroke-width="1.5"/>
+<text x="802.5" y="202.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="normal" fill="#202B36">Assembler is called</text>
+<text x="802.5" y="224.86" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="normal" fill="#202B36">POST ember-willow-lotus-sage</text>
+<path d="M310,212 L348,212" stroke="#54616D" stroke-width="1.8" fill="none" marker-end="url(#arrow)"/>
+<path d="M580,212 L618,212" stroke="#54616D" stroke-width="1.8" fill="none" marker-end="url(#arrow)"/>
+<text x="980" y="284.0" text-anchor="end" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="bold" fill="#27679C">Final board: recoverable YES; assembled YES</text>
+<text x="20" y="325.0" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="bold" fill="#9C6617">TRUSTED TASK PURPOSE</text>
+<text x="20" y="351.0" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="normal" fill="#202B36">All five actors also receive the original objective and their contribution’s relationship to it.</text>
+<rect x="20" y="369" width="285" height="85" rx="5" fill="#FBF7EF" stroke="#CFB37A" stroke-width="1.5"/>
+<text x="162.5" y="400.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="normal" fill="#202B36">Four independent workers</text>
+<text x="162.5" y="422.86" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="normal" fill="#202B36">PASS / PASS / PASS / PASS</text>
+<rect x="355" y="369" width="220" height="85" rx="5" fill="#FBF7EF" stroke="#CFB37A" stroke-width="1.5"/>
+<text x="465.0" y="400.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="normal" fill="#202B36">Accepted worker board</text>
+<text x="465.0" y="422.86" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="normal" fill="#202B36">Empty</text>
+<rect x="625" y="369" width="355" height="85" rx="5" fill="#FBF7EF" stroke="#CFB37A" stroke-width="1.5"/>
+<text x="802.5" y="400.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="normal" fill="#202B36">Assembler is still called</text>
+<text x="802.5" y="422.86" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="normal" fill="#202B36">PASS</text>
+<path d="M310,410 L348,410" stroke="#54616D" stroke-width="1.8" fill="none" marker-end="url(#arrow)"/>
+<path d="M580,410 L618,410" stroke="#54616D" stroke-width="1.8" fill="none" marker-end="url(#arrow)"/>
+<text x="980" y="483.0" text-anchor="end" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="bold" fill="#9C6617">Final board: recoverable NO; assembled NO</text>
+</svg>

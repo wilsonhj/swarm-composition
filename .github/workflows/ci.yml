@@ -58,6 +58,10 @@ jobs:
           python docs/handoffs/tools/replay_v2.py --repo "$RUNNER_TEMP/swarm-v2-snapshot" --out "$RUNNER_TEMP/swarm-v2-replay"
           grep -q '"status": "artifact_replay_passed"' "$RUNNER_TEMP/swarm-v2-replay/audit.json"
 
+      - name: Offline audit of separate exploratory Adaption pilot
+        working-directory: experiments/composition-gap
+        run: python audit_adaption_pilot.py
+
       - name: Upload v2 replay audit packet
         uses: actions/upload-artifact@v4
         with:

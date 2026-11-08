@@ -1,0 +1,187 @@
+{
+  "title": "Who Knows the Goal? Local Context, Task Provenance, and Restricted Assembly When Work Is Split Across Agents",
+  "author": "Hirokazu James Wilson",
+  "edition_date": "2026-11-07",
+  "base_source_commit": "d3322d34a5e7fb7e9b4b180d10983b435dc7ab73",
+  "editorial_patch": "editorial.patch",
+  "editorial_patch_sha256": "c98fe5a5ab177b641bc097b718ce33a94e26eb4c9db49b34619ce10d7511d6cc",
+  "base_source_sha256": {
+    "report/draft.md": "40884c49fe0bf3815b4bd6dc4e4500fd265b89d82ec921205abdecbe402d9ccf",
+    "report/references.md": "c2619e95a5335089ac6bd3d69e8485b3ec7fbe3bd4880b7f917518f636698721",
+    "report/appendix-limitations-dual-use.md": "5360d9c83c0da2610866ffb4874df3b0614f024e8c1044e8b24d4289770aee7e",
+    "report/appendix-b.md": "cc0aacb04f6537999541747499073cb1b2f44ef5e1f32dd18187b945baa70f80",
+    "report/figures/fig1_topologies.png": "75a4b94b0bb9a52d5169df337ce0d5e812f4b59452b44a49c500daed7cad7150",
+    "report/figures/fig2_v2_heatmap.png": "1830898d32b8a56dee0c0f8d2cbedde233c6160e36e5f1a696449756428172bf",
+    "report/figures/fig4_provenance_heldout.png": "4c9c665d20c071556ba42a7edc5abaaab1730be804d7707452667f7a99838a4e",
+    "report/figures/fig5_provenance_design.png": "2fcea4c0f83454f7486fd8b5f31752940b6fdb724a819892d39df99c55a2f71b"
+  },
+  "editorial_source_sha256": {
+    "report/draft.md": "410fbac123cb221839d0924914898d8349f3f6f8333926922315466bec1a8930",
+    "report/references.md": "c2619e95a5335089ac6bd3d69e8485b3ec7fbe3bd4880b7f917518f636698721",
+    "report/appendix-limitations-dual-use.md": "5b34a7f2f5dbe8167ddc87bd68d369ed0dfff4425eb8838863a973aa12e05888",
+    "report/appendix-b.md": "6db2be0742aa80acf7810a9279b3b234ded76d5cf37df260feb96b42b924188b",
+    "report/figures/fig1_topologies.png": "75a4b94b0bb9a52d5169df337ce0d5e812f4b59452b44a49c500daed7cad7150",
+    "report/figures/fig2_v2_heatmap.png": "1830898d32b8a56dee0c0f8d2cbedde233c6160e36e5f1a696449756428172bf",
+    "report/figures/fig4_provenance_heldout.png": "4c9c665d20c071556ba42a7edc5abaaab1730be804d7707452667f7a99838a4e",
+    "report/figures/fig5_provenance_design.png": "2fcea4c0f83454f7486fd8b5f31752940b6fdb724a819892d39df99c55a2f71b"
+  },
+  "template_sha256": "d46f39b89dbb3e8426760eebba6459977fed05d60a41a2a0e72c01f32ac45706",
+  "files": {
+    "README.md": {
+      "bytes": 2563,
+      "sha256": "3cce302cb4394643e2e36b076bd4aec8aacbeb04c99e0452b76cf66838ae99f2"
+    },
+    "data-quality/check.py": {
+      "bytes": 6326,
+      "sha256": "e9054d1da527f572892d93ff91a1c91a5b9b814e399bbbe2be1ac84a124d3b31"
+    },
+    "data-quality/results.json": {
+      "bytes": 13466,
+      "sha256": "848173ccf84822d2d87bcb3d0976b862376777db9794ae285489191ede6924a2"
+    },
+    "editorial.patch": {
+      "bytes": 130377,
+      "sha256": "c98fe5a5ab177b641bc097b718ce33a94e26eb4c9db49b34619ce10d7511d6cc"
+    },
+    "fact-check.md": {
+      "bytes": 8039,
+      "sha256": "9684243e148c4ed68a4ddcaabb4e46fd2d2ffc3c860c4ad59b27a4e97a7fcdc3"
+    },
+    "figures/make-methods-figures.py": {
+      "bytes": 4671,
+      "sha256": "62e04fe8353ae75311c704d502f779c0166ef9d5c794d5b920660b9db585c6cd"
+    },
+    "figures/seed3000-workflow.png": {
+      "bytes": 257535,
+      "sha256": "6dd6be825747f4014cc7f4a0fd03f126248b72cc469edf62350291a04e1b7c8e"
+    },
+    "figures/seed3000-workflow.svg": {
+      "bytes": 5106,
+      "sha256": "45447a3a66d0dc5805586e63569d0c8b348d64af3ddd0295ce672e21538f28b4"
+    },
+    "figures/study-overview.png": {
+      "bytes": 307772,
+      "sha256": "e5cb911d0d5551b64772c6cd5c659fbd2ba7fdbf15b737f31cbdb9e0cfcda3ec"
+    },
+    "figures/study-overview.svg": {
+      "bytes": 4304,
+      "sha256": "9296c8515182206798bb1ed3b9177dacc1c3377f3b1062831a6d3c9f2399d8a3"
+    },
+    "secondary-metrics.py": {
+      "bytes": 2489,
+      "sha256": "f5c179b7952ee40ec3b19e9c08dceb2e621a3dada3dc14d7ea9c611b4f2e564a"
+    },
+    "secondary-metrics.txt": {
+      "bytes": 2277,
+      "sha256": "44e3f4778bda6df1b48181df8b7f05d61dab5a5de7462ab846edb5ffa8aecf2d"
+    },
+    "supplements/extended-limitations.md": {
+      "bytes": 16593,
+      "sha256": "4c5a177b37d6a408bd86d2a4d9c39f7cf702abbb1f8ae94ac2c8ecc558fc0c56"
+    },
+    "supplements/extended-methods-and-results.md": {
+      "bytes": 55448,
+      "sha256": "0d6059db2235504443815ba8c70738debac6a761c362faa3cbaad551c59308fc"
+    },
+    "who-knows-the-goal.docx": {
+      "bytes": 2220948,
+      "sha256": "382de0d5ec391980279e8eb2705ecf1fecd6e791164099200182a49eb09ddd27"
+    },
+    "who-knows-the-goal.pdf": {
+      "bytes": 2115227,
+      "sha256": "087de369d6c9b3c79104247999de9022f58a9851c70db2d3c8e4e6c50521ac9c"
+    }
+  },
+  "verification": {
+    "pdf_pages": 20,
+    "main_pages": 8,
+    "references_pages": [
+      9,
+      10
+    ],
+    "appendix_a_pages": [
+      11,
+      12
+    ],
+    "appendix_b_pages": [
+      13,
+      16
+    ],
+    "appendix_c_pages": [
+      17,
+      20
+    ],
+    "abstract_words": 196,
+    "reference_entries": 29,
+    "appendix_b_table_cells_checked": 85,
+    "appendix_b_cells_missing": [],
+    "fenced_source_lines_checked": 0,
+    "fenced_source_lines_missing": [],
+    "embedded_figure_pngs": 6,
+    "preserve_only_parts_identical": true,
+    "dangling_internal_relationships": [],
+    "word_boxes_outside_65pt_margins": [],
+    "supplement_fenced_lines_preserved": 136,
+    "all_baseline_main_table_rows_retained": true
+  },
+  "all_pages_visually_reviewed": true,
+  "editorial_prose_lines_checked": 89,
+  "hyperlinks": {
+    "unique_pdf_targets": 43,
+    "unchanged_from_prior_edition": 35,
+    "new_targets": [
+      "https://github.com/wilsonhj/swarm-composition/blob/7d1d0b7db028da46a33b3a8d3fb40b3aba6f41a1/docs/handoffs/verification.md",
+      "https://github.com/wilsonhj/swarm-composition/blob/7d1d0b7db028da46a33b3a8d3fb40b3aba6f41a1/report/submission/secondary-metrics.py",
+      "https://github.com/wilsonhj/swarm-composition/blob/c41b43a2dd476ea78cfade54df46e28ac238cb0a/report/submission/data-quality/check.py",
+      "https://github.com/wilsonhj/swarm-composition/blob/c41b43a2dd476ea78cfade54df46e28ac238cb0a/report/submission/data-quality/results.json",
+      "https://github.com/wilsonhj/swarm-composition/blob/c41b43a2dd476ea78cfade54df46e28ac238cb0a/report/submission/supplements/extended-limitations.md",
+      "https://github.com/wilsonhj/swarm-composition/blob/c41b43a2dd476ea78cfade54df46e28ac238cb0a/report/submission/supplements/extended-methods-and-results.md",
+      "https://github.com/wilsonhj/swarm-composition/tree/7d1d0b7db028da46a33b3a8d3fb40b3aba6f41a1/experiments/composition-gap/results/task-provenance",
+      "https://github.com/wilsonhj/swarm-composition/tree/7d1d0b7db028da46a33b3a8d3fb40b3aba6f41a1/experiments/composition-gap/results/v2"
+    ],
+    "removed_targets": [
+      "https://github.com/wilsonhj/swarm-composition/blob/main/docs/handoffs/verification.md#provenance-held-out-replay"
+    ],
+    "pinned_repository_paths_verified_in_git": true,
+    "external_bibliography_rechecked_in_this_layout_pass": false,
+    "prior_link_audit": {
+      "http_200_or_206": 34,
+      "http_403": 2,
+      "scope": "Previous 36-link edition; not a reachability claim for new supplement links."
+    }
+  },
+  "experiments_rerun": false,
+  "edition": "Compact illustrated edition and scoped data-quality review",
+  "scientific_checks": {
+    "study1_rows": 1040,
+    "study1_logged_calls": 7670,
+    "study1_recorded_failures": 0,
+    "study1_historical_analyses_byte_identical": 3,
+    "study2_planned_rows": 800,
+    "study2_valid_rows": 799,
+    "study2_cells_replayed": 16,
+    "study2_primary_and_utility_contrasts_replayed": 4,
+    "secondary_monitor_gate_contrasts_added": 4,
+    "study2_exact_equals_normalized_all_rows": true,
+    "study2_exposed_equals_identified_all_rows": true,
+    "harness_tests_passed": 250,
+    "claim_regression_tests_passed": 9,
+    "handoff_tests_passed": 8,
+    "claim_ledger_integrity_problems": 0,
+    "fresh_model_replication": false,
+    "scoped_data_quality_freshly_rerun": true,
+    "prior_harness_test_scope": "Preceding academic review, unchanged experimental code; current GitHub CI is recorded on the PR."
+  },
+  "appendix_b_changes": [
+    "Concise operational methods and seed-3000 worked input",
+    "Relay counts and paired comparisons retained",
+    "Complete 16-cell Study 2 counts printed once",
+    "Four secondary monitor-versus-gate contrasts retained",
+    "Exact prompt/transcript lines and exhaustive tables relocated intact to pinned repository supplements"
+  ],
+  "supplement_commit": "c41b43a2dd476ea78cfade54df46e28ac238cb0a",
+  "new_figure_source_paths": [
+    "figures/study-overview.svg",
+    "figures/seed3000-workflow.svg"
+  ]
+}

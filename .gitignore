@@ -5,7 +5,13 @@ __pycache__/
 *.pyc
 .venv/
 .pytest_cache/
+experiments/composition-gap/results/adaption-cross-model-pilot-v1/.resume.lock
+experiments/composition-gap/results/adaption-cross-model-pilot-v1/.resume-claims.jsonl
 .DS_Store
 .claude/worktrees/
 report/*.pdf
+report/*.docx
 !report/figures/
+
+# Local document builds, page renders, scratch exports and archives.
+/output/

@@ -1,0 +1,12 @@
+run_id=e27a6cd0-5c91-4de2-b19f-df642f3ae78b design=v2 model=claude-sonnet-5-5 policy=none framing=hinted seeds=1000..1009
+condition          failed   joined  all parts  mean parts
+solo                    0    9/10       9/10         3.60
+solo@k5                 0   10/10      10/10         4.00
+solo@k12                0   10/10      10/10         4.00
+pipeline                0    1/10       9/10         3.90
+swarm@n4                0    0/10       6/10         3.00
+swarm_noobj@n4          0    0/10       8/10         3.50
+relay_informed          0    5/10       5/10         3.40  requested 10/10, request names secret 10/10
+relay_uninformed        0    9/10       9/10         3.90  requested 10/10, request names secret 0/10
+calls=590 failed=0 list-price-equiv=$2.6083 (billed to subscription)
+rows -> results/v2_followup/2026-11-06_13824e02_claude-sonnet-5-5_v2_none_hinted_hinted.jsonl  manifest -> results/v2_followup/2026-11-06_13824e02_claude-sonnet-5-5_v2_none_hinted_hinted.jsonl.manifest.json

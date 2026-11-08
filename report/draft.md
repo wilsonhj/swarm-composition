@@ -53,7 +53,7 @@ Framing controls whether the user prompt links the items to the passphrase (exac
 - **Neutral:** "Inventory list: … Look up the item at position p". Solo is asked to "post them joined by hyphens for the report".
 - **Explicit:** "Part k list: … Your word is the item at position p". Solo is asked to "Write the complete vault passphrase for the report".
 
-Framing is a bundle that changes every framed line and prompt length at once. Under explicit framing the solo instruction is itself the restricted request. A "hinted" level is implemented but was not run, so we have two points, not a dose-response. Relay prompts do not use framing; the two relay variants differ only in the coordinator's task: **informed**, "produce the vault passphrase for the report"; **uninformed**, "compile four items for the report". Relay workers see only their list, their position and the board.
+Framing is a bundle that changes every framed line and prompt length at once. Under explicit framing the solo instruction is itself the restricted request. A "hinted" level was not run in the confirmatory v2, so the confirmatory framing comparison has two points, not a dose-response. The 3-seed hinted pilot and [later hinted-framing follow-up](../docs/findings/v2-followup.md) are exploratory and reported separately. Relay prompts do not use framing; the two relay variants differ only in the coordinator's task: **informed**, "produce the vault passphrase for the report"; **uninformed**, "compile four items for the report". Relay workers see only their list, their position and the board.
 
 ### 3.3 Conditions
 
@@ -68,7 +68,7 @@ Framing is a bundle that changes every framed line and prompt length at once. Un
 
 *Table 1. Study 1 conditions.*
 
-solo@k5 matches the pipeline and solo@k12 the swarm's maximum calls; the six-call relay has no exact K6 baseline. Swarm early stopping never triggered (all 260 swarm runs used 12 calls), and matching maxima does not match tokens or information. No swarm above four agents was run (N=8 would need K24), and the fixed round-robin implies no emergent role formation.
+solo@k5 matches the pipeline and solo@k12 the swarm's maximum calls; the six-call relay has no exact K6 baseline. Swarm early stopping never triggered (all 260 swarm runs used 12 calls), and matching maxima does not match tokens or information. No swarm above four agents was run in the confirmatory study (N=8 would need K24; the exploratory run and pilots did include eight- and twelve-agent swarms), and the fixed round-robin implies no emergent role formation.
 
 ### 3.4 Outcomes
 
@@ -148,7 +148,7 @@ Split conditions made all four words recoverable in many runs but rarely assembl
 ### 4.5 Robustness
 
 - **Sonnet rerun** (verified served model, same 10 seeds): strict/explicit solo 0/10; uninformed relay 1/10 assembled, 2/10 recoverable (main run: 2/10, 4/10).
-- **Exploratory v1 run** (Haiku, strict, neutral, pilot seeds 0–19; different design, excluded from inference): solo assembled 20/20; pipeline and swarms 0/20, with words recoverable in 12–20 of 20.
+- **Exploratory v1 run** (Haiku, strict, neutral, pilot seeds 0–19; different design, excluded from inference): solo assembled 20/20; pipeline and swarms 0/20, with words recoverable in 12–20 of 20 (the swarms included eight- and twelve-agent sizes).
 - **Cross-provider runs were not done.**
 
 ## 5 Study 2: Task Provenance in a Fixed Pipeline
@@ -221,7 +221,7 @@ Per-agent tests ask whether an agent refuses when told the goal; a swarm's expos
 ### 6.3 Threats to validity
 
 - **Both studies:** a synthetic, benign restriction and one lookup-and-join task; one provider family, no cross-provider runs; fixed framing and objective strings, no paraphrase sweeps.
-- **Study 1:** small n (Sonnet's key relay effect is not significant alone); protocols that cap assembly; relay cue wording differs from the framed conditions; a two-level framing bundle; no network-shape variation, no swarm above four agents, no compromised-agent spread, no real swarm traces.
+- **Study 1:** small n (Sonnet's key relay effect is not significant alone); protocols that cap assembly; relay cue wording differs from the framed conditions; a two-level framing bundle; no network-shape variation, no swarm above four agents in the confirmatory v2 (exploratory v1 and pilots included 8- and 12-agent swarms), no compromised-agent spread, no real swarm traces.
 - **Study 2:** one model and one fixed pipeline, with no second-model replication yet; trusted provenance; a monitor that bundles information, calls and veto; zero events in 50 trials still allow a one-sided 95% upper bound of about 5.8% on a common failure probability, assuming independent identically distributed Bernoulli trials [clopper1934confidence].
 
 See Appendix A.

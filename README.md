@@ -79,7 +79,12 @@ One backend error in the authorized/provenance condition is excluded from valid-
 
 **Earlier v2 study:** under the strict rule, solo Haiku assembled the answer in **19/20** neutral-wording trials and **0/20** explicit-wording trials. In strict/explicit trials, five- and twelve-attempt solo baselines were also 0/20; the uninformed relay assembled in 1/20. This supports context sensitivity. [v2 findings, Sonnet replication, and served-model caveat](docs/findings/v2-results.md).
 
-**Limits:** synthetic operator rules, one harmless task, fixed arrangements. Purpose-sharing was tested on one model with trusted metadata; forged provenance was not tested. Zero disclosure does not prove zero risk, nor do these results establish a general “safe alone, unsafe together” effect. Recoverability can miss disclosures alongside distracting list items. This study builds on [AI Organizations Can Be More Effective but Less Aligned than Individual Agents](https://alignment.anthropic.com/2026/ai-organizations/) and [cumulative monitoring / governance research directions](https://alignment.anthropic.com/2025/recommended-directions/); it does not claim first discovery of multi-agent safety failures.
+**Exploratory follow-ups** (run after the frozen results; not part of either study):
+
+- **v2 follow-up:** hinted wording that never says "passphrase" already made every strict solo attempt refuse (Haiku 0/20, Sonnet 0/10), so framing acts as a threshold rather than a dose-response. Over 20 Sonnet seeds the strict uninformed relay assembled in 12/40 relays (11/40 with the verified rerun). Against the goal-stated solo baseline, the recoverable contrast is nominally significant; the assembled contrast is not with the verified rerun (p = 0.0625). [Follow-up findings](docs/findings/v2-followup.md).
+- **Cross-model pilot:** the same purpose-sharing pipeline on Gemma 4 31B and Qwen 3.5 397B, three seeds per cell. Restricted recoverability fell from 3/3 with local context to 0/3 with shared purpose for each model; 21 of 24 trials were valid (three Qwen outputs hit the token limit). Three seeds cannot support a general claim (exact paired p = 0.25 per model). [Pilot findings](docs/findings/adaption-cross-model-pilot.md).
+
+**Limits:** synthetic operator rules, one harmless task, fixed arrangements. Purpose-sharing was tested on one model with trusted metadata (plus the three-seed exploratory pilot above); forged provenance was not tested. Zero disclosure does not prove zero risk, nor do these results establish a general “safe alone, unsafe together” effect. Recoverability can miss disclosures alongside distracting list items. This study builds on [AI Organizations Can Be More Effective but Less Aligned than Individual Agents](https://alignment.anthropic.com/2026/ai-organizations/) and [cumulative monitoring / governance research directions](https://alignment.anthropic.com/2025/recommended-directions/); it does not claim first discovery of multi-agent safety failures.
 
 ## How can I try it?
 
@@ -115,6 +120,8 @@ This uses subscription model calls. Reruns require a new output filename. Seeds 
 Backend setup: [Claude Code](docs/dev/claude-code-cli.md), [OpenRouter](docs/dev/openrouter.md), [Anthropic API](docs/dev/anthropic-api.md). For OpenRouter, check `make credits` and set `--max-usd` (estimated threshold, not a hard cap). Never commit keys.
 
 ## Where can I check the evidence or contribute?
+
+**Paper:** [PDF](report/submission/who-knows-the-goal.pdf) · [Editable Word document](report/submission/who-knows-the-goal.docx). Author: **Hirokazu James Wilson**. [Edition and verification notes](report/submission/README.md).
 
 - [Raw data and manifests](experiments/composition-gap/results/task-provenance/) · [saved analysis](experiments/composition-gap/results/task-provenance/heldout-haiku.jsonl.analysis.md)
 - [Research report](report/draft.md) · [limitations](report/appendix-limitations-dual-use.md) · [related work](docs/research/related-work.md)
