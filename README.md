@@ -116,6 +116,8 @@ Backend setup: [Claude Code](docs/dev/claude-code-cli.md), [OpenRouter](docs/dev
 
 ## Where can I check the evidence or contribute?
 
+**Paper:** [PDF](report/submission/who-knows-the-goal.pdf) · [Editable Word document](report/submission/who-knows-the-goal.docx). Author: **Hirokazu James Wilson**. [Edition and verification notes](report/submission/README.md).
+
 - [Raw data and manifests](experiments/composition-gap/results/task-provenance/) · [saved analysis](experiments/composition-gap/results/task-provenance/heldout-haiku.jsonl.analysis.md)
 - [Research report](report/draft.md) · [limitations](report/appendix-limitations-dual-use.md) · [related work](docs/research/related-work.md)
 - [Reproduction and audit notes](docs/handoffs/verification.md) · [claim ledger](report/claim-ledger.csv), checked with `python3 report/tools/check_claims.py --quiet`

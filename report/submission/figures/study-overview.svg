@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="480" viewBox="0 0 1000 480">
+<rect width="1000" height="480" fill="white"/>
+<defs><marker id="arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7" fill="#54616D"/></marker></defs>
+<text x="500" y="30.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="bold" fill="#202B36">One information problem, two separate tests</text>
+<text x="500" y="63.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="normal" fill="#202B36">Can purpose information help agents apply a restriction?</text>
+<path d="M500,80 L250,112" stroke="#54616D" stroke-width="1.8" fill="none" marker-end="url(#arrow)"/>
+<path d="M500,80 L750,112" stroke="#54616D" stroke-width="1.8" fill="none" marker-end="url(#arrow)"/>
+<rect x="10" y="125" width="475" height="245" rx="5" fill="#F2F7FB" stroke="#8CB5D2" stroke-width="1.5"/>
+<rect x="515" y="125" width="475" height="245" rx="5" fill="#FBF7EF" stroke="#CFB37A" stroke-width="1.5"/>
+<text x="30" y="156.0" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="bold" fill="#27679C">STUDY 1  Diagnose context and coordination</text>
+<text x="30" y="190.0" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="normal" fill="#202B36">Vary policy, framing and coordination.</text>
+<text x="30" y="215.4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="normal" fill="#202B36">Solo and repeated-solo controls; pipeline,</text>
+<text x="30" y="240.8" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="normal" fill="#202B36">shared-board swarm and coordinator relay.</text>
+<text x="30" y="283.0" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="normal" fill="#202B36">Haiku: 20 seeds  |  Sonnet: 10 seeds</text>
+<text x="30" y="307.13" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="normal" fill="#202B36">Keep the same-seed Sonnet rerun separate.</text>
+<text x="30" y="345.0" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="bold" fill="#202B36">Compare disclosure with suitable solo controls.</text>
+<text x="535" y="156.0" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="bold" fill="#9C6617">STUDY 2  Test trusted task purpose</text>
+<text x="535" y="190.0" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="normal" fill="#202B36">Hold the five-actor pipeline fixed.</text>
+<text x="535" y="215.4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="normal" fill="#202B36">Pair restricted and authorized purposes.</text>
+<text x="535" y="240.8" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="normal" fill="#202B36">Local / provenance / monitor / keyword gate.</text>
+<text x="535" y="283.0" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="normal" fill="#202B36">Haiku: 50 seeds x 16 cells</text>
+<text x="535" y="307.13" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="normal" fill="#202B36">800 planned trials; 799 valid.</text>
+<text x="535" y="345.0" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="bold" fill="#202B36">Measure restricted disclosure AND useful work.</text>
+<path d="M250,375 L250,400" stroke="#54616D" stroke-width="1.8" fill="none" marker-end="url(#arrow)"/>
+<path d="M750,375 L750,400" stroke="#54616D" stroke-width="1.8" fill="none" marker-end="url(#arrow)"/>
+<text x="500" y="427.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="bold" fill="#202B36">Accepted posts  →  String scoring  →  Seed-paired comparisons</text>
+<text x="500" y="465.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="normal" fill="#54616D">Separate protocols, policies and seed sets. Results are not pooled.</text>
+</svg>
