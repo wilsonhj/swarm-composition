@@ -4,7 +4,7 @@
   "edition_date": "2026-11-07",
   "base_source_commit": "d3322d34a5e7fb7e9b4b180d10983b435dc7ab73",
   "editorial_patch": "editorial.patch",
-  "editorial_patch_sha256": "bb8d238a4b96719178286c11eae49dbf350c4abc47f0b619f3e7829aef9ab14e",
+  "editorial_patch_sha256": "ff68dab47cefc50ec8f21221126d02c5c7f98e02f648f387ef21ffaae65df313",
   "base_source_sha256": {
     "report/draft.md": "40884c49fe0bf3815b4bd6dc4e4500fd265b89d82ec921205abdecbe402d9ccf",
     "report/references.md": "c2619e95a5335089ac6bd3d69e8485b3ec7fbe3bd4880b7f917518f636698721",
@@ -16,10 +16,10 @@
     "report/figures/fig5_provenance_design.png": "2fcea4c0f83454f7486fd8b5f31752940b6fdb724a819892d39df99c55a2f71b"
   },
   "editorial_source_sha256": {
-    "report/draft.md": "f4beba7528841d60fcbcefbcb276a78407868e573978acf990c2f363e8faf7f7",
+    "report/draft.md": "c792f4e7a36795f2cc97757da96f09f586065792de6339b79100f81679f6f20d",
     "report/references.md": "c2619e95a5335089ac6bd3d69e8485b3ec7fbe3bd4880b7f917518f636698721",
-    "report/appendix-limitations-dual-use.md": "6a798784bd273fb569e084a26d133afcb43b51fd0d207381b0d69ab0e3da2dc7",
-    "report/appendix-b.md": "cc0aacb04f6537999541747499073cb1b2f44ef5e1f32dd18187b945baa70f80",
+    "report/appendix-limitations-dual-use.md": "4c5a177b37d6a408bd86d2a4d9c39f7cf702abbb1f8ae94ac2c8ecc558fc0c56",
+    "report/appendix-b.md": "6758582573db1946c14ee69e80f30f69e16ee047170336dfa9f527791e67a10e",
     "report/figures/fig1_topologies.png": "75a4b94b0bb9a52d5169df337ce0d5e812f4b59452b44a49c500daed7cad7150",
     "report/figures/fig2_v2_heatmap.png": "1830898d32b8a56dee0c0f8d2cbedde233c6160e36e5f1a696449756428172bf",
     "report/figures/fig4_provenance_heldout.png": "4c9c665d20c071556ba42a7edc5abaaab1730be804d7707452667f7a99838a4e",
@@ -28,16 +28,28 @@
   "template_sha256": "d46f39b89dbb3e8426760eebba6459977fed05d60a41a2a0e72c01f32ac45706",
   "files": {
     "who-knows-the-goal.pdf": {
-      "bytes": 2361652,
-      "sha256": "d82623a99539d4a9322875f90c5109e1b4da3415989a5a90ab3db846721b40e7"
+      "bytes": 2381352,
+      "sha256": "ecab1dfe03a93afd93710a406cd0528e6f1fe3ff5f1663ea86ffda542bf2a71a"
     },
     "who-knows-the-goal.docx": {
-      "bytes": 1746726,
-      "sha256": "2c2e00190889150f290779c56053028e9cc9a986e9be7bf1aa40f796ae55d38a"
+      "bytes": 1748300,
+      "sha256": "18397658a89621158da6df9fee3950ab2e1e47b0dae2a6da368ec746dd8390a1"
+    },
+    "fact-check.md": {
+      "bytes": 6320,
+      "sha256": "5472e1c3c2756b1541cf92c5d359b81052de39c178ce17b4bcc1453994a143c1"
+    },
+    "secondary-metrics.py": {
+      "bytes": 2489,
+      "sha256": "f5c179b7952ee40ec3b19e9c08dceb2e621a3dada3dc14d7ea9c611b4f2e564a"
+    },
+    "secondary-metrics.txt": {
+      "bytes": 2277,
+      "sha256": "44e3f4778bda6df1b48181df8b7f05d61dab5a5de7462ab846edb5ffa8aecf2d"
     }
   },
   "verification": {
-    "pdf_pages": 42,
+    "pdf_pages": 43,
     "main_pages": 8,
     "references_pages": [
       9,
@@ -49,15 +61,15 @@
     ],
     "appendix_b_pages": [
       16,
-      38
+      39
     ],
     "appendix_c_pages": [
-      39,
-      42
+      40,
+      43
     ],
-    "abstract_words": 216,
+    "abstract_words": 196,
     "reference_entries": 29,
-    "appendix_b_table_cells_checked": 1522,
+    "appendix_b_table_cells_checked": 1567,
     "appendix_b_cells_missing": [],
     "fenced_source_lines_checked": 136,
     "fenced_source_lines_missing": [],
@@ -67,12 +79,37 @@
     "word_boxes_outside_65pt_margins": []
   },
   "all_pages_visually_reviewed": true,
-  "editorial_prose_lines_checked": 113,
+  "editorial_prose_lines_checked": 106,
   "hyperlinks": {
     "targets_unchanged": 36,
     "prior_audit_http_200_or_206": 34,
     "prior_audit_http_403": 2,
     "rechecked_in_editorial_pass": false
   },
-  "experiments_rerun": false
+  "experiments_rerun": false,
+  "edition": "Academic review and repository fact check",
+  "scientific_checks": {
+    "study1_rows": 1040,
+    "study1_logged_calls": 7670,
+    "study1_recorded_failures": 0,
+    "study1_historical_analyses_byte_identical": 3,
+    "study2_planned_rows": 800,
+    "study2_valid_rows": 799,
+    "study2_cells_replayed": 16,
+    "study2_primary_and_utility_contrasts_replayed": 4,
+    "secondary_monitor_gate_contrasts_added": 4,
+    "study2_exact_equals_normalized_all_rows": true,
+    "study2_exposed_equals_identified_all_rows": true,
+    "harness_tests_passed": 250,
+    "claim_regression_tests_passed": 9,
+    "handoff_tests_passed": 8,
+    "claim_ledger_integrity_problems": 0,
+    "fresh_model_replication": false
+  },
+  "appendix_b_changes": [
+    "Small p-values formatted p < 0.001",
+    "Four missing monitor-versus-keyword-gate contrasts",
+    "Dataset-specific secondary endpoint equivalences",
+    "Clearer table introduction; exact prompts/transcripts unchanged"
+  ]
 }
