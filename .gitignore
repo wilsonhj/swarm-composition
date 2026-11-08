@@ -5,6 +5,7 @@ __pycache__/
 *.pyc
 .venv/
 .pytest_cache/
+experiments/composition-gap/results/adaption-cross-model-pilot-v1/.resume.lock
 .DS_Store
 .claude/worktrees/
 report/*.pdf

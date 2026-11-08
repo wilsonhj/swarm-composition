@@ -6,4 +6,5 @@ Sources and check dates are recorded in each file; unconfirmed items are labelle
 - [claude-code-cli.md](claude-code-cli.md): how the harness drives `claude -p` headless, what each flag does, why `ANTHROPIC_API_KEY` is stripped, what `total_cost_usd` means, and subscription limits.
 - [anthropic-api.md](anthropic-api.md): Messages API basics and the current Claude model IDs and prices (short).
 - [adaption-inference.md](adaption-inference.md): isolated exploratory inference pilot, offline configuration and credit estimates, approval gate, and verification boundaries.
+- [adaption-resume.md](adaption-resume.md): bounded retry, durable resume, shared accounting and explicit lineage for the completed pilot dataset.
 - [datasets.md](datasets.md): Swarm Traces, AI Village (gated), Moltbook and the Transluce urlquery data: contents, format, access, licence, and how each could support a composition-gap study.

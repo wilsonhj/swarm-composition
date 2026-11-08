@@ -86,7 +86,8 @@ class Adaption(Backend):
                    "store": False, "stream": False, "background": False}
         record = {"call_id": str(uuid.uuid4()), "raw_body": None, "request": self._redact(request), "sent": False, "raw": None, "http_status": None,
                   "model": None, "status": None, "error": None, "incomplete_details": None,
-                  "usage": None, "failure": None, "elapsed_ms": None}
+                  "usage": None, "failure": None, "elapsed_ms": None,
+                  "transport_error_type": None, "retryable_transport": False}
         def emit(event):
             if self.record_sink is not None:
                 try:
@@ -165,7 +166,11 @@ class Adaption(Backend):
                 record["raw_body"] = None
             record["elapsed_ms"] = round((time.monotonic() - start) * 1000)
             return fail("http_error", stop=True)
-        except (OSError, ValueError, UnicodeError):
+        except (OSError, ValueError, UnicodeError) as exc:
+            if isinstance(exc, OSError):
+                record["transport_error_type"] = self._redact(type(exc).__name__)
+                record["retryable_transport"] = isinstance(
+                    exc, (TimeoutError, ConnectionError, urllib.error.URLError))
             record["elapsed_ms"] = round((time.monotonic() - start) * 1000)
             return fail("transport_or_json_error", stop=True)
         record["elapsed_ms"] = round((time.monotonic() - start) * 1000)

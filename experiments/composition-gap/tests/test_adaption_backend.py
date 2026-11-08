@@ -106,6 +106,36 @@ class AdaptionTests(unittest.TestCase):
                 self.assertNotIn("secret-key", json.dumps(b.records))
                 if isinstance(effect, HTTPError): self.assertEqual(b.records[0]["http_status"], 500)
 
+    def test_retry_evidence_is_durable_and_does_not_retry(self):
+        class BadJSON(Response):
+            def read(self): return b'bad secret-key'
+
+        cases = (
+            (HTTPError(ENDPOINT, 504, "bad", {}, io.BytesIO(b"secret-key")), 504, None, False),
+            (BadJSON({}), 200, None, False),
+            (TimeoutError("secret-key"), None, "TimeoutError", True),
+            (URLError("secret-key"), None, "URLError", True),
+            (ConnectionError("secret-key"), None, "ConnectionError", True),
+            (OSError("secret-key"), None, "OSError", False),
+        )
+        for effect, status, error_type, retryable in cases:
+            events = []
+            b = backend(record_sink=events.append)
+            with self.subTest(effect=type(effect).__name__), patch(
+                    "urllib.request.urlopen", side_effect=effect if isinstance(effect, Exception) else None,
+                    return_value=effect) as send:
+                self.assertEqual(b("s", "u"), "PASS")
+                self.assertEqual(send.call_count, 1)
+                self.assertTrue(b.stopped)
+                self.assertGreater(b.reserved_credits, 0)
+                record = events[-1]["record"]
+                self.assertEqual(record["http_status"], status)
+                self.assertEqual(record["transport_error_type"], error_type)
+                self.assertEqual(record["retryable_transport"], retryable)
+                self.assertNotIn("secret-key", json.dumps(events))
+                if status == 504:
+                    self.assertEqual(record["raw_body"], "[REDACTED]")
+
     def test_audit_events_and_redacted_bodies(self):
         for body, is_http in ((b'{"secret":"secret-key",', False),
                               (b'{"value": NaN, "key":"secret-key"}', False),
