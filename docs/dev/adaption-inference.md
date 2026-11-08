@@ -85,6 +85,8 @@ turn through the existing `Backend`/`Turns` interface, never a scored success.
 Reasoning items remain in the audit but only assistant text reaches the parser.
 Mismatched served model, missing usage, tool calls, partial output and refusal
 content items stop the pilot for review [adaption2026responses].
+This describes the original runner; the resume continuation retries some transient
+failures and retains terminal generation failures (see [resume guide](adaption-resume.md)).
 
 Outputs are `trials.jsonl` and `manifest.json`, plus an append-only `calls.jsonl`
 for live runs. Attempt/result events are flushed and synced per call, including

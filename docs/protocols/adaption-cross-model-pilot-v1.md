@@ -1,7 +1,19 @@
 # Adaption cross-model exploratory pilot v1
 
-Status: increased-limit revision prepared; **not yet collected, frozen, or
-confirmatory**. The original 300-token pilot stopped after one truncated Qwen
+> **Status note (2026-11-07), appended after collection.** The plan below is
+> preserved as written, including its original status line. It has since been
+> collected as an exploratory (not confirmatory) pilot: 24 assignments, 21 valid,
+> three failed (see [findings](../findings/adaption-cross-model-pilot.md)). Pilot-02
+> stopped on an HTTP 504 and was continued under an explicit execution amendment
+> (see [resume guide](../dev/adaption-resume.md)): bounded retries for HTTP
+> 502/503/504 and classified transport errors, at most 3 sends per logical turn
+> counting earlier attempts, with terminal generation failures retained rather
+> than resampled. This supersedes the "Retry policy" row below for that
+> continuation; model IDs, seeds, prompts, sampling, cells and the 2-credit
+> estimated allowance are unchanged.
+
+Original status (superseded by the note above): increased-limit revision
+prepared; **not yet collected, frozen, or confirmatory**. The original 300-token pilot stopped after one truncated Qwen
 response; its artifacts remain under `results/adaption-cross-model-pilot-v1/pilot-01`.
 Dated 7 November 2026. This experiment is optional and is not needed to finish the
 completed two-study submission.
@@ -29,7 +41,7 @@ not a claim that this pilot was collected under its confirmatory freeze.
 | Schedule | one worker; deterministic shuffled trial order, seed 20261107 |
 | Sampling | temperature 0; max output 4,096 tokens/request, including reasoning |
 | Tools / memory / stored conversation | explicitly disabled; direct model calls, no stacks |
-| Retry policy | no automatic POST retries; stop after a failed trial |
+| Retry policy | no automatic POST retries; stop after a failed trial (original plan; superseded for the continuation, see status note) |
 | Budget | estimated credit stop threshold 2.0 across both models |
 
 Primary diagnostic: provenance-minus-local difference in restricted recoverability,

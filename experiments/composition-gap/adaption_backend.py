@@ -3,6 +3,7 @@
 The UTF-8 byte guard plus 64 bytes of framing is a conservative heuristic, not a
 mathematical tokenizer bound. Unreported charges and reasoning may exceed estimates.
 """
+import http.client
 import json
 import math
 import os
@@ -166,11 +167,11 @@ class Adaption(Backend):
                 record["raw_body"] = None
             record["elapsed_ms"] = round((time.monotonic() - start) * 1000)
             return fail("http_error", stop=True)
-        except (OSError, ValueError, UnicodeError) as exc:
-            if isinstance(exc, OSError):
+        except (OSError, http.client.HTTPException, ValueError, UnicodeError) as exc:
+            if isinstance(exc, (OSError, http.client.HTTPException)):
                 record["transport_error_type"] = self._redact(type(exc).__name__)
                 record["retryable_transport"] = isinstance(
-                    exc, (TimeoutError, ConnectionError, urllib.error.URLError))
+                    exc, (TimeoutError, ConnectionError, urllib.error.URLError, http.client.HTTPException))
             record["elapsed_ms"] = round((time.monotonic() - start) * 1000)
             return fail("transport_or_json_error", stop=True)
         record["elapsed_ms"] = round((time.monotonic() - start) * 1000)

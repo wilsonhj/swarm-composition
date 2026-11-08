@@ -17,12 +17,18 @@ The runtime requires `ADAPTION_API_KEY`. The default source is pilot-02 and the
 additional cost history is pilot-01. Planning is offline; the exact current
 digest is required for execution. Repeating the execute command resumes the same
 output directory, without appending duplicate valid trials or resending recorded
-successful turns. A global process lock rejects concurrent continuations.
+successful turns. A per-checkout advisory `fcntl.flock` on
+`results/adaption-cross-model-pilot-v1/.resume.lock` rejects concurrent
+continuations from that checkout; it is not a global lock.
 Keep that output directory for every restart. The runner also rejects a new
 output when it finds another continuation for the same source run in the pilot
-results tree or alongside the requested output. This local discovery guard cannot
-detect moved, deleted, inaccessible or independently located manifests; it is not
-a global registry. A new output directory is not a recovery procedure.
+results tree or alongside the requested output. Each new continuation also appends
+a claim (source run, output path) to `.resume-claims.jsonl` in the pilot results
+directory before creating its output, so a second continuation of the same source
+into any other path in this checkout is rejected; a claim whose output was later
+deleted still blocks, because that run may have spent credits. This local guard
+cannot detect continuations in other clones or hand-edited claims; it is not a
+global registry. A new output directory is not a recovery procedure.
 
 Five valid source trials are retained. The interrupted sixth trial replays its
 two exact prior responses, checks the reconstructed request, and retries the
@@ -96,7 +102,9 @@ and non-resending, and recomputes cumulative usage and estimated credit accounti
 `--results-root PATH` can point to a relocated copy of that evidence directory.
 The current implementation may contain later safety fixes; collection source
 hashes, including the shared harness/scoring files and task-provenance protocol,
-are checked against their original recorded commits, not the working tree.
+are checked against their original recorded commits, not the working tree. Trials
+are still replayed and rescored with the current code, so an edit that changes
+prompts, replay or scoring makes the audit fail; edits that preserve behaviour do not.
 
 The archived plans and row lineage retain their original absolute paths as
 historical provenance. Those paths are also part of the reviewed approval

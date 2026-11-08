@@ -30,6 +30,7 @@ TRANSIENT_HTTP = (502, 503, 504)
 TERMINAL_GENERATION = ("status_not_completed", "incomplete", "empty_output")
 DEFAULT_SOURCE = pilot.RESULTS / "pilot-02"
 DEFAULT_HISTORY = pilot.RESULTS / "pilot-01"
+CLAIMS = ".resume-claims.jsonl"  # one {source_run_id, output} line per started continuation
 
 
 def trial_key(row):
@@ -340,7 +341,8 @@ def collect_cache(source_rows, source_events, current_events):
             record = turn["adaption"]
             logical = (key, index)
             if record["sent"]:
-                old_attempts[logical] = [{"call_id": record["call_id"], "record": record, "request": record["request"]}]
+                old_attempts[logical] = [{"call_id": record["call_id"], "record": record, "request": record["request"],
+                                          "run_id": row["run_id"]}]
             if turn["failed"]:
                 broken = True
             elif broken:
@@ -354,7 +356,8 @@ def collect_cache(source_rows, source_events, current_events):
         logical = (key, attempt["turn_index"])
         result = results.get(call_id)
         record = result["record"] if result else None
-        old_attempts.setdefault(logical, []).append({"call_id": call_id, "record": record, "request": attempt["request"]})
+        old_attempts.setdefault(logical, []).append({"call_id": call_id, "record": record, "request": attempt["request"],
+                                                     "run_id": attempt["run_id"]})
         if record is not None and record["failure"] is None:
             if logical in cache:
                 raise ValueError("duplicate successful logical turn")
@@ -374,11 +377,12 @@ class ResumeBackend(h.Backend):
         self.index, self.used = 0, []
         self.terminal = False
 
-    def failed_turn(self, record, reused=False):
+    def failed_turn(self, record, reused=False, run_id=None):
+        """run_id names the run whose journal holds the record (default: this continuation)."""
         self.terminal = True
         self.tl.model = [record["model"]] if record.get("model") else None
-        self.used.append({"request": record["request"], "text": "PASS", "record": record,
-                          "source_turn": None, "source_run_id": self.context["run_id"], "reused": reused})
+        self.used.append({"request": record["request"], "text": "PASS", "record": record, "source_turn": None,
+                          "source_run_id": run_id or self.context["run_id"], "reused": reused})
         return self._fail(record["failure"])
 
     def __call__(self, system, user):
@@ -410,7 +414,7 @@ class ResumeBackend(h.Backend):
             if history:
                 last = history[-1]["record"]
                 if last is not None and last.get("failure") in TERMINAL_GENERATION:
-                    return self.failed_turn(last, reused=True)
+                    return self.failed_turn(last, reused=True, run_id=history[-1]["run_id"])
                 if last is not None and not retryable(last):
                     raise RuntimeError("nonretryable prior turn failure; collection stopped")
                 if len(history) >= MAX_ATTEMPTS:
@@ -452,7 +456,13 @@ def derived_row(row, manifest, source_path):
 
 
 def reject_other_continuation(output, source_run_id):
-    """Reject known sibling continuations; this is not a global registry."""
+    """Reject continuations under RESULTS, beside output, or claimed in RESULTS.
+
+    The claim file (written under the pilot lock) catches out-of-tree outputs.
+    It is per checkout, not a global registry."""
+    for claim in read_jsonl(pilot.RESULTS / CLAIMS):
+        if claim.get("source_run_id") == source_run_id and claim.get("output") != str(output):
+            raise ValueError("another continuation for this source already exists: " + str(claim.get("output")))
     candidates = set(pilot.RESULTS.rglob("manifest.json"))
     candidates.update(output.parent.glob("*/manifest.json"))
     for path in candidates:
@@ -500,6 +510,9 @@ def run_resume(plan, output, approval, *, sleep=time.sleep, amend=False):
             read_jsonl(output / "calls.jsonl", recover=True)
             read_jsonl(output / "completed_trials.jsonl", recover=True)
         else:
+            # Claim before creating output: a crash in between still blocks a second continuation.
+            append(pilot.RESULTS / CLAIMS, {"source_run_id": source_manifest["run_id"], "output": str(output),
+                                            "approval_sha256": plan["approval_sha256"], "at": h.now()})
             output.mkdir(parents=True, exist_ok=False)
             sync_directory(output.parent)
             manifest = {"study": pilot.STUDY, "phase": "exploratory-continuation", "run_id": str(uuid.uuid4()),

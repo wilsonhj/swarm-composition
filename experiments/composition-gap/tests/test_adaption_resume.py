@@ -1,5 +1,6 @@
 """Offline regression tests for recovery of the interrupted Adaption pilot."""
 import copy
+import fcntl
 import io
 import json
 import shutil
@@ -136,6 +137,16 @@ def test_504_retry_uses_identical_request_and_counts_original_attempt(tmp_path, 
     assert waits == [5, 15]
 
 
+@pytest.mark.parametrize("effect", [http_error(502), http_error(503), TimeoutError("timed out")],
+                         ids=["502", "503", "transport-timeout"])
+def test_transient_failure_is_retried_with_identical_request(tmp_path, plan, monkeypatch, effect):
+    sent = install_fake(monkeypatch, [effect])
+    manifest = resume.run_resume(plan, tmp_path / "transient", approve(plan), sleep=lambda _: None)
+    assert manifest["status"] == "complete"
+    assert sent[0] == sent[1]
+    assert len(sent) == 94
+
+
 def test_original_504_and_two_more_504s_stop_at_three_attempts(tmp_path, plan, monkeypatch):
     sent = install_fake(monkeypatch, [http_error(504), http_error(504), http_error(504)])
     with pytest.raises(RuntimeError, match="exhausted"):
@@ -144,7 +155,7 @@ def test_original_504_and_two_more_504s_stop_at_three_attempts(tmp_path, plan, m
     assert sent[0] == sent[1]
 
 
-@pytest.mark.parametrize("effect", [http_error(400), http_error(401)])
+@pytest.mark.parametrize("effect", [http_error(400), http_error(401), http_error(429), http_error(500)])
 def test_permanent_http_failure_is_not_retried(tmp_path, plan, monkeypatch, effect):
     sent = install_fake(monkeypatch, [effect])
     with pytest.raises(RuntimeError, match="nonretryable"):
@@ -183,6 +194,82 @@ def test_changed_source_after_planning_rejected_before_network(tmp_path, sources
     assert not sent
 
 
+@pytest.mark.parametrize("drift", ["code-changed-after-approval", "plan-edited-and-resigned"])
+def test_approved_plan_that_no_longer_matches_inputs_is_stale(tmp_path, plan, monkeypatch, drift):
+    # Sources stay readable and valid, so only the recomputed-plan comparison can reject this.
+    sent = install_fake(monkeypatch)
+    approved = copy.deepcopy(plan)
+    if drift == "code-changed-after-approval":
+        real_hash = resume.file_hash
+        monkeypatch.setattr(resume, "file_hash",
+                            lambda path: "0" * 64 if Path(path).name == "adaption_resume.py" else real_hash(path))
+    else:
+        approved["baseline_known_credits"] = 0.0
+        approved.pop("approval_sha256")
+        approved["approval_sha256"] = pilot.digest(approved)
+    out = tmp_path / "stale-plan"
+    with pytest.raises(ValueError, match="stale or unapproved"):
+        resume.run_resume(approved, out, approve(approved), sleep=lambda _: None)
+    assert not sent
+    assert not out.exists()
+
+
+def test_held_pilot_lock_rejects_continuation_before_network(tmp_path, plan, monkeypatch):
+    sent = install_fake(monkeypatch)
+    pilot.RESULTS.mkdir(parents=True)
+    out = tmp_path / "locked"
+    with (pilot.RESULTS / ".resume.lock").open("a") as holder:
+        fcntl.flock(holder, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        with pytest.raises(ValueError, match="another continuation holds the pilot lock"):
+            resume.run_resume(plan, out, approve(plan), sleep=lambda _: None)
+    assert not sent
+    assert not out.exists()
+
+
+def unstarted_trial_backend(tmp_path, sources, plan):
+    _, source_rows, source_events = resume.load_source(sources[1])
+    started = {resume.trial_key(r) for r in source_rows}
+    key = next((m["id"], s, c, a) for m, s, c, a in pilot.jobs(plan["config"])
+               if (m["id"], s, c, a) not in started)
+    out = tmp_path / "direct"
+    out.mkdir()
+    rb = resume.ResumeBackend(plan, key, out, {"run_id": "direct-test"}, source_rows, source_events,
+                              sleep=lambda _: None)
+    return rb, key, out
+
+
+def test_shared_credit_gate_stops_before_any_send(tmp_path, sources, plan, monkeypatch):
+    sent = install_fake(monkeypatch)
+    near_limit = copy.deepcopy(plan)
+    rb, key, out = unstarted_trial_backend(tmp_path, sources, near_limit)
+    one = resume.reservation(resume.request_for(key[0], "system", "user", plan["config"]), plan["config"])
+    # Leave half of one reservation: positive, but not enough for another send.
+    near_limit["baseline_known_credits"] = plan["credit_limit"] - plan["baseline_reserved_credits"] - one / 2
+    with pytest.raises(RuntimeError, match="shared estimated credit limit reached"):
+        rb("system", "user")
+    assert not sent
+    assert not (out / "calls.jsonl").exists()
+
+
+def test_backend_budget_is_the_remaining_shared_allowance(tmp_path, sources, plan, monkeypatch):
+    sent = install_fake(monkeypatch)
+    budgets = []
+    original = backend.Adaption
+    class Spy(original):
+        def __init__(self, *args, **kwargs):
+            budgets.append(kwargs["max_credits"])
+            super().__init__(*args, **kwargs)
+    monkeypatch.setattr(backend, "Adaption", Spy)
+    rb, _, out = unstarted_trial_backend(tmp_path, sources, plan)
+    assert rb("system", "first") == "PASS"
+    assert rb("system", "second") == "PASS"
+    first_cost = next(e for e in rows(out / "calls.jsonl") if e["event"] == "result")["record"]["estimated_credits"]
+    remaining = plan["credit_limit"] - plan["baseline_known_credits"] - plan["baseline_reserved_credits"]
+    assert first_cost > 0
+    assert budgets == [pytest.approx(remaining, abs=1e-12), pytest.approx(remaining - first_cost, abs=1e-12)]
+    assert len(sent) == 2
+
+
 def test_bad_approval_rejected_before_preflight_or_output(tmp_path, plan, monkeypatch):
     monkeypatch.setattr(pilot, "preflight_models", lambda *_: pytest.fail("preflight before approval"))
     out = tmp_path / "unapproved"
@@ -210,8 +297,11 @@ def test_interrupted_attempt_keeps_reservation_and_restart_reuses_successes(tmp_
     interrupted = json.loads((out / "manifest.json").read_text())
     journal = rows(out / "calls.jsonl")
     assert journal[-1]["event"] == "attempt"
-    assert interrupted["totals"]["new_reserved_credits"] > 0
-    assert interrupted["totals"]["total_reserved_credits"] > plan["baseline_reserved_credits"]
+    # Exactly the one unresolved send stays reserved; the five answered sends are known costs.
+    one = resume.reservation(journal[-1]["request"], plan["config"])
+    assert interrupted["totals"]["new_reserved_credits"] == pytest.approx(one, abs=1e-12)
+    assert interrupted["totals"]["total_reserved_credits"] == pytest.approx(
+        plan["baseline_reserved_credits"] + one, abs=1e-12)
     assert len(rows(out / "completed_trials.jsonl")) == 1
     sent_before = list(sent)
     resumed = install_fake(monkeypatch)
@@ -221,7 +311,7 @@ def test_interrupted_attempt_keeps_reservation_and_restart_reuses_successes(tmp_
     assert len(resumed) == 93 - 5
     assert len(rows(out / "completed_trials.jsonl")) == 19
     assert len({resume.trial_key(r) for r in rows(out / "combined_trials.jsonl")}) == 24
-    assert manifest["totals"]["new_reserved_credits"] >= interrupted["totals"]["new_reserved_credits"]
+    assert manifest["totals"]["new_reserved_credits"] == pytest.approx(one, abs=1e-12)
 
 
 def interrupted_run(tmp_path, plan, monkeypatch):
@@ -286,14 +376,31 @@ class IncompleteResponse(Response):
                            "output": []}).encode()
 
 
-def test_incomplete_generation_records_failed_trial_without_resampling(tmp_path, plan, monkeypatch):
+class IncompleteDetailsResponse(Response):
+    def read(self):
+        value = json.loads(super().read())
+        value["incomplete_details"] = {"reason": "content_filter"}
+        return json.dumps(value).encode()
+
+
+class EmptyOutputResponse(Response):
+    def read(self):
+        value = json.loads(super().read())
+        value["output"][0]["content"][0]["text"] = "  "
+        return json.dumps(value).encode()
+
+
+@pytest.mark.parametrize("terminal, reason", [(IncompleteResponse, "status_not_completed"),
+                                              (IncompleteDetailsResponse, "incomplete"),
+                                              (EmptyOutputResponse, "empty_output")])
+def test_incomplete_generation_records_failed_trial_without_resampling(tmp_path, plan, monkeypatch, terminal, reason):
     monkeypatch.setattr(pilot, "preflight_models", lambda config: [m["id"] for m in config["models"]])
     monkeypatch.setenv("ADAPTION_API_KEY", "offline-test-key")
     sent = []
     def send(request, timeout):
         payload = json.loads(request.data)
         sent.append(payload)
-        return IncompleteResponse(payload) if len(sent) == 1 else Response(payload)
+        return terminal(payload) if len(sent) == 1 else Response(payload)
     monkeypatch.setattr(backend.urllib.request, "urlopen", send)
     out = tmp_path / "incomplete"
     manifest = resume.run_resume(plan, out, approve(plan), sleep=lambda _: None)
@@ -304,6 +411,7 @@ def test_incomplete_generation_records_failed_trial_without_resampling(tmp_path,
     assert len({resume.trial_key(row) for row in combined}) == 24
     failed = [row for row in combined if not row["valid"]]
     assert len(failed) == 1 and failed[0]["replaces_failed_source_row"]
+    assert [t["fail_reason"] for t in failed[0]["turns"]][2:] == [reason, "trial_stopped", "trial_stopped"]
     assert sum(row["valid"] for row in combined) == 23
     assert sent.count(sent[0]) == 1
     assert sum(e["event"] == "attempt" for e in rows(out / "calls.jsonl")) == 91
@@ -338,7 +446,11 @@ def test_code_policy_amendment_preserves_journal_and_reservations(tmp_path, plan
     result = resume.run_resume(plan, out, approve(plan), sleep=lambda _: None, amend=True)
     assert result["status"] == "complete"
     assert (out / "calls.jsonl").read_bytes().startswith(journal_before)
-    assert result["totals"]["new_reserved_credits"] >= old_manifest["totals"]["new_reserved_credits"]
+    # The interrupted first send keeps its single reservation through amendment and completion.
+    interrupted_request = json.loads(journal_before.splitlines()[0])["request"]
+    one = resume.reservation(interrupted_request, plan["config"])
+    assert old_manifest["totals"]["new_reserved_credits"] == pytest.approx(one, abs=1e-12)
+    assert result["totals"]["new_reserved_credits"] == pytest.approx(one, abs=1e-12)
     assert len(sent) == 93
     assert old["approval_sha256"] != approve(plan)
     archives = list(out.glob("manifest.before-amendment-*.json"))

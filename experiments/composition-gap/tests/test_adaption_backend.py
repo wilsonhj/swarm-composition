@@ -1,3 +1,4 @@
+import http.client
 import io
 import json
 import pathlib
@@ -162,6 +163,22 @@ class AdaptionTests(unittest.TestCase):
                 self.assertNotIn("secret-key", json.dumps(events))
                 if status == 504:
                     self.assertEqual(record["raw_body"], "[REDACTED]")
+
+    def test_partial_read_is_recorded_as_retryable_transport_failure(self):
+        class Partial(Response):
+            def read(self): raise http.client.IncompleteRead(b"partial")
+
+        events = []
+        b = backend(record_sink=events.append)
+        with patch("urllib.request.urlopen", return_value=Partial({})) as send:
+            self.assertEqual(b("s", "u"), "PASS")
+        self.assertEqual(send.call_count, 1)
+        self.assertTrue(b.stopped)
+        record = events[-1]["record"]
+        self.assertEqual(record["failure"], "transport_or_json_error")
+        self.assertEqual(record["transport_error_type"], "IncompleteRead")
+        self.assertIs(record["retryable_transport"], True)
+        self.assertIsInstance(record["elapsed_ms"], int)
 
     def test_audit_events_and_redacted_bodies(self):
         for body, is_http in ((b'{"secret":"secret-key",', False),
