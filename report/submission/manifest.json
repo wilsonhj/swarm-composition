@@ -84,12 +84,12 @@
       "sha256": "0d6059db2235504443815ba8c70738debac6a761c362faa3cbaad551c59308fc"
     },
     "who-knows-the-goal.docx": {
-      "bytes": 2220979,
-      "sha256": "36bffc98a883ae36423dcb468e595077de68e4a22726d220cd97bb86bd09260f"
+      "bytes": 2220986,
+      "sha256": "692e0900a7ef63144fd3cc23a089605c6009fb3e388b5b232c96cfedc989a054"
     },
     "who-knows-the-goal.pdf": {
-      "bytes": 2115062,
-      "sha256": "c656db64558cc6c39e645b9e06d948264daaf55193ddc83e9e86f7e467f08947"
+      "bytes": 2115196,
+      "sha256": "48298cd617c2a62d41ed20c1d96d36bbb7ef70a5be7d1205652342256b4c8478"
     }
   },
   "verification": {
@@ -253,6 +253,68 @@
       "full_author_name_preserved": true,
       "source_prose_check_passed": true,
       "bounds_check_passed": true
+    }
+  },
+  "appendix_a_heading_update": {
+    "date": "2026-11-07",
+    "from": "Appendix A: Limitations and Ethical Considerations",
+    "to": "Appendix A: Limitations and Dual-Use / Ethical Considerations",
+    "method": "Single heading text-node change to the latest tracked DOCX, followed by full PDF export with bundled LibreOffice. Only word/document.xml differs; exact reversal reproduces the prior XML. All other page text and all 43 hyperlink targets are identical. Existing author, affiliation and PR17 scope corrections preserved. Historical editorial.patch and earlier provenance records are unchanged.",
+    "prior_pdf_sha256": "c656db64558cc6c39e645b9e06d948264daaf55193ddc83e9e86f7e467f08947",
+    "prior_docx_sha256": "36bffc98a883ae36423dcb468e595077de68e4a22726d220cd97bb86bd09260f",
+    "pdf_sha256": "48298cd617c2a62d41ed20c1d96d36bbb7ef70a5be7d1205652342256b4c8478",
+    "docx_sha256": "692e0900a7ef63144fd3cc23a089605c6009fb3e388b5b232c96cfedc989a054",
+    "editorial_source_heading_file": "report/appendix-limitations-dual-use.md",
+    "editorial_source_heading_file_sha256": "f98c4e78baf02c7989ee0d98e9120db60554f9c07694f18b844cb4b5502c87a5",
+    "render_comparison": {
+      "unchanged_visual_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+      ],
+      "changed_visual_pages": [
+        11
+      ],
+      "changed_pixel_bounds": {
+        "11": [
+          654,
+          182,
+          1183,
+          216
+        ]
+      },
+      "dpi": 182
+    },
+    "verification": {
+      "pdf_pages": 20,
+      "main_pages": 8,
+      "exact_heading_present_in_pdf_and_docx": true,
+      "only_heading_text_changed": true,
+      "source_prose_lines_checked": 89,
+      "reference_entries": 29,
+      "embedded_figure_pngs": 6,
+      "appendix_b_table_cells_checked": 85,
+      "all_43_hyperlink_targets_preserved": true,
+      "bounds_check_passed": true,
+      "all_fonts_embedded": true,
+      "changed_page_visually_reviewed": 11,
+      "other_19_pages_pixel_identical_to_prior_reviewed_render": true
     }
   }
 }
