@@ -11,6 +11,14 @@ import adaption_pilot as pilot
 import analyze
 
 
+@pytest.fixture
+def isolated_results(tmp_path, monkeypatch):
+    monkeypatch.setattr(pilot, "RESULTS", tmp_path / "isolated" / pilot.STUDY)
+    # The real RESULTS is no longer skipped by the overlap scan; that check has its own test.
+    monkeypatch.setattr(pilot, "check_seed_overlap", lambda config: None)
+    return pilot.RESULTS
+
+
 def read_rows(path):
     return [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
 
@@ -101,6 +109,32 @@ def test_config_and_source_drift_invalidates_approval(tmp_path, monkeypatch):
         pilot.run(plan, tmp_path / "source", "execute", plan["approval_sha256"])
 
 
+@pytest.mark.parametrize("marker", ["calls.jsonl", "manifest.json"])
+def test_execute_refuses_when_study_already_has_a_prior_run(tmp_path, monkeypatch, isolated_results, marker):
+    _, plan = prepare_fake_run(monkeypatch)
+    (isolated_results / "pilot-01").mkdir(parents=True)
+    (isolated_results / "pilot-01" / marker).write_text("{}\n")
+    monkeypatch.setattr(pilot, "preflight_models", lambda *_: pytest.fail("preflight with prior run"))
+    monkeypatch.setattr(backend, "Adaption", lambda *a, **k: pytest.fail("backend with prior run"))
+    monkeypatch.setattr(pilot.urllib.request, "urlopen", lambda *a, **k: pytest.fail("network with prior run"))
+    monkeypatch.setattr(backend.urllib.request, "urlopen", lambda *a, **k: pytest.fail("network with prior run"))
+    monkeypatch.setattr(pilot.os.environ, "get", lambda *a, **k: pytest.fail("environment read with prior run"))
+    out = isolated_results / "pilot-04"
+    with pytest.raises(ValueError, match="adaption_resume.py"):
+        pilot.run(plan, out, "execute", plan["approval_sha256"])
+    assert not out.exists()
+
+
+def test_plan_and_mock_still_work_with_a_prior_run(tmp_path, monkeypatch, isolated_results, capsys):
+    (isolated_results / "pilot-01").mkdir(parents=True)
+    (isolated_results / "pilot-01" / "manifest.json").write_text("{}\n")
+    monkeypatch.setattr(pilot.urllib.request, "urlopen", lambda *a, **k: pytest.fail("network on plan"))
+    assert pilot.main(["--mode", "plan"]) == 0
+    assert json.loads(capsys.readouterr().out)["approval_sha256"]
+    plan = pilot.make_plan(pilot.load_config())
+    assert pilot.run(plan, isolated_results / "pilot-mock", "mock")["status"] == "mock_complete"
+
+
 def test_output_guard_protects_frozen_results():
     with pytest.raises(ValueError, match="in-repo outputs"):
         pilot.safe_output(pilot.HERE / "results" / "v2" / "new")
@@ -109,7 +143,7 @@ def test_output_guard_protects_frozen_results():
         pilot.safe_output(pilot.RESULTS)
 
 
-def test_approved_execute_with_fake_api_preserves_audit_and_identity(tmp_path, monkeypatch):
+def test_approved_execute_with_fake_api_preserves_audit_and_identity(tmp_path, monkeypatch, isolated_results):
     config = pilot.load_config()
     config["seeds"] = [5000]
     plan = pilot.make_plan(config)
@@ -206,7 +240,7 @@ class FakeResponse:
     def read(self): return json.dumps(self.data).encode()
 
 
-def test_interrupted_request_keeps_previous_result_and_aborted_manifest(tmp_path, monkeypatch):
+def test_interrupted_request_keeps_previous_result_and_aborted_manifest(tmp_path, monkeypatch, isolated_results):
     _, plan = prepare_fake_run(monkeypatch)
     sent = []
     def fake_urlopen(request, timeout):
@@ -226,7 +260,7 @@ def test_interrupted_request_keeps_previous_result_and_aborted_manifest(tmp_path
     assert manifest["status"] == "aborted: KeyboardInterrupt" and manifest["totals"]["rows"] == 0
 
 
-def test_missing_usage_stops_before_any_further_posts(tmp_path, monkeypatch):
+def test_missing_usage_stops_before_any_further_posts(tmp_path, monkeypatch, isolated_results):
     _, plan = prepare_fake_run(monkeypatch)
     sent = []
     def fake_urlopen(request, timeout):
@@ -241,7 +275,7 @@ def test_missing_usage_stops_before_any_further_posts(tmp_path, monkeypatch):
     assert next(e for e in events if e["event"] == "result")["record"]["failure"] == "missing_or_invalid_usage"
 
 
-def test_credit_limit_is_shared_across_models(tmp_path, monkeypatch):
+def test_credit_limit_is_shared_across_models(tmp_path, monkeypatch, isolated_results):
     config, plan = prepare_fake_run(monkeypatch)
     a, b = config["models"]
     monkeypatch.setattr(pilot, "jobs", lambda cfg: [(a, 5000, "local", "authorized"),

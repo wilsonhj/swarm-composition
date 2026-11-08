@@ -212,7 +212,14 @@ class Adaption(Backend):
         if not isinstance(served, str) or served != self.model:
             return fail("model_mismatch", stop=True)
         if exceeded: return fail("credit_budget_exceeded", stop=True)
-        if data.get("status") != "completed": return fail("status_not_completed")
+        if data.get("status") != "completed":
+            # "incomplete" (max_output_tokens) is model behaviour and keeps its historical label;
+            # any other status is a provider-side failure, which resume must not record as a trial result.
+            if data.get("status") == "incomplete": return fail("status_not_completed")
+            err = data.get("error")
+            code = err.get("code") if isinstance(err, dict) else None
+            if isinstance(code, str) and len(code) <= 64: record["provider_error_code"] = self._redact(code)
+            return fail("provider_status_not_completed")
         if data.get("error") is not None: return fail("response_error")
         if data.get("incomplete_details") is not None: return fail("incomplete")
         output = data.get("output")

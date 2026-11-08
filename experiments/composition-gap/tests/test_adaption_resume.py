@@ -407,3 +407,50 @@ def test_second_continuation_rejected_but_same_output_restart_allowed(tmp_path, 
     result = resume.run_resume(plan, first, approve(plan), sleep=lambda _: None)
     assert result["status"] == "complete"
     assert len(sent) == 88
+
+
+@pytest.fixture
+def published_trial():
+    root = RESULTS / "pilot-03-resume"
+    manifest = json.loads((root / "manifest.json").read_text())
+    config = manifest["plan"]["config"]
+    row = rows(root / "combined_trials.jsonl")[5]
+    _, source_results, _, _ = resume.journal_attempts(rows(RESULTS / "pilot-02" / "calls.jsonl"), config)
+    _, current, _, _ = resume.journal_attempts(rows(root / "calls.jsonl"), config)
+    return row, config, {**source_results, **current}
+
+
+def tamper_turn(row, results, index, **changes):
+    row = copy.deepcopy(row)
+    turn = row["turns"][index]
+    turn.update({k: v for k, v in changes.items() if k in turn})
+    record = turn["adaption"] = {**turn["adaption"], **changes.get("record", {})}
+    return row, {**results, record["call_id"]: {**results[record["call_id"]], "record": record}}
+
+
+def test_published_failed_turns_validate(published_trial):
+    row, config, results = published_trial
+    assert {t["fail_reason"] for t in row["turns"] if t["failed"]} == {"status_not_completed", "trial_stopped"}
+    resume.validate_trial(row, config, results)
+
+
+def test_successful_turn_flipped_to_failed_is_rejected(published_trial):
+    row, config, results = published_trial
+    assert not row["turns"][0]["failed"] and row["turns"][0]["adaption"]["failure"] is None
+    row, results = tamper_turn(row, results, 0, failed=True)
+    with pytest.raises(ValueError, match="failed turn lacks a matching terminal failure record"):
+        resume.validate_trial(row, config, results)
+
+
+def test_failed_turn_with_mismatched_fail_reason_is_rejected(published_trial):
+    row, config, results = published_trial
+    row, results = tamper_turn(row, results, 2, fail_reason="empty_output")
+    with pytest.raises(ValueError, match="failed turn lacks a matching terminal failure record"):
+        resume.validate_trial(row, config, results)
+
+
+def test_failed_turn_with_transient_record_failure_is_rejected(published_trial):
+    row, config, results = published_trial
+    row, results = tamper_turn(row, results, 2, fail_reason="http_error", record={"failure": "http_error"})
+    with pytest.raises(ValueError, match="failed turn lacks a matching terminal failure record"):
+        resume.validate_trial(row, config, results)

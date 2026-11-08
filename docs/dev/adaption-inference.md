@@ -60,7 +60,7 @@ before accepting a live plan [adaption2026models, adaption2026responses].
 
 Set `ADAPTION_API_KEY` securely in the process environment. Do not put its value
 in a command saved to the repository. No new key is created by this tooling.
-Use `approval_sha256` from the reviewed plan:
+Use `approval_sha256` from the reviewed plan (first run only; `pilot-01` below):
 
 ```bash
 python3.11 adaption_pilot.py --mode execute \
@@ -72,7 +72,10 @@ Without the exact current digest, the runner exits before key lookup or network.
 The digest pins configuration and runner/backend/harness/scoring source hashes.
 It must be regenerated after edits. Approval does not imply a clean committed
 protocol freeze; commit and record the implementation before a future scientific
-collection. Output creation is exclusive; no append/rerun over existing files.
+collection. Output creation is exclusive; no append/rerun over existing files. Execute mode
+also refuses once any prior run exists under the study results directory (it would
+repeat trial keys and ignore earlier spend); continue with `adaption_resume.py`,
+which counts cumulative spend.
 
 Execution first checks the hosted model IDs using a read-only authenticated GET;
 if either is unavailable, no inference is sent [adaption2026modellist]. HTTP POST

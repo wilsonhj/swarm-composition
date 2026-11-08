@@ -196,7 +196,7 @@ def validate_source(source, config):
         if any(row[k] != score[k] for k in ("assembled", "recoverable")):
             raise ValueError("source stored score differs")
         seen.add(key)
-        validate_trial(row, config, result_events)
+        validate_trial(row, config, result_events, final=False)
     # The original runner writes a trial only after all its calls. An aborted
     # run can therefore have durable attempts or results with no saved row.
     # Their logical turn cannot safely be reconstructed from the row data.
@@ -206,7 +206,7 @@ def validate_source(source, config):
     return manifest, rows, events
 
 
-def validate_trial(row, config, result_events):
+def validate_trial(row, config, result_events, final=True):
     """Reconstruct the exact prompt sequence and scores using only saved replies."""
     turns = row["turns"]
     if len(turns) != 5:
@@ -223,7 +223,11 @@ def validate_trial(row, config, result_events):
                 raise ValueError("trial record is not linked to the call journal")
             self.tl.model = turn.get("model")
             if turn["failed"]:
-                self._fail(record["failure"] or "failed")
+                failure = record["failure"]
+                if (failure is None or turn["fail_reason"] != failure or
+                        (final and failure not in TERMINAL_GENERATION + ("trial_stopped",)) or turn["raw"] != "PASS"):
+                    raise ValueError("failed turn lacks a matching terminal failure record")
+                self._fail(failure)
             elif record["failure"] is not None or record["model"] != row["model"]:
                 raise ValueError("successful trial turn contains a backend failure")
             elif record_text(record) != turn["raw"]:

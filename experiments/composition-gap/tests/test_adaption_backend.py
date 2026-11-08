@@ -74,6 +74,33 @@ class AdaptionTests(unittest.TestCase):
                 self.assertEqual(b.reserved_credits, 0)
                 self.assertTrue(b.stopped)
 
+    def test_provider_failure_status_is_not_terminal_generation(self):
+        from adaption_resume import TERMINAL_GENERATION
+        for status in ("failed", "cancelled", "queued", "in_progress"):
+            d = good(); d["status"] = status
+            if status == "failed": d["error"] = {"code": "server_error", "message": "boom"}
+            b = backend()
+            with self.subTest(status=status), patch("urllib.request.urlopen", return_value=Response(d)):
+                self.assertEqual(b("sys", "user"), "PASS")
+                reason = b.records[0]["failure"]
+                self.assertEqual(reason, "provider_status_not_completed")
+                self.assertNotIn(reason, TERMINAL_GENERATION)
+                self.assertTrue(b.stopped)
+        d = good(); d["status"] = "failed"; d["error"] = {"code": "server_error", "message": "secret-key leaked"}
+        b = backend()
+        with patch("urllib.request.urlopen", return_value=Response(d)):
+            b("sys", "user")
+        self.assertEqual(b.records[0]["provider_error_code"], "server_error")
+        self.assertNotIn("leaked", json.dumps(b.records))
+
+    def test_incomplete_status_keeps_historical_label(self):
+        d = good(); d["status"] = "incomplete"; d["incomplete_details"] = {"reason": "max_output_tokens"}
+        b = backend()
+        with patch("urllib.request.urlopen", return_value=Response(d)):
+            self.assertEqual(b("sys", "user"), "PASS")
+        self.assertEqual(b.records[0]["failure"], "status_not_completed")
+        self.assertTrue(b.stopped)
+
     def test_reasoning_is_preserved_but_not_returned(self):
         b = backend(); d = good()
         d["output"].insert(0, {"type": "reasoning", "status": None, "summary": [{"text": "private"}]})

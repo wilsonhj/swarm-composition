@@ -165,6 +165,9 @@ def run(plan, output, mode, approval=None):
         raise ValueError("plan is stale; regenerate and review it")
     if mode == "execute" and approval != plan["approval_sha256"]:
         raise ValueError("live inference requires --approve-plan equal to the reviewed plan SHA256")
+    if mode == "execute" and any(next(RESULTS.glob(f"*/{name}"), None) for name in ("calls.jsonl", "manifest.json")):
+        raise ValueError("this study already has a prior run; its approval digest would repeat trial keys and "
+                         "spend beyond the cumulative max_credits. Use adaption_resume.py for continuations")
     config = plan["config"]
     check_seed_overlap(config)
     output = safe_output(output)
