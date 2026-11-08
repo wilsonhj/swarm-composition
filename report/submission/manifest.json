@@ -84,12 +84,12 @@
       "sha256": "0d6059db2235504443815ba8c70738debac6a761c362faa3cbaad551c59308fc"
     },
     "who-knows-the-goal.docx": {
-      "bytes": 2220948,
-      "sha256": "382de0d5ec391980279e8eb2705ecf1fecd6e791164099200182a49eb09ddd27"
+      "bytes": 2220969,
+      "sha256": "3364d4aae303803c744a20fcb3e266f19b0691c22e52323f119d8283415241ef"
     },
     "who-knows-the-goal.pdf": {
-      "bytes": 2115227,
-      "sha256": "087de369d6c9b3c79104247999de9022f58a9851c70db2d3c8e4e6c50521ac9c"
+      "bytes": 2210645,
+      "sha256": "8f95a1d3c5b8adde937592a071c82ecb7c63fcef809a9418bd10b21948416e27"
     }
   },
   "verification": {
@@ -183,5 +183,27 @@
   "new_figure_source_paths": [
     "figures/study-overview.svg",
     "figures/seed3000-workflow.svg"
-  ]
+  ],
+  "post_edition_corrections": {
+    "date": "2026-11-07",
+    "reason": "Scope statements to the confirmatory study, matching report/draft.md after PRs #14 and #16; hinted framing and 8/12-agent swarms were run only in exploratory work.",
+    "method": "Text-only edits: three sentences in word/document.xml; in the PDF only the affected lines on pages 3, 8 and 11 were re-set in the embedded Old Standard TT at the original positions. Page count, line counts, links and all other pages are unchanged. editorial.patch does not include these edits.",
+    "edits": [
+      {
+        "pdf_page": 3,
+        "from": "A \"hinted\" framing is implemented but was not run, so the study cannot establish",
+        "to": "A \"hinted\" framing ran only in exploratory runs, not the confirmatory study, so it cannot establish"
+      },
+      {
+        "pdf_page": 8,
+        "from": "We test no network-shape variations, swarms above four agents,",
+        "to": "We test no network-shape variations, confirmatory swarms above four agents,"
+      },
+      {
+        "pdf_page": 11,
+        "from": "Hinted framing was implemented but not run; no varied-paraphrase or dose-response test",
+        "to": "Hinted framing ran only in exploratory runs; no confirmatory varied-paraphrase or dose-response test"
+      }
+    ]
+  }
 }
