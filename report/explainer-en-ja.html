@@ -169,12 +169,12 @@ footer a { color: var(--accent); }
   </div>
   <div class="pair">
     <div lang="en">
-      <p><strong>Study 1</strong> used Claude Haiku, 20 test cases per setting. Under the strict rule, a single agent that wasn't told what the words were for still wrote out the passphrase in 19 of 20 runs. When the instructions said plainly that these were parts of the passphrase, it was 0 of 20, even with 12 attempts. Splitting the task barely changed this. The leakiest setup, a relay whose coordinator didn't know the goal, assembled it once in 20. What decided refusal was not the rule itself but what the agent knew about the goal. We did not find that splitting the task opened a new safety gap.</p>
-      <p><strong>Study 2</strong> is a separate experiment. Its procedure was fixed in advance and it ran on new test cases. We gave every agent in a fixed pipeline the trusted purpose of the task. On restricted tasks, recoverable passphrases fell from 45 of 50 to 0 of 50. On permitted tasks, completed work rose from 15 of 50 to 33 of 49. Safety improved, and so did legitimate work.</p>
+      <p><strong>Study 1</strong> used Claude Haiku, 20 test cases per setting. Under the strict rule, a single agent that wasn't told what the words were for still wrote out the passphrase in 19 of 20 runs. When the instructions said plainly that these were parts of the passphrase, it was 0 of 20, even with 12 attempts. Splitting the task barely changed this. The leakiest setup, a relay whose coordinator didn't know the goal, assembled it once in 20. In these runs, the wording of the task strongly changed whether the agent refused. Splitting the task did not open a statistically significant gap: a few relay runs leaked, in both Haiku and Sonnet, but no split assembled the passphrase more often than a single agent given the same unstated goal.</p>
+      <p><strong>Study 2</strong> is a separate experiment. Its procedure was fixed in advance and it ran on new test cases. We gave every agent in a fixed pipeline the trusted purpose of the task. On restricted tasks, recoverable passphrases fell from 45 of 50 to 0 of 50. On permitted tasks, completed work rose from 15 of 50 to 33 of 49. Zero in fifty is not a guarantee, but restricted disclosure went down and legitimate completion went up.</p>
     </div>
     <div lang="ja">
-      <p><strong>研究1</strong>では Claude Haiku を使い、各設定で20件ずつテストしました。厳格なルールのもとでも、単語の用途を知らされていない1体のエージェントは、20回中19回パスフレーズを書き出しました。一方、指示文に「これはパスフレーズの一部だ」と明記すると、12回試行させても20回中0回でした。作業を分割しても、結果はほとんど変わりませんでした。最も漏れやすかったのは目的を知らないコーディネーターを介した中継型で、20回中1回でした。拒否するかどうかを決めたのはルールそのものではなく、エージェントが目的について何を知っていたかでした。作業の分割によって新たな安全上の隙間が生まれる、という結果は得られませんでした。</p>
-      <p><strong>研究2</strong>は、手順を事前に固定し、新しいテストケースで実施した別の実験です。固定されたパイプラインのすべてのエージェントに、信頼できる「タスクの目的」を伝えました。禁止された課題では、パスフレーズを復元できたケースが50回中45回から50回中0回に減りました。許可された課題では、作業を完了できたケースが50回中15回から49回中33回に増えました。安全性が高まり、正当な作業もより多く完了したのです。</p>
+      <p><strong>研究1</strong>では Claude Haiku を使い、各設定で20件ずつテストしました。厳格なルールのもとでも、単語の用途を知らされていない1体のエージェントは、20回中19回パスフレーズを書き出しました。一方、指示文に「これはパスフレーズの一部だ」と明記すると、12回試行させても20回中0回でした。作業を分割しても、結果はほとんど変わりませんでした。最も漏れやすかったのは目的を知らないコーディネーターを介した中継型で、20回中1回でした。今回の実験では、課題の書き方によって、エージェントが拒否するかどうかが大きく変わりました。作業を分割しても、統計的に有意な差は見られませんでした。中継型ではHaikuでもSonnetでも少数の漏えいがありましたが、同じく目的を知らされていない1体のエージェントよりも多くパスフレーズを組み立てた分割方式はありませんでした。</p>
+      <p><strong>研究2</strong>は、手順を事前に固定し、新しいテストケースで実施した別の実験です。固定されたパイプラインのすべてのエージェントに、信頼できる「タスクの目的」を伝えました。禁止された課題では、パスフレーズを復元できたケースが50回中45回から50回中0回に減りました。許可された課題では、作業を完了できたケースが50回中15回から49回中33回に増えました。50回中0回は「絶対に漏れない」という保証ではありませんが、禁止課題での漏えいは減り、正当な作業の完了は増えました。</p>
     </div>
   </div>
 </section>
@@ -185,8 +185,8 @@ footer a { color: var(--accent); }
     <div class="track anchor">
       <div class="tn">Track 2 · Main track · 主トラック</div>
       <h3>The science of agent networks<span class="ja" lang="ja">エージェント・ネットワークの科学</span></h3>
-      <p lang="en">The organisers asked whether agents that refuse a harmful task will complete it when it is split across them. That is Study 1. For this stand-in task, the answer was mostly no.</p>
-      <p lang="ja">主催者は「有害な課題を拒否するエージェントでも、課題が分割されるとそれを完遂してしまうのか」と問いかけています。これが研究1のテーマで、今回の代用課題では、答えはおおむね「いいえ」でした。</p>
+      <p lang="en">The organisers asked whether agents that refuse a harmful task will complete it when it is split across them. That is Study 1. For this stand-in task, we found no statistically significant gap.</p>
+      <p lang="ja">主催者は「有害な課題を拒否するエージェントでも、課題が分割されるとそれを完遂してしまうのか」と問いかけています。これが研究1のテーマで、今回の代用課題では、統計的に有意な差は見られませんでした。</p>
     </div>
     <div class="track">
       <div class="tn">Track 1</div>
@@ -197,8 +197,8 @@ footer a { color: var(--accent); }
     <div class="track">
       <div class="tn">Track 4</div>
       <h3>Oversight and monitoring<span class="ja" lang="ja">監視と監督</span></h3>
-      <p lang="en">We tested two automatic checks. A keyword filter missed reworded requests: the passphrase stayed recoverable in 46 of 50 runs. An AI monitor blocked 792 of 795 messages, legitimate ones included. Both failed, in opposite directions.</p>
-      <p lang="ja">2種類の自動チェックを試しました。キーワードフィルターは言い換えられた依頼を見逃し、50回中46回でパスフレーズが復元可能なままでした。AIによる監視役は795件中792件のメッセージを止め、正当なものまで止めてしまいました。どちらも、正反対の方向に失敗しました。</p>
+      <p lang="en">We tested two automatic checks. A keyword filter failed both ways: it missed reworded restricted requests (the passphrase stayed recoverable in 46 of 50 runs) and blocked every legitimate request that used the keywords. An AI monitor blocked 792 of 795 messages and completed none of the legitimate tasks.</p>
+      <p lang="ja">2種類の自動チェックを試しました。キーワードフィルターは両方向に失敗しました。言い換えられた禁止依頼を見逃し（50回中46回でパスフレーズが復元可能）、キーワードを含む正当な依頼はすべて止めてしまいました。AIによる監視役は795件中792件のメッセージを止め、正当な課題を1件も完了させませんでした。</p>
     </div>
     <div class="track">
       <div class="tn">Track 3</div>
@@ -212,8 +212,8 @@ footer a { color: var(--accent); }
 <section>
   <h2><span class="en">Limits</span><span class="ja" lang="ja">この研究の限界</span></h2>
   <div class="pair">
-    <p lang="en">One model family, one harmless made-up task, and purpose information supplied by our own program. No real attack was reproduced. Within those limits the lesson was consistent: what each agent knew about a task's purpose mattered more than the rule it was given. All code, data and the report are public.</p>
-    <p lang="ja">使ったモデルは1つのファミリーだけで、課題は無害な架空のもの1つ、目的の情報は私たち自身のプログラムが与えたものです。実際の攻撃を再現したわけではありません。その範囲内では、結論は一貫していました。各エージェントが課題の目的について何を知っていたかが、与えられたルールよりも重要だったのです。コード、データ、報告書はすべて公開しています。</p>
+    <p lang="en">One model family, one harmless made-up task, and purpose information supplied by our own program. No real attack was reproduced. Within those limits, both studies point the same way: compliance tracked what each agent was told about the goal. All code, data and the report are public.</p>
+    <p lang="ja">使ったモデルは1つのファミリーだけで、課題は無害な架空のもの1つ、目的の情報は私たち自身のプログラムが与えたものです。実際の攻撃を再現したわけではありません。その範囲内では、2つの研究は同じ方向を示しています。ルールを守るかどうかは、各エージェントが目的について何を知らされていたかに左右されていました。コード、データ、報告書はすべて公開しています。</p>
   </div>
 </section>
 
