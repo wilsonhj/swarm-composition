@@ -1,6 +1,6 @@
 # Video Narration (3-minute LA hub video)
 
-A plain script to read aloud and record in your own voice. It has about 400 spoken words: about 2:40 at 150 words/min, which leaves room for pauses under the 3:00 cap. It is a shorter, plainer version of `report/video-script.md` (the detailed timed table with intervals). Wording follows `docs/research/claim-audit.md` (added on main by PR #7). Numbers come from frozen runs only; sources are at the end.
+A plain script to read aloud and record in your own voice. It has 414 spoken words: about 2:45 at 150 words/min, which leaves room for pauses under the 3:00 cap. It is a shorter, plainer version of `report/video-script.md` (the detailed timed table with intervals). Wording follows `docs/research/claim-audit.md` (added on main by PR #7). Numbers come from frozen runs only; sources are at the end.
 
 **Submission (from `docs/hackathon/submission-checklist.md`, added on main by PR #6):** video under 3 minutes, due **Sun Nov 8, 10:00 AM PT**, uploaded with the project on the LA submission site. You must tick the box confirming the narration is your own voice, not AI narration.
 
