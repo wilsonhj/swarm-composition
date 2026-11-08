@@ -17,7 +17,9 @@ Exit status:
   0  every recomputable claim matches, the CSV agrees with a fresh recompute, every needle is found
   1  at least one claim's value as written differs from the recomputed value (a mismatch)
   2  integrity problem: CSV drift (stale recomputed values/statuses/hashes), a missing raw file,
-     or a needle no longer found in the document (draft changed: update the spec's line/needle/value)
+     a needle no longer found in the document (draft changed: update the spec's line/needle/value),
+     or any number on a cited line changed since the ledger was written (line_numbers; check the
+     new numbers, then --write)
 Stdlib + repository code only. No network, no API calls, never reads .env.
 """
 import argparse
@@ -26,6 +28,7 @@ import hashlib
 import io
 import json
 import os
+import re
 import subprocess
 import sys
 from collections import Counter, defaultdict
@@ -44,7 +47,10 @@ TEMPLATE_COLUMNS = ["claim_id", "slide_id", "claim_text", "study_id", "evidence_
                     "analysis_commit", "protocol_sha256", "run_ids", "raw_paths", "raw_sha256", "row_selector",
                     "metric", "n_total", "n_valid", "n_failed", "n_unknown", "n_distinct_seeds", "estimate",
                     "uncertainty_method", "interval", "test_and_multiplicity", "citation_keys", "limitations"]
-EXTRA_COLUMNS = ["value_as_written", "recomputed_value", "computation", "check_status"]
+# line_numbers pins every number on the cited line, not only those inside the needle, so an edit to an
+# unchecked number on a cited line fails the ledger comparison until the ledger is regenerated (--write)
+# and the change shows up in the ledger diff.
+EXTRA_COLUMNS = ["value_as_written", "recomputed_value", "computation", "check_status", "line_numbers"]
 COLUMNS = TEMPLATE_COLUMNS + EXTRA_COLUMNS
 PT = ZoneInfo("America/Los_Angeles")
 
@@ -1005,6 +1011,8 @@ def c_appb_zero_p():
 D, RD, VS, PH, VR = "report/draft.md", "README.md", "report/video-script.md", "docs/findings/provenance-heldout.md", \
     "docs/findings/v2-results.md"
 NR = "not-recomputable"
+APPA = "report/appendix-limitations-dual-use.md"
+PIN_WHY = "pinned only: the numbers on this line are not recomputed; any change to them fails the ledger check"
 
 
 # The first pass fact-checked the documents as committed at this revision (pinned so it stays stable).
@@ -1494,7 +1502,7 @@ def c_restricted_disclosure_zero():
 
 def c_zero_bound():
     return Res(f"{(1 - 0.05 ** (1 / 50)) * 100:.1f}%", [], "0 events in n=50", "exact one-sided 95% upper bound",
-               method="Clopper-Pearson one-sided: 1 - 0.05^(1/50)")
+               method="Clopper-Pearson one-sided: 1 - 0.05^(1/50); assumes iid Bernoulli trials")
 
 
 def c_conclusion_relay():
@@ -1527,42 +1535,18 @@ def c_ho_contrast_counts(auth, wording, metric):
                "seed-paired bootstrap 95% (2000, seeded)", "exact McNemar, unadjusted")
 
 
+def c_ho_contrast_part(auth, wording, metric, part):
+    r = c_ho_contrast_counts(auth, wording, metric)
+    r.value = r.value.split("; ")[part]
+    return r
+
+
 def c_ho_monitor_short():
     t = [x.get("decision") for r in raw_rows(HELDOUT) if r["cond"] == "monitor" for x in r["turns"]
          if x["role"] == "monitor"]
     m = [prov_frac(HELDOUT, "authorized", w, "monitor", "assembled") for w in ("paraphrase", "keyword")]
     return Res(f"BLOCK {t.count('BLOCK')}/{len(t)}; authorized asm {frac(*m[0][:2])}, {frac(*m[1][:2])}", [HELDOUT],
                "monitor", "decision; assembled")
-
-
-def c_ho_calls_short():
-    m = manifest(HELDOUT)
-    t = turns_of(HELDOUT)
-    return Res(f"{len(t)} turns incl. {sum(x['failed'] for x in t)} failed; manifest counter {m['totals']['calls']}",
-               [HELDOUT], "all turns + manifest", "turns")
-
-
-def c_pilot_readme2():
-    rows = raw_rows(PILOT)
-    s = sorted({r["seed"] for r in rows})
-    a = prov_frac(PILOT, "restricted", "paraphrase", "local", "recoverable")
-    b = prov_frac(PILOT, "restricted", "paraphrase", "provenance", "recoverable")
-    c = prov_frac(PILOT, "authorized", "paraphrase", "local", "assembled")
-    d = prov_frac(PILOT, "authorized", "paraphrase", "provenance", "assembled")
-    t = [x.get("decision") for r in rows if r["cond"] == "monitor" for x in r["turns"] if x["role"] == "monitor"]
-    e = [frac(*prov_frac(PILOT, "authorized", w, "monitor", "assembled")[:2]) for w in ("paraphrase", "keyword")]
-    return Res(f"{len(rows)} rows; seeds {s[0]}-{s[-1]}; {sum(r['failed_calls'] > 0 for r in rows)} failures; "
-               f"para restr rec {frac(*a[:2])}->{frac(*b[:2])}; para auth asm {frac(*c[:2])}->{frac(*d[:2])}; "
-               f"monitor BLOCK {t.count('BLOCK')}/{len(t)}; monitor auth asm {e[0]}, {e[1]}", [PILOT], "pilot",
-               "volume; recoverable; assembled; decisions", rows)
-
-
-def c_haiku_seeds():
-    rows = [r for k, f in V2_FILES.items() if k[0] == "H" for r in load(f)]
-    s = sorted({r["seed"] for r in rows})
-    per = {len({r["seed"] for r in rows if (r["_file"], r["cond"]) == key}) for key in {(r["_file"], r["cond"]) for r in rows}}
-    return Res(f"seeds {s[0]}-{s[-1]}; {'/'.join(map(str, per))} per cell", [f for k, f in V2_FILES.items() if k[0] == "H"],
-               "Haiku v2", "seeds")
 
 
 def c_ticker():
@@ -2170,58 +2154,45 @@ WORKTREE_CLAIMS = [
       "matches", c_protocol_hash, src=W),
     C("WD82", D, 213, "(Haiku 16/40 → 1/40; Sonnet 17/20 → 7/30)", "v2", FV2, "asm H 16/40->1/40, S 17/20->7/30",
       lambda: c_discussion_relay(False), src=W, limitations="Sonnet strict POOLS main + rerun."),
-    C("WD83", D, 215, "With the trusted purpose, restricted disclosure fell to zero in the held-out cells",
+    C("WD83", D, 215, "With the trusted purpose, no restricted disclosures were observed in the sampled held-out cells",
       "task-provenance", FHO, "exposed>0 in 0/100; proposals 0", c_restricted_disclosure_zero, src=W),
     C("WD84", D, 223, "one provider family, no cross-provider runs", "v2 + task-provenance", FV2, "claude only",
       c_model_family, src=W),
-    C("WD85", D, 225, "a one-sided 95% upper bound of about 5.8% on rare failures", "task-provenance", FHO, "5.8%",
+    C("WD85", D, 225, "a one-sided 95% upper bound of about 5.8% on a common failure probability", "task-provenance", FHO, "5.8%",
       c_zero_bound, src=W),
     C("WD86", D, 231, "(requested Sonnet: 7 of 30 relays, 4 of 10 seeds; one pooled cell had mixed served models, and "
       "the verified-model rerun gave 1 of 10)", "v2-sonnet+rerun", FV2, "7/30; 4 seeds; rerun 1/10",
       c_conclusion_relay, src=W),
     # ---------------- README.md (working tree)
-    C("WR01", RD, 7, "the held-out protocol was frozen at `435d20d`", "task-provenance", FHO,
+    C("WR01", RD, 71, "Haiku 5.5 via Claude Code, seeds 3000–3049, **800 trials (16 cells × 50)**. The protocol was "
+      "frozen at `435d20d`", "task-provenance", FHO,
       "435d20d; claude-haiku-5-5; 3000-3049", c_readme_freeze_heldout, src=W),
-    C("WR02", RD, 11, "contains 640 rows, 4,720 calls and zero reported failures, on seeds 1000–1019", "v2-haiku", FV2,
-      "640 rows; 4720 calls; 0 failures; seeds 1000-1019", c_readme_v2_haiku, src=W),
-    C("WR03", RD, 11, "solo and its repeated-attempt baselines assemble in 0/20 trials; the uninformed relay assembles "
-      "in 1/20", "v2-haiku", FV2, "solo/k5/k12 0/0/0 of 20; relay_uninformed 1/20; strict/neutral solo 19/20",
+    C("WR03", RD, 80, "solo Haiku assembled the answer in **19/20** neutral-wording trials and **0/20** "
+      "explicit-wording trials. In strict/explicit trials, five- and twelve-attempt solo baselines were also 0/20; "
+      "the uninformed relay assembled in 1/20", "v2-haiku", FV2,
+      "solo/k5/k12 0/0/0 of 20; relay_uninformed 1/20; strict/neutral solo 19/20",
       c_readme_haiku_se, src=W),
-    C("WR04", RD, 19, "held-out seeds 3000–3049 collected after the protocol freeze at `435d20d`", "task-provenance",
+    C("WR04", RD, 71, "The protocol was frozen at `435d20d` before held-out collection", "task-provenance",
       FHO, "freeze commit precedes collection start", c_freeze_before_collection, src=W),
-    C("WR05", RD, 24, "−90 pp [−98, −80] (45/50 locally, 0/50 with provenance; exact McNemar p < 0.001)",
-      "task-provenance", FHO, "-90pp [-98,-80]; 45/50->0/50; p<0.001",
-      lambda: c_ho_contrast_counts("restricted", "paraphrase", "recoverable"), src=W),
-    C("WR06", RD, 24, "+37 pp [+20, +53] (15/50 locally, 33/49 with provenance; p < 0.001)", "task-provenance", FHO,
-      "+37pp [+20,+53]; 15/50->33/49; p<0.001", lambda: c_ho_contrast_counts("authorized", "paraphrase", "assembled"),
+    C("WR05", RD, 78, "−90 percentage points (95% bootstrap interval: −98 to −80)",
+      "task-provenance", FHO, "-90pp [-98,-80]",
+      lambda: c_ho_contrast_part("restricted", "paraphrase", "recoverable", 0), src=W),
+    C("WR06", RD, 76, "| Authorized task: answer assembled | 15/50 | 33/49 |", "task-provenance", FHO,
+      "15/50->33/49", lambda: c_ho_contrast_part("authorized", "paraphrase", "assembled", 1),
       src=W),
-    C("WR07", RD, 24, "The LLM monitor blocked 792 of 795 proposals and authorized assembly was 0/50 in both wordings",
+    C("WR07", RD, 78, "The monitor blocked 792 of 795 proposals and completed **0/50 authorized tasks in each wording**",
       "task-provenance", FHO, "BLOCK 792/795; authorized asm 0/50, 0/50", c_ho_monitor_short, src=W),
-    C("WR08", RD, 24, "800 trials (16 cells × 50)", "task-provenance", FHO, "16 cells x 50; 800 trials", c_ho_cells16,
+    C("WR08", RD, 71, "800 trials (16 cells × 50)", "task-provenance", FHO, "16 cells x 50; 800 trials", c_ho_cells16,
       src=W),
-    C("WR09", RD, 27, "One trial failed (a backend error, paraphrase / authorized / provenance)", "task-provenance", FHO,
+    C("WR09", RD, 78, "One backend error in the authorized/provenance condition is excluded from valid-only rates",
+      "task-provenance", FHO,
       "1 failed trial (seed 3010 paraphrase/authorized/provenance)", lambda: c_ho_meta("failed"), src=W),
-    C("WR10", RD, 28, "the raw logs hold 4,795 turn records, including the one failed turn, while the historical "
-      "backend counter and the findings table report 4,794 calls", "task-provenance", FHO,
-      "4795 turns incl. 1 failed; manifest counter 4794", c_ho_calls_short, src=W),
-    C("WR11", RD, 29, "the pilot monitor allowed one authorized proposal", "task-provenance pilot", "development_pilot",
-      "authorized ALLOW 1", c_pilot_monitor, src=W),
-    C("WR12", RD, 29, "The protocol text is left unedited so its recorded SHA-256 still matches", "task-provenance",
-      FHO, "matches", c_protocol_hash, src=W),
-    C("WR13", RD, 32, "320 rows on development seeds 2000–2019, with zero reported failures", "task-provenance pilot",
-      "development_pilot", "320 rows; seeds 2000-2019; 0 failures; para restr rec 20/20->0/20; para auth asm "
-      "6/20->16/20; monitor BLOCK 320/321; monitor auth asm 0/20, 0/20", c_pilot_readme2, src=W,
-      limitations="Development pilot; labelled as not held-out evidence."),
-    C("WR14", RD, 40, "held-out seeds 1000-1019 (pilots used 0-19), Haiku 5.5 via Claude Code, 20 seeds per cell",
-      "v2-haiku", FV2, "seeds 1000-1019; 20 per cell", c_haiku_seeds, src=W),
-    C("WR15", RD, 42, "The earlier v1 run (`run_full.sh`, strict policy, seeds 0-19)", "v1 (exploratory)",
-      "exploratory_v1", "policy strict; seeds 0-19", c_v1_seeds, src=W),
-    C("WR16", RD, 91, "the pre-provenance snapshot is `40a58d0e214e6c5999d4c66cbc2f59cdbe98f5c7`", "repo metadata",
-      "repo_metadata", "40a58d0e214e; manifest 40a58d0e214e", c_baseline_commit, src=W),
+    C("WR17", RD, 75, "| Restricted task: answer recoverable | 45/50 | 0/50 |", "task-provenance", FHO,
+      "45/50->0/50", lambda: c_ho_contrast_part("restricted", "paraphrase", "recoverable", 1), src=W),
     # ---------------- report/video-script.md (working tree)
-    C("WV01", VS, 3, "Narration is 426 words", "script", "script_metadata", "426 words; segments match", c_video_words,
+    C("WV01", VS, 3, "Narration is 429 words", "script", "script_metadata", "429 words; segments match", c_video_words,
       src=W),
-    C("WV24", VS, 20, "Close 29 = **426 words", "script", "script_metadata", "426 words; segments match", c_video_words,
+    C("WV24", VS, 20, "Close 29 = **429 words", "script", "script_metadata", "429 words; segments match", c_video_words,
       src=W),
     C("WV02", VS, 5, "(Haiku 5.5 n = 20 seeds per cell; Sonnet 5.5 n = 10)", "v2", FV2, "H 20; S 10", c_seeds_per_cell,
       src=W),
@@ -2336,6 +2307,30 @@ WORKTREE_CLAIMS = [
       src=W, limitations="Corrected 7 Nov (was 'empty model list')."),
     C("WB26", APPB, 336, "its `p=0.000` means exact McNemar p < 0.001", "task-provenance", FHO,
       "18 displayed p=0.000; 18 exact p<0.001", c_appb_zero_p, src=W),
+    # Appendix A (limitations): numbers are not recomputed here; each cited line is pinned through
+    # line_numbers so any change to its numbers fails the ledger check until it is re-reviewed.
+    C("WA01", APPA, 3, 'Study 1 numbers below are from the frozen v2 runs (held-out ', "appendix-a", "pinned", "", src=W,
+      why=PIN_WHY),
+    C("WA02", APPA, 21, '**Worker position errors.**', "appendix-a", "pinned", "", src=W,
+      why=PIN_WHY),
+    C("WA03", APPA, 25, '**Design chosen on pilot seeds.**', "appendix-a", "pinned", "", src=W,
+      why=PIN_WHY),
+    C("WA04", APPA, 27, '**Small n and multiplicity.**', "appendix-a", "pinned", "", src=W,
+      why=PIN_WHY),
+    C("WA05", APPA, 31, '**Topology, opportunity and call counts.**', "appendix-a", "pinned", "", src=W,
+      why=PIN_WHY),
+    C("WA06", APPA, 35, '**Single provider family and run provenance.**', "appendix-a", "pinned", "", src=W,
+      why=PIN_WHY),
+    C("WA07", APPA, 39, '**Sequential turn-taking, no tools, short horizons.**', "appendix-a", "pinned", "", src=W,
+      why=PIN_WHY),
+    C("WA08", APPA, 45, '**Study 2 scope.**', "appendix-a", "pinned", "", src=W,
+      why=PIN_WHY),
+    C("WA09", APPA, 51, '**Could this help someone launder harmful requests through decomposition?**', "appendix-a", "pinned", "", src=W,
+      why=PIN_WHY),
+    C("WA10", APPA, 59, '- We do not publish an optimised "laundering" prompt library', "appendix-a", "pinned", "", src=W,
+      why=PIN_WHY),
+    C("WA11", APPA, 68, '- Goal propagation and coordinator-level intent checks. Our ', "appendix-a", "pinned", "", src=W,
+      why=PIN_WHY),
 ]
 CLAIMS += WORKTREE_CLAIMS
 
@@ -2363,8 +2358,21 @@ def doc_text(doc, rev):
     return p.stdout if p.returncode == 0 else None
 
 
+NUMBER = re.compile(r"[−+-]?\d+(?:[.,:]\d+)*")
+
+
+def line_numbers(spec):
+    """Every number on the claim's cited line, in order, as a pin against unchecked edits."""
+    t = doc_text(spec["doc"], None if spec["src"] == WORKTREE else spec["src"])
+    lines = t.splitlines() if t is not None else []
+    if not 0 < spec["line"] <= len(lines):
+        return "(line missing)"
+    return " ".join(NUMBER.findall(lines[spec["line"] - 1]))
+
+
 def build_row(spec, acommit):
     base = {k: "" for k in COLUMNS}
+    base["line_numbers"] = line_numbers(spec)
     base.update(claim_id=spec["cid"], slide_id=f"{spec['doc']}@{spec['src']}:{spec['line']}", claim_text=spec["needle"],
                 study_id=spec["study"], evidence_status=spec["evidence"], value_as_written=spec["written"],
                 citation_keys=spec["citations"], limitations=spec["limitations"])

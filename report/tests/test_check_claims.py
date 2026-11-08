@@ -11,7 +11,7 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[2]
-CLAIM_IDS = {"WD26", "WD36", "WD65", "WD68", "WB19", "WB24"}
+CLAIM_IDS = {"WD26", "WD36", "WD52", "WD65", "WD68", "WB19", "WB24"}
 
 
 class CheckClaimsTest(unittest.TestCase):
@@ -65,6 +65,32 @@ class CheckClaimsTest(unittest.TestCase):
                 self.draft.write_text(original.replace(before, after, 1))
                 result, output = self.check()
                 self.assertEqual(result, 2, output)
+
+    def test_number_outside_needle_on_cited_line_fails(self):
+        original = self.draft.read_text()
+        needle = next(c for c in self.checker.CLAIMS if c["cid"] == "WD52")["needle"]
+        for before, after in (("rerun, +10 pp [0, +30]", "rerun, +90 pp [0, +30]"),
+                              ("Sonnet refused 20 of 20", "Sonnet refused 12 of 20")):
+            with self.subTest(change=after):
+                self.assertIn(before, original)
+                self.assertNotIn(before, needle)
+                self.draft.write_text(original.replace(before, after, 1))
+                result, output = self.check()
+                self.assertEqual(result, 2, output)
+                self.assertIn("WD52: ledger line_numbers=", output)
+
+    def test_value_as_written_differing_from_recompute_is_a_mismatch(self):
+        spec = next(c for c in self.checker.CLAIMS if c["cid"] == "WD26")
+        original = spec["written"]
+        self.addCleanup(spec.__setitem__, "written", original)
+        spec["written"] = original.replace("19/20", "18/20", 1)
+        self.assertNotEqual(spec["written"], original)
+        self.rows = self.checker.build_all()  # ledger consistent with specs, so only the mismatch remains
+        self.write_ledger()
+        result, output = self.check()
+        self.assertEqual(result, 1, output)
+        self.assertIn("MISMATCHES", output)
+        self.assertIn("WD26", output)
 
     def test_ledger_estimates_denominators_and_provenance_must_match(self):
         row = next(r for r in self.rows if r["claim_id"] == "WD68")

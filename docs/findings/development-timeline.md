@@ -14,6 +14,7 @@ The [official LA schedule](https://aialignmentfoundation.org/hackathons/swarm-al
 | First Sonnet v2 cell starts | Nov 7, 04:31:21 | Nov 6, 20:31:21 | [manifest](../../experiments/composition-gap/results/v2/2026-11-06_9c37b82a_claude-sonnet-5-5_v2_none_neutral.jsonl.manifest.json) |
 | Provenance development pilot starts | Nov 7, 05:31:14 | Nov 6, 21:31:14 | [manifest](../../experiments/composition-gap/results/task-provenance/pilot-haiku-2026-11-07.jsonl.manifest.json) |
 | Provenance protocol frozen after development | Nov 7, 06:00:41 | Nov 6, 22:00:41 | [commit 435d20d](https://github.com/wilsonhj/swarm-composition/commit/435d20d) |
+| Provenance held-out run (seeds 3000–3049, run 4c134cfd) | Nov 7, 06:01:10–06:57:48 | Nov 6, 22:01:10–22:57:48 | [manifest](../../experiments/composition-gap/results/task-provenance/heldout-haiku.jsonl.manifest.json) |
 
 Commit timestamps record repository history, not independent proof of when each line was authored. Run timestamps are the recorded execution times; they do not independently certify the host clock. Earlier pilot files with incomplete provenance need item-specific confirmation. Do not infer their authoring/execution dates from a later commit or label all pilots pre-event.
 
@@ -28,5 +29,5 @@ Commit timestamps record repository history, not independent proof of when each 
 | Work | Evidence and status | Submission treatment |
 |---|---|---|
 | v1/v2 context-composition study | Completed runs; v2 Haiku/Sonnet data and same-task rerun | Report measured outcomes, model-routing caveat, independent task counts and contrast definitions |
-| task-provenance-v1 | Development pilot on 2000–2019; protocol frozen at 435d20d; no held-out outcomes are added by this amendment | Explicitly label development results; do not count them as held-out evidence |
+| task-provenance-v1 | Development pilot on 2000–2019; protocol frozen at 435d20d; held-out run on 3000–3049 collected at 435d20d (`docs/findings/provenance-heldout.md`) | Report the held-out run as confirmatory; label pilot results as development evidence, not held-out evidence |
 | SAE sender-intervention study | Research proposal; no installed local backend verified | Future work, without results, performance claims or a verified GPU budget |
