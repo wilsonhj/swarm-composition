@@ -21,9 +21,10 @@ def test_default_plan_is_offline_and_has_reviewable_costs(monkeypatch, capsys):
     assert pilot.main([]) == 0
     plan = json.loads(capsys.readouterr().out)
     assert plan["trials"] == 24 and plan["logical_calls"] == 120
-    assert plan["expected_credits"] == pytest.approx(0.08832)
-    assert plan["planning_credits"] == pytest.approx(0.16512)
-    assert plan["config"]["max_credits"] == 0.25
+    assert plan["expected_credits"] == pytest.approx(0.9629184)
+    assert plan["planning_credits"] == pytest.approx(1.0397184)
+    assert plan["config"]["max_credits"] == 2.0
+    assert plan["config"]["max_output_tokens"] == 4096
     assert plan["approval_sha256"] == pilot.digest({k: v for k, v in plan.items() if k != "approval_sha256"})
     for name, value in plan["source_files_sha256"].items():
         assert value == hashlib.sha256((pilot.HERE / name).read_bytes()).hexdigest()
@@ -246,10 +247,16 @@ def test_credit_limit_is_shared_across_models(tmp_path, monkeypatch):
     monkeypatch.setattr(pilot, "jobs", lambda cfg: [(a, 5000, "local", "authorized"),
                                                    (b, 5000, "local", "authorized")])
     sent = []
+    b_reservation = (config["input_token_budget"] * b["input_credits_per_million"] +
+                     config["max_output_tokens"] * b["output_credits_per_million"]) / 1_000_000
+    # Leave less than one B reservation while staying below A's total allowance.
+    last_input = int((config["max_credits"] - b_reservation / 2 -
+                      4 * 100 * a["input_credits_per_million"] / 1_000_000) *
+                     1_000_000 / a["input_credits_per_million"])
     def fake_urlopen(request, timeout):
         payload = json.loads(request.data)
         sent.append(payload)
-        usage = {"input_tokens": 2_760_000 if len(sent) == 5 else 100, "output_tokens": 0}
+        usage = {"input_tokens": last_input if len(sent) == 5 else 100, "output_tokens": 0}
         return FakeResponse(payload, usage)
     monkeypatch.setattr(backend.urllib.request, "urlopen", fake_urlopen)
     out = tmp_path / "shared-budget"

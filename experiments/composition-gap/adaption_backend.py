@@ -214,7 +214,9 @@ class Adaption(Backend):
         if not isinstance(output, list) or not output: return fail("invalid_output")
         parts = []
         for item in output:
-            if not isinstance(item, dict) or item.get("error") is not None or ("status" in item and item["status"] != "completed"):
+            # Hosted responses serialize absent item status as null, including reasoning.
+            # The top-level response must still be completed; partial item states fail.
+            if not isinstance(item, dict) or item.get("error") is not None or item.get("status") not in (None, "completed"):
                 return fail("unexpected_output")
             if item.get("type") == "reasoning":
                 continue

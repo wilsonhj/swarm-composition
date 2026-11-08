@@ -76,7 +76,8 @@ class AdaptionTests(unittest.TestCase):
 
     def test_reasoning_is_preserved_but_not_returned(self):
         b = backend(); d = good()
-        d["output"].insert(0, {"type": "reasoning", "summary": [{"text": "private"}]})
+        d["output"].insert(0, {"type": "reasoning", "status": None, "summary": [{"text": "private"}]})
+        d["output"][1]["status"] = None
         with patch("urllib.request.urlopen", return_value=Response(d)):
             self.assertEqual(b("s", "u"), "POST: hello")
         self.assertEqual(b.records[0]["raw"], d)

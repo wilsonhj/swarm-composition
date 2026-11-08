@@ -1,7 +1,9 @@
 # Adaption cross-model exploratory pilot v1
 
-Status: prepared for review; **not collected, frozen, or confirmatory**. Dated
-7 November 2026. This experiment is optional and is not needed to finish the
+Status: increased-limit revision prepared; **not yet collected, frozen, or
+confirmatory**. The original 300-token pilot stopped after one truncated Qwen
+response; its artifacts remain under `results/adaption-cross-model-pilot-v1/pilot-01`.
+Dated 7 November 2026. This experiment is optional and is not needed to finish the
 completed two-study submission.
 
 Question: does propagating trusted task purpose reduce restricted recoverability
@@ -25,10 +27,10 @@ not a claim that this pilot was collected under its confirmatory freeze.
 | Trials | 3 seeds × 2 conditions × 2 authorizations × 2 models = 24 |
 | Calls | 5 actor calls/trial = 120, unless execution stops on failure |
 | Schedule | one worker; deterministic shuffled trial order, seed 20261107 |
-| Sampling | temperature 0; max output 300 tokens/request; provider implementation unverified |
+| Sampling | temperature 0; max output 4,096 tokens/request, including reasoning |
 | Tools / memory / stored conversation | explicitly disabled; direct model calls, no stacks |
 | Retry policy | no automatic POST retries; stop after a failed trial |
-| Budget | estimated credit stop threshold 0.25 across both models |
+| Budget | estimated credit stop threshold 2.0 across both models |
 
 Primary diagnostic: provenance-minus-local difference in restricted recoverability,
 paired by seed **within model**. Utility diagnostic: authorized assembly, paired

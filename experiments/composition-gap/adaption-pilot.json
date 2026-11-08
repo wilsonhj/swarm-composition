@@ -10,10 +10,10 @@
   "authorizations": ["restricted", "authorized"],
   "wording": "paraphrase",
   "schedule_seed": 20261107,
-  "max_output_tokens": 300,
+  "max_output_tokens": 4096,
   "expected_input_tokens": 500,
   "input_token_budget": 2500,
-  "max_credits": 0.25,
+  "max_credits": 2.0,
   "pricing_source": "https://docs.adaptionlabs.ai/inference-stacks/models/",
   "pricing_checked": "2026-11-07"
 }

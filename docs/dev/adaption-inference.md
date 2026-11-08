@@ -35,17 +35,17 @@ The [published hosted rates](https://docs.adaptionlabs.ai/inference-stacks/model
 are credits per million input/output tokens [adaption2026models]. This configuration
 uses standard uncached rates, with no caching discount:
 
-| Model | Input / output rate | Calls | 500 input + 300 output/call | 2,500 input + 300 output/call |
+| Model | Input / output rate | Calls | 500 input + 4,096 output/call | 2,500 input + 4,096 output/call |
 |---|---|---:|---:|---:|
-| Gemma 4 31B | 0.09 / 0.34 | 60 | 0.00882 | 0.01962 |
-| Qwen 3.5 397B | 0.55 / 3.50 | 60 | 0.07950 | 0.14550 |
-| Total | credits | 120 | **0.08832** | **0.16512** |
+| Gemma 4 31B | 0.09 / 0.34 | 60 | 0.0862584 | 0.0970584 |
+| Qwen 3.5 397B | 0.55 / 3.50 | 60 | 0.8766600 | 0.9426600 |
+| Total | credits | 120 | **0.9629184** | **1.0397184** |
 
 These are estimates assuming every call generates the full output allowance.
 Actual input varies with worker replies and assembler boards. The byte-count
 input guard is a conservative engineering heuristic, not a tokenizer theorem.
 Reasoning accounting, ambiguous failed requests, provider prices and account
-terms can change charges. `max_credits: 0.25` stops sending when local reservations
+terms can change charges. `max_credits: 2.0` stops sending when local reservations
 would exceed it; it does not guarantee a provider billing cap. Unknown usage or
 ambiguous transport failure keeps the reservation and stops further sending.
 `cost` remains null rather than labeling credits as dollars.
