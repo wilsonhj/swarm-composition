@@ -20,6 +20,7 @@ from scoring import score_row
 PUBLISHED_ARTIFACTS = {"amendments.jsonl", "analysis.md", "calls.jsonl", "combined_trials.jsonl",
                        "completed_trials.jsonl", "manifest.json",
                        "manifest.before-amendment-736ad7fd2fb24855a566d2991969747d.json"}
+SOURCE_PROTOCOL = resume.p.PROTOCOL.relative_to(pilot.ROOT).as_posix()
 
 
 def require(condition, message):
@@ -62,7 +63,7 @@ def audit(results_root=pilot.RESULTS):
     analyze.validate_rows(rows, analyze.DEFAULT_BY)
     require({r["run_id"] for r in rows} == {manifest["run_id"]} and
             {r["protocol_hash"] for r in rows} == {manifest["protocol_hash"]}, "analysis identity differs")
-    _, originals, source_events = resume.validate_source(source, config)
+    _, originals, source_events = resume.validate_source(source, config, current_files=False)
     preserved = [r for r in originals if r["failed_calls"] == 0]
     for original in preserved:
         derived = next(r for r in rows if resume.trial_key(r) == resume.trial_key(original))
@@ -98,6 +99,14 @@ def audit(results_root=pilot.RESULTS):
     models = {m["id"]: {"post_attempts": 0, "usage_bearing_responses": 0, "input_tokens": 0,
                         "output_tokens": 0, "reasoning_tokens": 0, "known_estimated_credits": 0.0,
                         "uncertain_reserved_credits": 0.0} for m in config["models"]}
+    def committed_hash(commit, path):
+        blob = subprocess.run(["git", "show", commit + ":" + path],
+                              cwd=pilot.ROOT, capture_output=True, check=True).stdout
+        return hashlib.sha256(blob).hexdigest()
+    source_plan = json.loads((source / "manifest.json").read_text())
+    require(committed_hash(source_plan["git"]["commit"], SOURCE_PROTOCOL)
+            == source_plan["plan"]["source_protocol_sha256"],
+            "collection commit does not match recorded source protocol hash")
     for segment in (root / "pilot-01", source, directory):
         segment_manifest = json.loads((segment / "manifest.json").read_text())
         segment_plan = segment_manifest["plan"]
@@ -107,10 +116,8 @@ def audit(results_root=pilot.RESULTS):
         require(set(recorded_hashes) == expected_sources, "collection source hash set differs")
         for name, expected_hash in recorded_hashes.items():
             require(Path(name).name == name, "unexpected recorded source filename")
-            blob = subprocess.run(["git", "show", segment_manifest["git"]["commit"] +
-                                   ":experiments/composition-gap/" + name],
-                                  cwd=pilot.ROOT, capture_output=True, check=True).stdout
-            require(hashlib.sha256(blob).hexdigest() == expected_hash,
+            require(committed_hash(segment_manifest["git"]["commit"], "experiments/composition-gap/" + name)
+                    == expected_hash,
                     "collection commit does not match recorded source hash: " + name)
         attempts, results, known, uncertain = resume.journal_attempts(
             resume.read_jsonl(segment / "calls.jsonl"), segment_plan["config"])

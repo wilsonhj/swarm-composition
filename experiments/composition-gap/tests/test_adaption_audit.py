@@ -62,3 +62,28 @@ def test_published_evidence_changes_fail_closed(published, target):
     with pytest.raises(ValueError, match="differs"):
         audit.audit(published)
     assert hashes(published) == before
+
+
+@pytest.fixture
+def edited_shared_sources(tmp_path, monkeypatch):
+    """Later edits to shared harness/scoring files and the frozen protocol text."""
+    import adaption_resume as resume
+    here = tmp_path / "current-code"
+    here.mkdir()
+    for name in pilot.SOURCE_FILES:
+        (here / name).write_bytes((pilot.HERE / name).read_bytes() + b"\n# later edit\n")
+    protocol = tmp_path / "task-provenance-v1.md"
+    protocol.write_bytes(resume.p.PROTOCOL.read_bytes() + b"\nLater note.\n")
+    monkeypatch.setattr(pilot, "HERE", here)
+    monkeypatch.setattr(resume.p, "PROTOCOL", protocol)
+
+
+def test_audit_checks_collection_commit_not_current_shared_files(published, edited_shared_sources):
+    assert audit.audit(published)["status"] == "offline_audit_passed"
+
+
+def test_live_resume_source_check_still_requires_current_files(edited_shared_sources):
+    import adaption_resume as resume
+    config = json.loads((pilot.RESULTS / "pilot-03-resume" / "manifest.json").read_text())["plan"]["config"]
+    with pytest.raises(ValueError, match="source (frozen protocol|task/scoring implementation) differs"):
+        resume.validate_source(pilot.RESULTS / "pilot-02", config)

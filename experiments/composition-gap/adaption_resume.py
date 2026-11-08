@@ -170,16 +170,18 @@ def load_source(source):
     return manifest, rows, events
 
 
-def validate_source(source, config):
+def validate_source(source, config, current_files=True):
+    """current_files=False is for the offline audit, which checks these hashes
+    against the source's collection commit instead of the working tree."""
     manifest, rows, events = load_source(source)
     if manifest["plan"]["config"] != config:
         raise ValueError("source experiment configuration differs")
     if manifest["prompt_hash"] != h.prompt_hash(p.TEMPLATES):
         raise ValueError("source prompts differ")
-    if manifest["plan"]["source_protocol_sha256"] != file_hash(p.PROTOCOL):
+    if current_files and manifest["plan"]["source_protocol_sha256"] != file_hash(p.PROTOCOL):
         raise ValueError("source frozen protocol differs")
     for name in ("harness.py", "provenance.py", "scoring.py"):
-        if manifest["plan"]["source_files_sha256"][name] != file_hash(pilot.HERE / name):
+        if current_files and manifest["plan"]["source_files_sha256"][name] != file_hash(pilot.HERE / name):
             raise ValueError("source task/scoring implementation differs")
     expected = {(m["id"], s, c, a) for m, s, c, a in pilot.jobs(config)}
     _, result_events, _, _ = journal_attempts(events, config)

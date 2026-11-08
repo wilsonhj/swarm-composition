@@ -95,7 +95,8 @@ recorded input and artifact hashes, reconstructs every trial, checks preservatio
 and non-resending, and recomputes cumulative usage and estimated credit accounting.
 `--results-root PATH` can point to a relocated copy of that evidence directory.
 The current implementation may contain later safety fixes; collection source
-hashes are checked against their original recorded commits.
+hashes, including the shared harness/scoring files and task-provenance protocol,
+are checked against their original recorded commits, not the working tree.
 
 The archived plans and row lineage retain their original absolute paths as
 historical provenance. Those paths are also part of the reviewed approval
