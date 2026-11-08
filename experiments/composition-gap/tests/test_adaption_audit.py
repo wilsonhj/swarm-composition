@@ -1,10 +1,14 @@
 """The published evidence must audit from a relocated checkout without inference."""
 import hashlib
 import json
+from pathlib import Path
 import shutil
+import sys
 import urllib.request
 
 import pytest
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import adaption_pilot as pilot
 import audit_adaption_pilot as audit
