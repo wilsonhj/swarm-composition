@@ -8,4 +8,8 @@ __pycache__/
 .DS_Store
 .claude/worktrees/
 report/*.pdf
+report/*.docx
 !report/figures/
+
+# Local document builds, page renders, scratch exports and archives.
+/output/

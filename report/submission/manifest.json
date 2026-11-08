@@ -1,0 +1,78 @@
+{
+  "title": "Who Knows the Goal? Local Context, Task Provenance, and Restricted Assembly When Work Is Split Across Agents",
+  "author": "Hirokazu James Wilson",
+  "edition_date": "2026-11-07",
+  "base_source_commit": "d3322d34a5e7fb7e9b4b180d10983b435dc7ab73",
+  "editorial_patch": "editorial.patch",
+  "editorial_patch_sha256": "bb8d238a4b96719178286c11eae49dbf350c4abc47f0b619f3e7829aef9ab14e",
+  "base_source_sha256": {
+    "report/draft.md": "40884c49fe0bf3815b4bd6dc4e4500fd265b89d82ec921205abdecbe402d9ccf",
+    "report/references.md": "c2619e95a5335089ac6bd3d69e8485b3ec7fbe3bd4880b7f917518f636698721",
+    "report/appendix-limitations-dual-use.md": "5360d9c83c0da2610866ffb4874df3b0614f024e8c1044e8b24d4289770aee7e",
+    "report/appendix-b.md": "cc0aacb04f6537999541747499073cb1b2f44ef5e1f32dd18187b945baa70f80",
+    "report/figures/fig1_topologies.png": "75a4b94b0bb9a52d5169df337ce0d5e812f4b59452b44a49c500daed7cad7150",
+    "report/figures/fig2_v2_heatmap.png": "1830898d32b8a56dee0c0f8d2cbedde233c6160e36e5f1a696449756428172bf",
+    "report/figures/fig4_provenance_heldout.png": "4c9c665d20c071556ba42a7edc5abaaab1730be804d7707452667f7a99838a4e",
+    "report/figures/fig5_provenance_design.png": "2fcea4c0f83454f7486fd8b5f31752940b6fdb724a819892d39df99c55a2f71b"
+  },
+  "editorial_source_sha256": {
+    "report/draft.md": "f4beba7528841d60fcbcefbcb276a78407868e573978acf990c2f363e8faf7f7",
+    "report/references.md": "c2619e95a5335089ac6bd3d69e8485b3ec7fbe3bd4880b7f917518f636698721",
+    "report/appendix-limitations-dual-use.md": "6a798784bd273fb569e084a26d133afcb43b51fd0d207381b0d69ab0e3da2dc7",
+    "report/appendix-b.md": "cc0aacb04f6537999541747499073cb1b2f44ef5e1f32dd18187b945baa70f80",
+    "report/figures/fig1_topologies.png": "75a4b94b0bb9a52d5169df337ce0d5e812f4b59452b44a49c500daed7cad7150",
+    "report/figures/fig2_v2_heatmap.png": "1830898d32b8a56dee0c0f8d2cbedde233c6160e36e5f1a696449756428172bf",
+    "report/figures/fig4_provenance_heldout.png": "4c9c665d20c071556ba42a7edc5abaaab1730be804d7707452667f7a99838a4e",
+    "report/figures/fig5_provenance_design.png": "2fcea4c0f83454f7486fd8b5f31752940b6fdb724a819892d39df99c55a2f71b"
+  },
+  "template_sha256": "d46f39b89dbb3e8426760eebba6459977fed05d60a41a2a0e72c01f32ac45706",
+  "files": {
+    "who-knows-the-goal.pdf": {
+      "bytes": 2361652,
+      "sha256": "d82623a99539d4a9322875f90c5109e1b4da3415989a5a90ab3db846721b40e7"
+    },
+    "who-knows-the-goal.docx": {
+      "bytes": 1746726,
+      "sha256": "2c2e00190889150f290779c56053028e9cc9a986e9be7bf1aa40f796ae55d38a"
+    }
+  },
+  "verification": {
+    "pdf_pages": 42,
+    "main_pages": 8,
+    "references_pages": [
+      9,
+      10
+    ],
+    "appendix_a_pages": [
+      11,
+      15
+    ],
+    "appendix_b_pages": [
+      16,
+      38
+    ],
+    "appendix_c_pages": [
+      39,
+      42
+    ],
+    "abstract_words": 216,
+    "reference_entries": 29,
+    "appendix_b_table_cells_checked": 1522,
+    "appendix_b_cells_missing": [],
+    "fenced_source_lines_checked": 136,
+    "fenced_source_lines_missing": [],
+    "embedded_figure_pngs": 4,
+    "preserve_only_parts_identical": true,
+    "dangling_internal_relationships": [],
+    "word_boxes_outside_65pt_margins": []
+  },
+  "all_pages_visually_reviewed": true,
+  "editorial_prose_lines_checked": 113,
+  "hyperlinks": {
+    "targets_unchanged": 36,
+    "prior_audit_http_200_or_206": 34,
+    "prior_audit_http_403": 2,
+    "rechecked_in_editorial_pass": false
+  },
+  "experiments_rerun": false
+}

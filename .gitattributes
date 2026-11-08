@@ -1,0 +1,2 @@
+# Unified patches use a required leading space on blank context lines.
+report/submission/editorial.patch whitespace=-blank-at-eol

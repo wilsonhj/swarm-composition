@@ -2,8 +2,12 @@
 
 Submission drafts for the Swarm Alignment Hackathon (Apart Research + AI Alignment Foundation), Track 2: The Science of Agent Networks.
 
+## Current paper
+
+[Read the PDF](submission/who-knows-the-goal.pdf) or [edit the Word document](submission/who-knows-the-goal.docx). The November 7 edition lists **Hirokazu James Wilson** as author and includes the plain-language editorial revision. Its main paper is eight pages; references and appendices follow. [Edition notes, checksums and editorial diff](submission/README.md) accompany the files.
+
 ## Files
-- `draft.md`: working report covering two separate studies: the completed v2 Haiku/Sonnet measurements and the task-provenance study (development pilot plus the completed held-out Haiku run, never pooled with v2). Remaining TODO is final layout. SAE work is an unimplemented proposal only.
+- `draft.md`: working report covering two separate studies: the completed v2 Haiku/Sonnet measurements and the task-provenance study (development pilot plus the completed held-out Haiku run, never pooled with v2). This source predates the editorial revision in `submission/`; the accompanying patch records the prose changes. SAE work is an unimplemented proposal only.
 - `figures/`: figure scripts and rendered images for the report.
 - `references.md`: rendered references (generated from `../docs/research/references.bib` by `tools/render_refs.py`).
 - `tools/render_refs.py`: script that renders `references.md`.
@@ -25,6 +29,9 @@ Submission drafts for the Swarm Alignment Hackathon (Apart Research + AI Alignme
 Video format and submission location are not specified on either page; see TODOs in `video-script.md`.
 
 ## Building the PDF
+
+The verified export is retained under `submission/`. Keep final PDF and DOCX editions there as versioned supplements; local build files, page renders and archives belong in the ignored root `output/` directory. The editable Word document contains the current layout and wording. The steps below describe the original manual template workflow.
+
 Apart's official template is a Google Doc (not LaTeX/Overleaf):
 
 1. Open the copy link: https://docs.google.com/document/d/1_1_27EyZriMlc8n8EBE2YScaeyMjm-8xjR097nmHXAE/copy?usp=sharing
