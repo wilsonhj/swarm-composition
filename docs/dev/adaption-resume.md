@@ -31,6 +31,10 @@ Retries are bounded to three total sends per logical turn, counting earlier
 attempts. HTTP 502/503/504 and specifically classified transport failures are
 eligible, with 5/15-second backoff. HTTP 4xx, malformed received JSON, incomplete
 generation, model mismatch and missing usage are not automatically retried.
+Terminal incomplete/empty generation is recorded as a failed trial, with its
+remaining turns skipped; collection then continues with the other assigned trials.
+Authentication, malformed JSON, model mismatch and unknown usage stop collection
+for inspection. Completed failures are not resampled into successes on restart.
 An unmatched durable attempt after interruption is treated as ambiguous, not free.
 
 No exactly-once provider execution is claimed: a 504 or lost response can still
@@ -59,3 +63,8 @@ python3.11 analyze.py results/adaption-cross-model-pilot-v1/pilot-03-resume/comb
 Do not combine it again with pilot-02, which would double-count retained trials.
 Report segments, retries, unknown charges and failure replacements explicitly.
 This is an exploratory continuation, not one uninterrupted or confirmatory run.
+
+An execution-code amendment is explicit (`--amend-execution`), allowed only before
+this continuation has written trial rows and only when scientific configuration,
+sources, prices and total allowance are unchanged. The old manifest and both
+plans are preserved; existing request journals and accumulated usage are reused.

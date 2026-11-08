@@ -269,3 +269,103 @@ def test_tampered_completed_row_rejected_before_preflight(tmp_path, plan, monkey
     deny_preflight(monkeypatch)
     with pytest.raises(ValueError):
         resume.run_resume(plan, out, approve(plan), sleep=lambda _: None)
+
+
+class IncompleteResponse(Response):
+    def read(self):
+        return json.dumps({"id": "incomplete", "model": self.payload["model"],
+                           "status": "incomplete", "error": None,
+                           "incomplete_details": {"reason": "max_output_tokens"},
+                           "usage": {"input_tokens": 100, "output_tokens": 4096},
+                           "output": []}).encode()
+
+
+def test_incomplete_generation_records_failed_trial_without_resampling(tmp_path, plan, monkeypatch):
+    monkeypatch.setattr(pilot, "preflight_models", lambda config: [m["id"] for m in config["models"]])
+    monkeypatch.setenv("ADAPTION_API_KEY", "offline-test-key")
+    sent = []
+    def send(request, timeout):
+        payload = json.loads(request.data)
+        sent.append(payload)
+        return IncompleteResponse(payload) if len(sent) == 1 else Response(payload)
+    monkeypatch.setattr(backend.urllib.request, "urlopen", send)
+    out = tmp_path / "incomplete"
+    manifest = resume.run_resume(plan, out, approve(plan), sleep=lambda _: None)
+    combined = rows(out / "combined_trials.jsonl")
+    assert manifest["status"] == "complete"
+    assert len(sent) == 91  # Two remaining turns of the failed trial are not sent.
+    assert len(combined) == 24
+    assert len({resume.trial_key(row) for row in combined}) == 24
+    failed = [row for row in combined if not row["valid"]]
+    assert len(failed) == 1 and failed[0]["replaces_failed_source_row"]
+    assert sum(row["valid"] for row in combined) == 23
+    assert sent.count(sent[0]) == 1
+    assert sum(e["event"] == "attempt" for e in rows(out / "calls.jsonl")) == 91
+    deny_preflight(monkeypatch)
+    resumed = resume.run_resume(plan, out, approve(plan), sleep=lambda _: None)
+    assert resumed["status"] == "complete"
+    assert len(rows(out / "combined_trials.jsonl")) == 24
+
+
+def setup_old_plan_output(tmp_path, plan, monkeypatch):
+    install_fake(monkeypatch, [KeyboardInterrupt()])
+    out = tmp_path / "amend"
+    with pytest.raises(KeyboardInterrupt):
+        resume.run_resume(plan, out, approve(plan), sleep=lambda _: None)
+    path = out / "manifest.json"
+    manifest = json.loads(path.read_text())
+    old = copy.deepcopy(manifest["plan"])
+    old["implementation_sha256"]["adaption_resume.py"] = "0" * 64
+    old.pop("terminal_generation_failures", None)
+    old.pop("approval_sha256")
+    old["approval_sha256"] = pilot.digest(old)
+    manifest["plan"] = old
+    resume.write_manifest(path, manifest)
+    return out, old
+
+
+def test_code_policy_amendment_preserves_journal_and_reservations(tmp_path, plan, monkeypatch):
+    out, old = setup_old_plan_output(tmp_path, plan, monkeypatch)
+    journal_before = (out / "calls.jsonl").read_bytes()
+    old_manifest = json.loads((out / "manifest.json").read_text())
+    sent = install_fake(monkeypatch)
+    result = resume.run_resume(plan, out, approve(plan), sleep=lambda _: None, amend=True)
+    assert result["status"] == "complete"
+    assert (out / "calls.jsonl").read_bytes().startswith(journal_before)
+    assert result["totals"]["new_reserved_credits"] >= old_manifest["totals"]["new_reserved_credits"]
+    assert len(sent) == 93
+    assert old["approval_sha256"] != approve(plan)
+    archives = list(out.glob("manifest.before-amendment-*.json"))
+    assert len(archives) == 1
+    assert json.loads(archives[0].read_text())["plan"] == old
+    amendments = rows(out / "amendments.jsonl")
+    assert len(amendments) == 1 and amendments[0]["old_plan"] == old
+    assert amendments[0]["new_plan"] == plan
+
+
+def test_amendment_rejects_changed_configuration_before_preflight(tmp_path, plan, monkeypatch):
+    out, _ = setup_old_plan_output(tmp_path, plan, monkeypatch)
+    path = out / "manifest.json"
+    manifest = json.loads(path.read_text())
+    manifest["plan"]["config"]["max_credits"] = 1
+    resume.write_manifest(path, manifest)
+    before = (out / "calls.jsonl").read_bytes()
+    deny_preflight(monkeypatch)
+    with pytest.raises(ValueError):
+        resume.run_resume(plan, out, approve(plan), sleep=lambda _: None, amend=True)
+    assert (out / "calls.jsonl").read_bytes() == before
+
+
+def test_amendment_rejects_output_with_completed_rows(tmp_path, plan, monkeypatch):
+    out = interrupted_run(tmp_path, plan, monkeypatch)
+    path = out / "manifest.json"
+    manifest = json.loads(path.read_text())
+    old = manifest["plan"]
+    old["implementation_sha256"]["adaption_resume.py"] = "0" * 64
+    old.pop("terminal_generation_failures", None)
+    old.pop("approval_sha256")
+    old["approval_sha256"] = pilot.digest(old)
+    resume.write_manifest(path, manifest)
+    deny_preflight(monkeypatch)
+    with pytest.raises(ValueError, match="amendment"):
+        resume.run_resume(plan, out, approve(plan), sleep=lambda _: None, amend=True)

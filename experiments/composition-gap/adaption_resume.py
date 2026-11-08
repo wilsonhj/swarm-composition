@@ -27,6 +27,7 @@ from scoring import score_row
 MAX_ATTEMPTS = 3
 BACKOFF = (5, 15)
 TRANSIENT_HTTP = (502, 503, 504)
+TERMINAL_GENERATION = ("status_not_completed", "incomplete", "empty_output")
 DEFAULT_SOURCE = pilot.RESULTS / "pilot-02"
 DEFAULT_HISTORY = pilot.RESULTS / "pilot-01"
 
@@ -278,6 +279,7 @@ def make_resume_plan(source=DEFAULT_SOURCE, histories=None):
             "baseline_known_credits": known, "baseline_reserved_credits": uncertain,
             "credit_limit": config["max_credits"], "max_attempts_per_turn": MAX_ATTEMPTS,
             "retry_http_statuses": list(TRANSIENT_HTTP), "backoff_seconds": list(BACKOFF),
+            "terminal_generation_failures": list(TERMINAL_GENERATION),
             "source_prompt_hash": manifest["prompt_hash"],
             "source_protocol_hash": manifest["protocol_hash"],
             "implementation_sha256": {n: file_hash(pilot.HERE / n)
@@ -358,11 +360,27 @@ class ResumeBackend(h.Backend):
         self.sleep = sleep
         self.source_rows, self.source_events = source_rows, source_events
         self.index, self.used = 0, []
+        self.terminal = False
+
+    def failed_turn(self, record, reused=False):
+        self.terminal = True
+        self.tl.model = [record["model"]] if record.get("model") else None
+        self.used.append({"request": record["request"], "text": "PASS", "record": record,
+                          "source_turn": None, "source_run_id": self.context["run_id"], "reused": reused})
+        return self._fail(record["failure"])
 
     def __call__(self, system, user):
         index = self.index; self.index += 1
         config = self.plan["config"]
         expected = request_for(self.key[0], system, user, config)
+        self.context.update(trial_key=list(self.key), turn_index=index)
+        if self.terminal:
+            record = {"call_id": str(uuid.uuid4()), "request": expected, "sent": False,
+                      "failure": "trial_stopped", "raw": None, "raw_body": None, "model": None,
+                      "http_status": None, "usage": None, "elapsed_ms": 0}
+            append(self.output / "calls.jsonl", {**self.context, "event": "result",
+                                                "call_id": record["call_id"], "record": record})
+            return self.failed_turn(record)
         while True:
             events = read_jsonl(self.output / "calls.jsonl")
             cache, attempts = collect_cache(self.source_rows, self.source_events, events)
@@ -379,6 +397,8 @@ class ResumeBackend(h.Backend):
                 return saved["text"]
             if history:
                 last = history[-1]["record"]
+                if last is not None and last.get("failure") in TERMINAL_GENERATION:
+                    return self.failed_turn(last, reused=True)
                 if last is not None and not retryable(last):
                     raise RuntimeError("nonretryable prior turn failure; collection stopped")
                 if len(history) >= MAX_ATTEMPTS:
@@ -402,6 +422,8 @@ class ResumeBackend(h.Backend):
                 self.used.append({"request": expected, "text": text, "record": record,
                                   "source_turn": None, "source_run_id": self.context["run_id"], "reused": False})
                 return text
+            if record["failure"] in TERMINAL_GENERATION:
+                return self.failed_turn(record)
             if not retryable(record):
                 raise RuntimeError("nonretryable backend failure: " + record["failure"])
             # Loop re-reads the durable journal; every failed send retains its own allowance.
@@ -417,7 +439,7 @@ def derived_row(row, manifest, source_path):
     return result
 
 
-def run_resume(plan, output, approval, *, sleep=time.sleep):
+def run_resume(plan, output, approval, *, sleep=time.sleep, amend=False):
     if make_resume_plan(plan["source"], plan["histories"]) != plan or approval != plan["approval_sha256"]:
         raise ValueError("stale or unapproved continuation plan")
     output = pilot.safe_output(output)
@@ -433,7 +455,18 @@ def run_resume(plan, output, approval, *, sleep=time.sleep):
         if output.exists():
             manifest = json.loads((output / "manifest.json").read_text())
             if manifest["plan"] != plan:
-                raise ValueError("existing continuation has a different plan")
+                old = manifest["plan"]
+                allowed = {"implementation_sha256", "approval_sha256", "terminal_generation_failures"}
+                if (not amend or read_jsonl(output / "completed_trials.jsonl") or
+                        {k: v for k, v in old.items() if k not in allowed} !=
+                        {k: v for k, v in plan.items() if k not in allowed}):
+                    raise ValueError("existing continuation has a different plan; unsafe amendment rejected")
+                write_manifest(output / ("manifest.before-amendment-" + uuid.uuid4().hex + ".json"), manifest)
+                append(output / "amendments.jsonl", {"at": h.now(), "old_plan": old, "new_plan": plan,
+                                                    "reason": "record terminal generation failure and continue other assigned trials"})
+                manifest.update(previous_protocol_hash=manifest["protocol_hash"], protocol_hash=pilot.digest(plan),
+                                plan=plan, git=h.git_info())
+                write_manifest(output / "manifest.json", manifest)
             read_jsonl(output / "calls.jsonl", recover=True)
             read_jsonl(output / "completed_trials.jsonl", recover=True)
         else:
@@ -460,13 +493,14 @@ def run_resume(plan, output, approval, *, sleep=time.sleep):
         current_results = validate_current(events, manifest, expected, plan["config"])
         _, source_results, _, _ = journal_attempts(source_events, plan["config"])
         for row in completed:
-            if row["failed_calls"] or row["run_id"] != manifest["run_id"] or row["protocol_hash"] != manifest["protocol_hash"]:
+            if row["run_id"] != manifest["run_id"] or row["protocol_hash"] != manifest["protocol_hash"]:
                 raise ValueError("invalid continuation trial identity")
             validate_trial(row, plan["config"], {**source_results, **current_results})
         # Validate current call history before accessing credentials/network.
         collect_cache(source_rows, source_events, read_jsonl(output / "calls.jsonl"))
         done = source_keys | set(new_keys)
         manifest["status"] = "running"
+        manifest.pop("stop_reason", None)
         write_manifest(output / "manifest.json", manifest)
         context = {"run_id": manifest["run_id"]}
         try:
@@ -496,7 +530,7 @@ def run_resume(plan, output, approval, *, sleep=time.sleep):
                 _, attempted = collect_cache(source_rows, source_events, read_jsonl(output / "calls.jsonl"))
                 for index, turn in enumerate(row["turns"]):
                     turn["attempt_call_ids"] = [a["call_id"] for a in attempted.get((key, index), [])]
-                if row["failed_calls"] or len(backend.used) != 5:
+                if len(backend.used) != 5:
                     raise RuntimeError("trial is incomplete")
                 append(output / "completed_trials.jsonl", row)
                 completed.append(row); done.add(key)
@@ -512,6 +546,8 @@ def run_resume(plan, output, approval, *, sleep=time.sleep):
             analyze.validate_rows(combined, analyze.DEFAULT_BY)
             atomic_jsonl(output / "combined_trials.jsonl", combined)
             manifest.update(end=h.now(), totals={"completed_trials": len(combined), "preserved_trials": len(original),
+                            "valid_trials": sum(r["failed_calls"] == 0 for r in combined),
+                            "failed_trials": sum(r["failed_calls"] > 0 for r in combined),
                             "new_trials": len(completed), "new_post_attempts": len(attempts),
                             "new_known_credits": known, "new_reserved_credits": uncertain,
                             "total_known_credits": plan["baseline_known_credits"] + known,
@@ -527,12 +563,13 @@ def main(argv=None):
     parser.add_argument("--out-dir", type=Path)
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--approve-plan")
+    parser.add_argument("--amend-execution", action="store_true")
     args = parser.parse_args(argv)
     plan = make_resume_plan(args.source, args.history)
     if not args.execute:
         print(json.dumps(plan, indent=2, sort_keys=True)); return 0
     if args.out_dir is None: parser.error("--out-dir is required")
-    result = run_resume(plan, args.out_dir, args.approve_plan)
+    result = run_resume(plan, args.out_dir, args.approve_plan, amend=args.amend_execution)
     print(json.dumps(result["totals"], indent=2, sort_keys=True))
     return 0
 
