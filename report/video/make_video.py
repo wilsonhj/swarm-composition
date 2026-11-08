@@ -151,20 +151,20 @@ def s_study1():
     wrap(d, (x, 370), "wrote out the passphrase when not told what the words were for", F(REG, 34), INK, 660)
     d.text((x, 560), "0/20", font=F(DISP, 120), fill=SAFE)
     wrap(d, (x, 700), "when told they were passphrase parts, even with 12 tries", F(REG, 34), INK, 660)
-    wrap(d, (x, 870), "Wording strongly changed refusal.", F(SEMI, 34), ACCENT, 660)
+    wrap(d, (x, 870), "Framing strongly changed rule-following.", F(SEMI, 34), ACCENT, 660)
     return im
 
 def s_split():
     im, d = canvas()
-    eyebrow(d, "Did splitting the task leak more?")
-    marks = [(944, 913, 1106, 1001, MARK)]  # relay_uninformed strict/explicit (Haiku 1/20)
-    paste_fig(im, os.path.join(FIG, "fig2_v2_heatmap.png"), (80, 150, 1080, 1010),
-              crop=(30, 60, 1165, 1010), marks=marks)
-    x = 1150
-    wrap(d, (x, 240), "No statistically significant gap", F(DISP, 62), INK, 680)
-    y = wrap(d, (x, 440), "A few relay runs did leak, in Haiku (1/20 here) and in Sonnet.", F(REG, 36), INK, 660)
-    wrap(d, (x, y + 30), "No split leaked more often than a single agent given the same unstated goal.",
-         F(SEMI, 36), ACCENT, 660)
+    eyebrow(d, "Did splitting the task leak more? · Haiku · strict rule", y=60)
+    # pipeline, strict/neutral: assembled 2/20 (left panel) vs recoverable 19/20 (right panel), original pixels
+    marks = [(770, 526, 935, 614, MARK), (1683, 526, 1849, 614, MARK)]
+    paste_fig(im, os.path.join(FIG, "fig2_v2_heatmap.png"), (80, 100, 1840, 800),
+              crop=(30, 60, 2220, 1010), marks=marks)
+    wrap(d, (120, 830), "No split assembled the passphrase more often than an equally uninformed single agent.",
+         F(SEMI, 40), INK, 1700)
+    wrap(d, (120, 940), "But separate posts often left the words recoverable. Pipeline, neutral wording: assembled 2/20, recoverable 19/20.",
+         F(REG, 34), ACCENT, 1700)
     return im
 
 def s_study2_design():
@@ -199,37 +199,43 @@ def s_filters():
     paste_fig(im, os.path.join(FIG, "fig4_provenance_heldout.png"), (90, 100, 1830, 830), marks=marks)
     wrap(d, (120, 860), "Keyword filter: missed reworded requests (46/50 still recoverable) and blocked keyword-worded legitimate ones.",
          F(REG, 34), INK, 1680, spacing=8)
-    wrap(d, (120, 960), "AI monitor: blocked 792 of 795 messages, and completed 0/50 legitimate tasks.",
+    wrap(d, (120, 960), "AI monitor: blocked 792 of 795 messages and allowed 0/50 legitimate completions.",
          F(REG, 34), INK, 1680)
     return im
 
 def s_takeaway():
     im, d = canvas()
-    eyebrow(d, "Takeaway")
-    wrap(d, (120, 240), "In both studies, compliance tracked what each agent was told about the goal.",
-         F(DISP, 78), INK, 1680, spacing=20)
-    wrap(d, (120, 620), "Check how context moves through a team, not only how each agent behaves.",
-         F(SEMI, 46), ACCENT, 1680)
-    footer(d, "A finding about this benign proxy, not a general law")
+    eyebrow(d, "Takeaway · evaluate three things together")
+    items = ["Does each agent get enough context to apply the rule?",
+             "What can others reconstruct from its outputs?",
+             "Does useful work still succeed?"]
+    y = 230
+    for n, it in enumerate(items, 1):
+        d.text((120, y), f"{n}", font=F(DISP, 64), fill=ACCENT)
+        wrap(d, (200, y + 4), it, F(SEMI, 56), INK, 1560)
+        y += 170
+    footer(d, "Findings about this benign proxy and one pipeline, not a general law")
     return im
 
 def s_limits():
     im, d = canvas()
     eyebrow(d, "Limits")
     items = ["One model family", "One harmless, made-up task",
-             "Purpose supplied by my own harness: forged context untested", "Zero in fifty is not a guarantee"]
-    y = 230
+             "Trusted purpose metadata supplied by my own harness",
+             "No evidence of protection against real harmful tasks or forged metadata",
+             "Zero in fifty is not a guarantee"]
+    y = 210
     for it in items:
-        d.ellipse((125, y + 22, 145, y + 42), fill=LEAK)
-        d.text((180, y), it, font=F(SEMI, 54), fill=INK)
-        y += 140
+        d.ellipse((125, y + 20, 145, y + 40), fill=LEAK)
+        d.text((180, y), it, font=F(SEMI, 48), fill=INK)
+        y += 130
     return im
 
 def s_next():
     im, d = canvas()
     eyebrow(d, "What's next")
-    items = ["Other model providers", "A test with forged purpose information",
-             "An interpretability follow-up (proposed, not yet run)"]
+    items = ["Replication on other models and providers", "Varied wording",
+             "Forged metadata", "Larger, asynchronous swarms"]
     y = 230
     for it in items:
         d.text((120, y), "→", font=F(SEMI, 54), fill=ACCENT)
