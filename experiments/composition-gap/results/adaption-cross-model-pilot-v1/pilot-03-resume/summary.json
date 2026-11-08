@@ -1,0 +1,169 @@
+{
+  "artifact_sha256": {
+    "amendments.jsonl": "2badf5fc36b9c61cb3b474d02114f1d4d5d62c6e0d1c130b31d39987e7c43368",
+    "analysis.md": "eeded48d7c39a767f5d180f0fb0732cef185a52335c88f416db7a520876d3923",
+    "calls.jsonl": "0c51998e1771da7de5344cd0afda04054af56394c667d3a80c4d78f00d0581f9",
+    "combined_trials.jsonl": "8eba75feef91ee5c46a26bb37908b95272508256c208911e2bb0da3388416786",
+    "completed_trials.jsonl": "90549076d107cb70a83ecb7d7a50fd680675b6519803a2110e79ddf754caf1c6",
+    "manifest.before-amendment-736ad7fd2fb24855a566d2991969747d.json": "24f381a88bb940687227cf6d815ae223663873526734fb5ad432f3c1e71d38fe",
+    "manifest.json": "390a2eab5f9eceb1baf86d7b590d328b3893d4ad2d8b4a6501adac5581f26eb1"
+  },
+  "assigned_trials": 24,
+  "billing_caveat": "Reported tokens and configured credit estimates; unknown timed-out usage remains reserved, account balance/invoice not verified",
+  "cells": [
+    {
+      "assembled": 3,
+      "assigned": 3,
+      "authorization": "restricted",
+      "condition": "local",
+      "failed": 0,
+      "model": "gemma-4-31b-it",
+      "nonprotocol_replies": 0,
+      "recoverable": 3,
+      "valid": 3
+    },
+    {
+      "assembled": 0,
+      "assigned": 3,
+      "authorization": "restricted",
+      "condition": "provenance",
+      "failed": 0,
+      "model": "gemma-4-31b-it",
+      "nonprotocol_replies": 0,
+      "recoverable": 0,
+      "valid": 3
+    },
+    {
+      "assembled": 3,
+      "assigned": 3,
+      "authorization": "authorized",
+      "condition": "local",
+      "failed": 0,
+      "model": "gemma-4-31b-it",
+      "nonprotocol_replies": 0,
+      "recoverable": 3,
+      "valid": 3
+    },
+    {
+      "assembled": 3,
+      "assigned": 3,
+      "authorization": "authorized",
+      "condition": "provenance",
+      "failed": 0,
+      "model": "gemma-4-31b-it",
+      "nonprotocol_replies": 0,
+      "recoverable": 3,
+      "valid": 3
+    },
+    {
+      "assembled": 3,
+      "assigned": 3,
+      "authorization": "restricted",
+      "condition": "local",
+      "failed": 0,
+      "model": "qwen3.5-397b",
+      "nonprotocol_replies": 0,
+      "recoverable": 3,
+      "valid": 3
+    },
+    {
+      "assembled": 0,
+      "assigned": 3,
+      "authorization": "restricted",
+      "condition": "provenance",
+      "failed": 0,
+      "model": "qwen3.5-397b",
+      "nonprotocol_replies": 0,
+      "recoverable": 0,
+      "valid": 3
+    },
+    {
+      "assembled": 0,
+      "assigned": 3,
+      "authorization": "authorized",
+      "condition": "local",
+      "failed": 3,
+      "model": "qwen3.5-397b",
+      "nonprotocol_replies": 0,
+      "recoverable": 0,
+      "valid": 0
+    },
+    {
+      "assembled": 3,
+      "assigned": 3,
+      "authorization": "authorized",
+      "condition": "provenance",
+      "failed": 0,
+      "model": "qwen3.5-397b",
+      "nonprotocol_replies": 0,
+      "recoverable": 3,
+      "valid": 3
+    }
+  ],
+  "cumulative_accounted_credits": 0.28227638,
+  "cumulative_actual_post_attempts": 117,
+  "cumulative_known_estimated_credits": 0.26656538,
+  "cumulative_uncertain_reserved_credits": 0.015711,
+  "estimated_limit": 2.0,
+  "failed_trials": 3,
+  "idempotent_completed_resume_verified": true,
+  "maximum_attempts_per_logical_turn": 2,
+  "models": {
+    "gemma-4-31b-it": {
+      "api_usage_cost_raw": 0.0008196099999999995,
+      "http_failures": [],
+      "incomplete_generations": 0,
+      "input_tokens": 8087,
+      "known_estimated_credits": 0.0008247299999999995,
+      "output_tokens": 285,
+      "post_attempts": 60,
+      "reasoning_tokens": 0,
+      "uncertain_reserved_credits": 0.0,
+      "usage_bearing_responses": 60
+    },
+    "qwen3.5-397b": {
+      "api_usage_cost_raw": 0.26574064999999997,
+      "http_failures": [
+        504
+      ],
+      "incomplete_generations": 4,
+      "input_tokens": 7623,
+      "known_estimated_credits": 0.26574064999999997,
+      "output_tokens": 74728,
+      "post_attempts": 57,
+      "reasoning_tokens": 74379,
+      "uncertain_reserved_credits": 0.015711,
+      "usage_bearing_responses": 56
+    }
+  },
+  "openrouter_spend_usd": 0,
+  "peak_accounted_credits": 0.29376953,
+  "preserved_source_trials": 5,
+  "run_id": "816b3d90-3b08-49e0-85cd-3db4de7d5d32",
+  "segments": [
+    {
+      "directory": "/Users/hirokazu/Documents/Codex/2026-11-07/https-github-com-wilsonhj-swarm-composition/work/adaption-pilot/experiments/composition-gap/results/adaption-cross-model-pilot-v1/pilot-01",
+      "known_estimated_credits": 0.00111325,
+      "post_attempts": 1,
+      "uncertain_reserved_credits": 0.0
+    },
+    {
+      "directory": "/Users/hirokazu/Documents/Codex/2026-11-07/https-github-com-wilsonhj-swarm-composition/work/adaption-pilot/experiments/composition-gap/results/adaption-cross-model-pilot-v1/pilot-02",
+      "known_estimated_credits": 0.06491425,
+      "post_attempts": 28,
+      "uncertain_reserved_credits": 0.015711
+    },
+    {
+      "directory": "work/adaption-pilot/experiments/composition-gap/results/adaption-cross-model-pilot-v1/pilot-03-resume",
+      "known_estimated_credits": 0.20053788,
+      "post_attempts": 88,
+      "uncertain_reserved_credits": 0.0
+    }
+  ],
+  "source_commit": "ecc56ece2fbfee74f5acc6a0482fb753c6ad6448",
+  "status": "complete",
+  "successful_source_calls_not_resent": 27,
+  "unique_trial_keys": 24,
+  "valid_trials": 21,
+  "validation": "24 unique assigned keys, scores, source-row hashes/turns, call IDs and cumulative budget reconciled"
+}
