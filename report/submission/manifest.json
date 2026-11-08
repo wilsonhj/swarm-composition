@@ -84,12 +84,12 @@
       "sha256": "0d6059db2235504443815ba8c70738debac6a761c362faa3cbaad551c59308fc"
     },
     "who-knows-the-goal.docx": {
-      "bytes": 2220969,
-      "sha256": "3364d4aae303803c744a20fcb3e266f19b0691c22e52323f119d8283415241ef"
+      "bytes": 2220979,
+      "sha256": "36bffc98a883ae36423dcb468e595077de68e4a22726d220cd97bb86bd09260f"
     },
     "who-knows-the-goal.pdf": {
-      "bytes": 2210645,
-      "sha256": "8f95a1d3c5b8adde937592a071c82ecb7c63fcef809a9418bd10b21948416e27"
+      "bytes": 2115062,
+      "sha256": "c656db64558cc6c39e645b9e06d948264daaf55193ddc83e9e86f7e467f08947"
     }
   },
   "verification": {
@@ -205,5 +205,54 @@
         "to": "Hinted framing ran only in exploratory runs; no confirmatory varied-paraphrase or dose-response test"
       }
     ]
+  },
+  "affiliation": "Independent researcher",
+  "affiliation_update": {
+    "date": "2026-11-07",
+    "affiliation": "Independent researcher",
+    "team": "Team HJ",
+    "method": "Single author-block text-node change to latest tracked DOCX, followed by full PDF export. Only word/document.xml differs in the DOCX; exact reversal reproduces the pre-edit XML. PR17 scope corrections preserved.",
+    "prior_pdf_sha256": "8f95a1d3c5b8adde937592a071c82ecb7c63fcef809a9418bd10b21948416e27",
+    "prior_docx_sha256": "3364d4aae303803c744a20fcb3e266f19b0691c22e52323f119d8283415241ef",
+    "pdf_sha256": "c656db64558cc6c39e645b9e06d948264daaf55193ddc83e9e86f7e467f08947",
+    "docx_sha256": "36bffc98a883ae36423dcb468e595077de68e4a22726d220cd97bb86bd09260f",
+    "render_comparison": {
+      "dpi": 182,
+      "unchanged_visual_pages": [
+        2,
+        4,
+        5,
+        6,
+        7,
+        9,
+        10,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+      ],
+      "changed_visual_pages": [
+        1,
+        3,
+        8,
+        11
+      ],
+      "prior_pdf": "tracked PR17 edition",
+      "author": "Hirokazu James Wilson",
+      "affiliation": "Independent researcher"
+    },
+    "verification": {
+      "pages": 20,
+      "main_pages": 8,
+      "affiliation_present": true,
+      "full_author_name_preserved": true,
+      "source_prose_check_passed": true,
+      "bounds_check_passed": true
+    }
   }
 }
