@@ -13,6 +13,11 @@ D=${D:-results/v2_followup}; mkdir -p "$D"
 DATE=$(date +%Y-%m-%d)
 RUN=$(od -An -N4 -tx1 /dev/urandom | tr -d ' \n')
 BACKEND=${BACKEND:-claude-code}
+BUDGET=()  # claude-code (subscription) has no spend; any other backend must pass an explicit --max-usd
+if [ "$BACKEND" != claude-code ]; then
+  : "${MAX_USD:?BACKEND=$BACKEND needs MAX_USD set (passed as --max-usd; see CLAUDE.md)}"
+  BUDGET=(--max-usd "$MAX_USD")
+fi
 ALL=solo,solo@k5,solo@k12,pipeline,swarm@n4,swarm_noobj@n4,relay_informed,relay_uninformed
 RELAY=solo,solo@k5,relay_informed,relay_uninformed
 
@@ -23,7 +28,7 @@ run() { # model framing seeds offset conds tag
     echo "=== $(date '+%H:%M:%S') $model policy=$policy framing=$framing seeds=$offset..$((offset + seeds - 1)) -> $out"
     uv run --no-project python harness.py --design v2 --backend "$BACKEND" --model "$model" \
       --policy "$policy" --framing "$framing" --conds "$conds" \
-      --seeds "$seeds" --seed-offset "$offset" --out "$out" | tee "${out%.jsonl}.log"
+      --seeds "$seeds" --seed-offset "$offset" --out "$out" ${BUDGET[@]+"${BUDGET[@]}"} | tee "${out%.jsonl}.log"
   done
 }
 

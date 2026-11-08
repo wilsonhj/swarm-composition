@@ -1,25 +1,43 @@
 """Exploratory follow-up analysis (run_v2_followup.sh, run id 13824e02): framing levels and Sonnet relay over 20 seeds.
 Run from experiments/composition-gap: uv run --no-project python analyze_followup.py"""
-import json,glob,sys,collections
-sys.path.insert(0,'.')
+import json,glob,os,sys,collections
+from pathlib import Path
+BASE=Path(__file__).resolve().parent
+sys.path.insert(0,str(BASE))
 from scoring import score_row
-def load(pats, excl=()):
+from analyze import validate_rows
+def check(rows, model, framings):
+    """Fail loudly on duplicate trials or metadata outside what this group intends (served models may be mixed)."""
+    validate_rows(rows)
+    seen=set()
+    for r in rows:
+        k=(r.get('policy'),r.get('framing'),r.get('cond'),r.get('seed'))
+        if k in seen: raise ValueError(f'duplicate trial across runs: policy/framing/cond/seed={k}; select one run')
+        seen.add(k)
+    for field,ok in (('model',{model}),('design',{'v2'}),('backend',{'claude-code'}),
+                     ('policy',{'none','strict'}),('framing',set(framings))):
+        bad={r.get(field) for r in rows}-ok
+        if bad: raise ValueError(f'unexpected {field} {sorted(map(str,bad))} (expected {sorted(ok)}) in {model} group')
+def load(pats, excl=(), model=None, framings=()):
     rows=[]
     for p in pats:
-        for f in glob.glob(p):
-            if any(e in f for e in excl): continue
+        fs=[f for f in glob.glob(str(BASE/p)) if not any(e in os.path.basename(f) for e in excl)]
+        if not fs: raise FileNotFoundError(f'no result files match {p} (relative to {BASE})')
+        for f in fs:
             for l in open(f):
                 r=json.loads(l); r['_f']=f; rows.append(r)
+    if model: check(rows, model, framings)
     return rows
 def sonnet5(r):
     for t in r.get('turns',[]):
         m=t.get('model'); m=m if isinstance(m,list) else [m]
         if 'claude-sonnet-5' in m: return True
     return False
+# --- analysis (runs on import) ---
 CONDS=['solo','solo@k5','solo@k12','pipeline','swarm@n4','swarm_noobj@n4','relay_informed','relay_uninformed']
 for model,seedmax in (('claude-haiku-5-5',1019),('claude-sonnet-5-5',1009)):
-    rows=load([f'results/v2/*{model}_v2_*.jsonl', f'results/v2_followup/*{model}_v2_*hinted*.jsonl'], excl=('rerun',))
-    rows=[r for r in rows if r['seed']<=seedmax and not r.get('failed_calls')]
+    rows=load([f'results/v2/*{model}_v2_*.jsonl', f'results/v2_followup/*{model}_v2_*hinted*.jsonl'], excl=('rerun',), model=model, framings=('neutral','hinted','explicit'))
+    rows=[r for r in rows if r['seed']<=seedmax and r.get('failed_calls')==0]
     for excl5 in ((False,True) if 'sonnet' in model else (False,)):
         print(f'\n## {model} assembled/recoverable by framing' + (' (rows with any claude-sonnet-5 turn excluded)' if excl5 else ''))
         for pol in ('none','strict'):
@@ -37,9 +55,9 @@ def binom_p(b,c):
     n=b+c
     if n==0: return 1.0
     k=min(b,c); return min(1.0, 2*sum(comb(n,i) for i in range(k+1))/2**n)
-files=[f for f in glob.glob('results/v2/*claude-sonnet-5-5_v2_*.jsonl') if 'rerun' not in f]+glob.glob('results/v2_followup/*sonnet*seeds1010.jsonl')
-rows=[json.loads(l)|{'_f':f} for f in files for l in open(f)]
-rows=[r for r in rows if r['cond'] in ('solo','solo@k5','relay_informed','relay_uninformed') and not r.get('failed_calls')]
+rows=load(['results/v2/*claude-sonnet-5-5_v2_*.jsonl','results/v2_followup/*sonnet*seeds1010.jsonl'], excl=('rerun',),
+          model='claude-sonnet-5-5', framings=('neutral','explicit'))
+rows=[r for r in rows if r['cond'] in ('solo','solo@k5','relay_informed','relay_uninformed') and r.get('failed_calls')==0]
 S={}
 for r in rows: S[(r['policy'],r['framing'],r['cond'],r['seed'])]=(score_row(r),r)
 seeds=range(1000,1020)
