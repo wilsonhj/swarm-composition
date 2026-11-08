@@ -18,6 +18,11 @@ additional cost history is pilot-01. Planning is offline; the exact current
 digest is required for execution. Repeating the execute command resumes the same
 output directory, without appending duplicate valid trials or resending recorded
 successful turns. A global process lock rejects concurrent continuations.
+Keep that output directory for every restart. The runner also rejects a new
+output when it finds another continuation for the same source run in the pilot
+results tree or alongside the requested output. This local discovery guard cannot
+detect moved, deleted, inaccessible or independently located manifests; it is not
+a global registry. A new output directory is not a recovery procedure.
 
 Five valid source trials are retained. The interrupted sixth trial replays its
 two exact prior responses, checks the reconstructed request, and retries the
@@ -26,6 +31,10 @@ Each successful response is durably journaled before further model calls. A cras
 after a successful response but before a completed trial row is written recovers
 that response from the journal. An incomplete final journal line is preserved
 separately before repair; other corruption fails closed.
+If the original pilot stopped after journaling calls but before saving their
+trial row, continuation planning now stops for inspection. It never ignores such
+calls and starts that trial again. This safeguard was added after collection;
+pilot-02 has no orphan journal calls, so its saved evidence is unaffected.
 
 Retries are bounded to three total sends per logical turn, counting earlier
 attempts. HTTP 502/503/504 and specifically classified transport failures are
@@ -68,3 +77,29 @@ An execution-code amendment is explicit (`--amend-execution`), allowed only befo
 this continuation has written trial rows and only when scientific configuration,
 sources, prices and total allowance are unchanged. The old manifest and both
 plans are preserved; existing request journals and accumulated usage are reused.
+
+## Verify the published pilot from another checkout
+
+From `experiments/composition-gap`, run:
+
+```bash
+python3.11 audit_adaption_pilot.py > /tmp/adaption-pilot-audit.json
+python3.11 analyze.py results/adaption-cross-model-pilot-v1/pilot-03-resume/combined_trials.jsonl \
+  --baseline local --md /tmp/adaption-pilot-analysis.md
+```
+
+The audit is read-only and requires neither a key nor network access. Use a
+checkout with the collection commits in its Git history (`fetch-depth: 0` in CI).
+It resolves the three published sibling result directories locally, verifies the
+recorded input and artifact hashes, reconstructs every trial, checks preservation
+and non-resending, and recomputes cumulative usage and estimated credit accounting.
+`--results-root PATH` can point to a relocated copy of that evidence directory.
+The current implementation may contain later safety fixes; collection source
+hashes are checked against their original recorded commits.
+
+The archived plans and row lineage retain their original absolute paths as
+historical provenance. Those paths are also part of the reviewed approval
+digests. Do not edit the records or use `--execute` to verify a completed pilot:
+a new checkout or changed implementation produces a different plan, and the
+runner intentionally rejects it. Offline auditing does not resume inference or
+create a new scientific run.

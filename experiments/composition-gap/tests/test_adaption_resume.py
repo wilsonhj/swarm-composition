@@ -21,6 +21,12 @@ def rows(path):
     return [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
 
 
+@pytest.fixture(autouse=True)
+def isolated_results_root(tmp_path, monkeypatch):
+    # The real archived continuation must not interfere with copied test sources.
+    monkeypatch.setattr(pilot, "RESULTS", tmp_path / "isolated-results")
+
+
 @pytest.fixture
 def sources(tmp_path):
     first, second = tmp_path / "pilot-01", tmp_path / "pilot-02"
@@ -369,3 +375,35 @@ def test_amendment_rejects_output_with_completed_rows(tmp_path, plan, monkeypatc
     deny_preflight(monkeypatch)
     with pytest.raises(ValueError, match="amendment"):
         resume.run_resume(plan, out, approve(plan), sleep=lambda _: None, amend=True)
+
+
+@pytest.mark.parametrize("unmatched_attempt", [False, True])
+def test_source_journal_without_trial_fails_before_preflight(sources, monkeypatch, unmatched_attempt):
+    first, second = sources
+    trials = rows(second / "trials.jsonl")
+    missing = trials.pop()
+    save_rows(second / "trials.jsonl", trials)
+    events = rows(second / "calls.jsonl")
+    if unmatched_attempt:
+        successful_id = missing["turns"][0]["adaption"]["call_id"]
+        events = [e for e in events if not (e["event"] == "result" and e["call_id"] == successful_id)]
+        save_rows(second / "calls.jsonl", events)
+    before = {p: p.read_bytes() for d in sources for p in d.iterdir() if p.is_file()}
+    monkeypatch.delenv("ADAPTION_API_KEY", raising=False)
+    deny_preflight(monkeypatch)
+    with pytest.raises(ValueError, match="without a saved trial"):
+        resume.make_resume_plan(second, [first])
+    assert {p: p.read_bytes() for p in before} == before
+
+
+def test_second_continuation_rejected_but_same_output_restart_allowed(tmp_path, plan, monkeypatch):
+    first = interrupted_run(tmp_path, plan, monkeypatch)
+    deny_preflight(monkeypatch)
+    second = tmp_path / "other-continuation"
+    with pytest.raises(ValueError, match="another continuation"):
+        resume.run_resume(plan, second, approve(plan), sleep=lambda _: None)
+    assert not second.exists()
+    sent = install_fake(monkeypatch)
+    result = resume.run_resume(plan, first, approve(plan), sleep=lambda _: None)
+    assert result["status"] == "complete"
+    assert len(sent) == 88

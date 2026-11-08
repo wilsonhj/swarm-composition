@@ -1,7 +1,8 @@
 # Adaption inference: separate exploratory pilot
 
-The latest main inspected was `d3322d3` (7 November 2026), including PR #9's
-correction of the Adaption estimate claim. Recent merges improved
+This branch was integrated with main at `3cc02e4` (7 November 2026), including
+PR #10's environment-variable documentation and PR #9's correction of the
+Adaption estimate claim. Recent merges improved
 the report, CI, research audit, guide and submission instructions; they did not
 add Adaption inference. The completed provenance held-out run is already present.
 OpenRouter already offers a cross-model route; this addition instead makes the
@@ -94,11 +95,12 @@ python3.11 analyze.py results/adaption-cross-model-pilot-v1/pilot-01/trials.json
   --baseline local --md /tmp/adaption-pilot-analysis.md
 ```
 
-## Verification boundaries
+## Verification and collection boundaries
 
-Tests use fake/local transport only. Verify the offline plan, approval rejection,
+Tests use fake/local transport only. They cover the offline plan, approval rejection,
 mock run and analyzer, plus malformed/failed/incomplete Responses, usage accounting,
-no retries, combined-model budget, and frozen-output protection. Real account
-access, hosted inference quality, latency and final billing remain unverified
-until separately authorized live collection. No credits were spent preparing
-this adapter.
+no implicit backend retries, combined-model budget, and frozen-output protection.
+The separately authorized [completed pilot](../findings/adaption-cross-model-pilot.md)
+records real hosted responses, failures, usage and estimated charges. Final billing
+and the account balance remain unverified. Preparing and verifying the adapter
+uses no model credits; live execution is a separate action.

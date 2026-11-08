@@ -197,6 +197,12 @@ def validate_source(source, config):
             raise ValueError("source stored score differs")
         seen.add(key)
         validate_trial(row, config, result_events)
+    # The original runner writes a trial only after all its calls. An aborted
+    # run can therefore have durable attempts or results with no saved row.
+    # Their logical turn cannot safely be reconstructed from the row data.
+    row_call_ids = {turn["adaption"]["call_id"] for row in rows for turn in row["turns"]}
+    if any(event["call_id"] not in row_call_ids for event in events):
+        raise ValueError("source journal contains calls without a saved trial")
     return manifest, rows, events
 
 
@@ -439,6 +445,22 @@ def derived_row(row, manifest, source_path):
     return result
 
 
+def reject_other_continuation(output, source_run_id):
+    """Reject known sibling continuations; this is not a global registry."""
+    candidates = set(pilot.RESULTS.rglob("manifest.json"))
+    candidates.update(output.parent.glob("*/manifest.json"))
+    for path in candidates:
+        if path.parent.resolve() == output:
+            continue
+        try:
+            manifest = json.loads(path.read_text())
+        except (OSError, ValueError):
+            continue
+        if (isinstance(manifest, dict) and manifest.get("study") == pilot.STUDY and
+                manifest.get("source_run_id") == source_run_id):
+            raise ValueError("another continuation for this source already exists: " + str(path.parent))
+
+
 def run_resume(plan, output, approval, *, sleep=time.sleep, amend=False):
     if make_resume_plan(plan["source"], plan["histories"]) != plan or approval != plan["approval_sha256"]:
         raise ValueError("stale or unapproved continuation plan")
@@ -452,6 +474,8 @@ def run_resume(plan, output, approval, *, sleep=time.sleep, amend=False):
         try: fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError: raise ValueError("another continuation holds the pilot lock") from None
         source_manifest, source_rows, source_events = validate_source(Path(plan["source"]), plan["config"])
+        if not output.exists():
+            reject_other_continuation(output, source_manifest["run_id"])
         if output.exists():
             manifest = json.loads((output / "manifest.json").read_text())
             if manifest["plan"] != plan:

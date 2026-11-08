@@ -34,5 +34,7 @@ limit. Peak accounted usage was 0.29376953. Account balance/invoice was not veri
 OpenRouter was not used.
 
 See the [summary](../../experiments/composition-gap/results/adaption-cross-model-pilot-v1/pilot-03-resume/summary.json)
-and [resume guide](../dev/adaption-resume.md). The source/frozen protocols, harness,
+and [resume and portable offline audit guide](../dev/adaption-resume.md). Collection
+commits remain in Git history, and saved evidence is unchanged by subsequent
+resume safety checks. The source/frozen protocols, harness,
 scorer, analyzer, original results and submission report remain unchanged.
