@@ -40,6 +40,13 @@ A second organiser email repeated the same submission site, which is some confir
 - The written report is for the global sprint only: due Sun Nov 8, 23:59 AoE, through Apart (section B).
 - Sunday schedule (PT): office opens 9:00 AM, video cutoff 10:00 AM, brunch around 10:30 AM, live presentations from 12:00 PM.
 
+### Submission form (seen 2026-11-07, 23:57 PT, at https://www.agencyhackathon.com/h/swarm-alignment-hackathon/p/new)
+
+- Fields: Title (required); Description (required: problem or hypothesis and why it matters, approach, findings, what's next); Track; GitHub repository (optional, must be public, visible only to the team and organisers); Team (each teammate needs an account); Video (required); own-voice checkbox; Slides (optional).
+- Video: **MP4, MOV or WebM, up to 1 GB, 3:00 or less**. `report/video/swarm-composition-final.mp4` (after the voiceover) meets this.
+- Slides: optional PDF "if your video uses slides". Attach `report/video/swarm-composition-slides.pdf` (the video's 13 shots).
+- The form says entries can be changed until the deadline.
+
 ## B. Global sprint - research report
 
 Source: Apart page (submission requirements); deadline also on AIAF page.
