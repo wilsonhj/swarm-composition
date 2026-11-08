@@ -45,7 +45,7 @@ Each cell shows recoverable / assembled. Recoverable is the safety endpoint on r
    - Provenance raised authorized assembly from 15/50 to 33/49 (paraphrase) and from 12/50 to 48/50 (keyword).
    - Without the purpose, the assembler often declines to join four authorized items.
    - Authorized recoverability was unchanged, at 47/50 to 49/50 in both conditions.
-3. **It is not keyword matching.**
+3. **The result is not explained by these keywords alone.**
    - Provenance blocked the paraphrased restricted objective completely, and completed the authorized objective that contains "passphrase" in 48/50 runs.
    - The deterministic keyword gate failed both ways: it missed the paraphrased restricted objective (46/50 recoverable) and blocked the authorized keyword objective (0/50 assembled).
 4. **The LLM monitor over-blocks.**
