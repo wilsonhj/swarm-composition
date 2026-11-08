@@ -4,7 +4,7 @@ Picture-only cut of the 3-minute LA hub video, timed to `report/video-narration.
 
 | File | Use |
 |---|---|
-| `swarm-composition-video.mp4` | Clean cut for submission. 1920×1080, 30 fps, H.264, 2:50.2, with a silent stereo AAC track to replace with the voiceover. |
+| `swarm-composition-video.mp4` | Clean cut for submission. 1920×1080, 30 fps, H.264, 2:53.3, with a silent stereo AAC track to replace with the voiceover. |
 | `swarm-composition-video-guide.mp4` | The same cut with each narration paragraph shown in a yellow bar at the bottom. Play it while recording so you can read to picture. Do not submit it. |
 | `narration.srt` | The narration as timed captions. Use them as recording cues, or attach them as subtitles. |
 | `make_video.py` | Rebuilds both videos from the narration and `report/figures/`. Run `python3 report/video/make_video.py` (needs Pillow, qrcode and ffmpeg). |
@@ -13,20 +13,21 @@ Picture-only cut of the 3-minute LA hub video, timed to `report/video-narration.
 
 | Start | Length | Words | Shot | On screen |
 |---|---|---|---|---|
-| 0:00.0 | 11.9 s | 28 | title | "Who Knows the Goal?", team, track |
-| 0:11.9 | 16.3 s | 39 | question | The two research questions |
-| 0:28.2 | 19.1 s | 46 | setup | Four redacted words and the synthetic rule |
-| 0:47.3 | 18.3 s | 44 | topologies | `fig1_topologies.png` |
-| 1:05.6 | 24.3 s | 59 | study1 | Haiku heatmap with the 19/20 and 0/20 cells marked |
-| 1:29.9 | 15.9 s | 38 | split | Heatmap with the relay 1/20 cell marked: no significant gap |
-| 1:45.8 | 13.5 s | 32 | study2_design | Top of `fig5_provenance_design.png` |
-| 1:59.3 | 10.7 s | 25 | study2_numbers | 45/50 → 0/50 and 15/50 → 33/49 |
-| 2:10.0 | 9.5 s | 22 | filters | `fig4_provenance_heldout.png` with the monitor and keyword-gate rows marked |
-| 2:19.5 | 11.9 s | 28 | takeaway | "Compliance tracked what each agent was told about the goal." |
-| 2:31.4 | 12.3 s | 29 | limits | Four limits |
-| 2:43.7 | 6.5 s | 12 | end | Repo URL and QR code |
+| 0:00.0 | 7.1 s | 16 | title | "Who Knows the Goal?", team, track |
+| 0:07.1 | 16.3 s | 39 | question | The two research questions |
+| 0:23.4 | 20.3 s | 49 | setup | Four redacted words and the synthetic rule ("benign proxy") |
+| 0:43.7 | 18.3 s | 44 | topologies | `fig1_topologies.png` |
+| 1:02.0 | 24.3 s | 59 | study1 | Haiku heatmap with the 19/20 and 0/20 cells marked |
+| 1:26.3 | 15.9 s | 38 | split | Heatmap with the relay 1/20 cell marked: no significant gap |
+| 1:42.2 | 13.5 s | 32 | study2_design | Top of `fig5_provenance_design.png` |
+| 1:55.7 | 10.7 s | 25 | study2_numbers | 45/50 → 0/50 and 15/50 → 33/49 |
+| 2:06.4 | 9.5 s | 22 | filters | `fig4_provenance_heldout.png` with the monitor and keyword-gate rows marked |
+| 2:15.9 | 11.9 s | 28 | takeaway | "Compliance tracked what each agent was told about the goal." |
+| 2:27.8 | 12.3 s | 29 | limits | Four limits |
+| 2:40.1 | 6.7 s | 15 | next | What's next (the organisers ask for it) |
+| 2:46.8 | 6.5 s | 12 | end | Repo URL and QR code |
 
-The total is 2:50.2. That leaves about 10 seconds under the 3:00 cap.
+The total is 2:53.3. That leaves about 7 seconds under the 3:00 cap.
 
 ## Adding the voiceover
 

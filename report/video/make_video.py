@@ -225,6 +225,19 @@ def s_limits():
         y += 140
     return im
 
+def s_next():
+    im, d = canvas()
+    eyebrow(d, "What's next")
+    items = ["Other model providers", "A test with forged purpose information",
+             "An interpretability follow-up (proposed, not yet run)"]
+    y = 230
+    for it in items:
+        d.text((120, y), "→", font=F(SEMI, 54), fill=ACCENT)
+        d.text((200, y), it, font=F(SEMI, 54), fill=INK)
+        y += 140
+    footer(d, "Full report: “Who Knows the Goal?” · global sprint submission via Apart")
+    return im
+
 def s_end():
     im, d = canvas()
     eyebrow(d, "Code, data and report", y=300)
@@ -238,7 +251,7 @@ def s_end():
     return im
 
 SHOTS = [s_title, s_question, s_setup, s_topologies, s_study1, s_split,
-         s_study2_design, s_study2_numbers, s_filters, s_takeaway, s_limits, s_end]
+         s_study2_design, s_study2_numbers, s_filters, s_takeaway, s_limits, s_next, s_end]
 
 
 def prompter(im, text):

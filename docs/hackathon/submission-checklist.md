@@ -31,6 +31,15 @@ Source: an organiser email, not the AIAF or Apart page. Its submission site, htt
 - [ ] Prepare a slide deck in case the project is selected (none is in the repo yet).
 - This site is for the LA round only. The global sprint report (section B) is still submitted separately through the Apart page.
 
+### Reminder email from Mariana (received evening of 2026-11-07)
+
+A second organiser email repeated the same submission site, which is some confirmation of the link (still not on a public page). It adds:
+
+- The LA hub needs only the 3-minute video. It should cover the problem or hypothesis, the approach, the results and **what's next**. No paper or code is required for this round. `report/video-narration.md` now ends with a what's-next line.
+- If selected, present a short slide deck live: **about 5-8 minutes plus a quick Q&A**. This replaces the 10-minute slot assumed in section A.
+- The written report is for the global sprint only: due Sun Nov 8, 23:59 AoE, through Apart (section B).
+- Sunday schedule (PT): office opens 9:00 AM, video cutoff 10:00 AM, brunch around 10:30 AM, live presentations from 12:00 PM.
+
 ## B. Global sprint - research report
 
 Source: Apart page (submission requirements); deadline also on AIAF page.
