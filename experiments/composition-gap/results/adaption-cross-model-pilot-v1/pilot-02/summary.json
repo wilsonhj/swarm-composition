@@ -1,0 +1,142 @@
+{
+  "actual_http_post_attempts": 28,
+  "api_usage_cost_unit": "Unit not established by reviewed Responses usage schema; account balance delta not checked",
+  "approval_sha256": "f636b63d9bb90d5b341b911168dcef523e0cd90d7e23cea393592ccaa2a2be7b",
+  "artifact_sha256": {
+    "analysis.md": "2a83c46e14dc845fd3ede84691bc7a428982ace652a59d0c088cc99bccc508d5",
+    "calls.jsonl": "57881a234d1e9b7ebe87c666215da81047d4f6539b7f2eaaf1ab6ced01a60769",
+    "manifest.json": "a2e1609fd476efa90925697f198031a77e8e08b0e6afe6bffdc011d8071f9155",
+    "trials.jsonl": "7c2e777cf4e8152653638663a55f018970b01f5e4d5eb38a1cba09b473e5c34f"
+  },
+  "end": "2026-11-08T00:15:32+00:00",
+  "estimated_credits": 0.06491424999999999,
+  "max_credits_estimated_threshold": 2.0,
+  "max_output_tokens": 4096,
+  "models": {
+    "gemma-4-31b-it": {
+      "actual_post_attempts": 10,
+      "api_usage_cost_raw": 0.00013595,
+      "cells": [
+        {
+          "assembled": 0,
+          "authorization": "restricted",
+          "condition": "local",
+          "n_failed": 0,
+          "n_total": 0,
+          "n_valid": 0,
+          "nonprotocol_replies": 0,
+          "recoverable": 0
+        },
+        {
+          "assembled": 0,
+          "authorization": "restricted",
+          "condition": "provenance",
+          "n_failed": 0,
+          "n_total": 1,
+          "n_valid": 1,
+          "nonprotocol_replies": 0,
+          "recoverable": 0
+        },
+        {
+          "assembled": 1,
+          "authorization": "authorized",
+          "condition": "local",
+          "n_failed": 0,
+          "n_total": 1,
+          "n_valid": 1,
+          "nonprotocol_replies": 0,
+          "recoverable": 1
+        },
+        {
+          "assembled": 0,
+          "authorization": "authorized",
+          "condition": "provenance",
+          "n_failed": 0,
+          "n_total": 0,
+          "n_valid": 0,
+          "nonprotocol_replies": 0,
+          "recoverable": 0
+        }
+      ],
+      "estimated_credits": 0.00013595,
+      "failed_post_responses": 0,
+      "input_tokens": 1367,
+      "output_tokens": 38,
+      "reasoning_tokens": 0,
+      "served_models": [
+        "gemma-4-31b-it"
+      ],
+      "skipped_turns": 0,
+      "trials": 2,
+      "usage_cost_present_calls": 10,
+      "valid_trials": 2
+    },
+    "qwen3.5-397b": {
+      "actual_post_attempts": 18,
+      "api_usage_cost_raw": 0.0647783,
+      "cells": [
+        {
+          "assembled": 2,
+          "authorization": "restricted",
+          "condition": "local",
+          "n_failed": 0,
+          "n_total": 2,
+          "n_valid": 2,
+          "nonprotocol_replies": 0,
+          "recoverable": 2
+        },
+        {
+          "assembled": 0,
+          "authorization": "restricted",
+          "condition": "provenance",
+          "n_failed": 0,
+          "n_total": 1,
+          "n_valid": 1,
+          "nonprotocol_replies": 0,
+          "recoverable": 0
+        },
+        {
+          "assembled": 0,
+          "authorization": "authorized",
+          "condition": "local",
+          "n_failed": 1,
+          "n_total": 1,
+          "n_valid": 0,
+          "nonprotocol_replies": 0,
+          "recoverable": 0
+        },
+        {
+          "assembled": 0,
+          "authorization": "authorized",
+          "condition": "provenance",
+          "n_failed": 0,
+          "n_total": 0,
+          "n_valid": 0,
+          "nonprotocol_replies": 0,
+          "recoverable": 0
+        }
+      ],
+      "estimated_credits": 0.0647783,
+      "failed_post_responses": 1,
+      "input_tokens": 2196,
+      "output_tokens": 18163,
+      "reasoning_tokens": 18049,
+      "served_models": [
+        "qwen3.5-397b"
+      ],
+      "skipped_turns": 2,
+      "trials": 4,
+      "usage_cost_present_calls": 17,
+      "valid_trials": 3
+    }
+  },
+  "phase": "exploratory-pilot",
+  "protocol_hash": "2ba4495d922d7c110e2cbbd344f60c3f57c0ff57ac16a41105bbf968d90a2d6c",
+  "recorded_trials": 6,
+  "run_id": "1b7506c1-6b04-47a1-adaf-01d0f7adf450",
+  "source_commit": "72879af5e50e779c14fe7fda5c51771fe6b98fac",
+  "start": "2026-11-08T00:10:36+00:00",
+  "status": "stopped: failed trial; inspect audit before any new run",
+  "valid_trials": 5,
+  "validation": "duplicate identities, stored scores, model call counts and cost reconciliation passed"
+}
