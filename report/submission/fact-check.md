@@ -30,11 +30,11 @@ The Study 2 primary result remains restricted recoverability of 45/50 with local
 - The paper corrects the maximum role count, removes an unsupported counterfactual “lower bound” claim, and clarifies that the swarm implements early stopping but no recorded run triggered it.
 - The related-work monitor claim is scoped to the cited [adversarial evaluation](https://alignment.anthropic.com/2026/red-teaming-auto-mode/). The [METR incident](https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/) remains motivation, not evidence for this experiment's mechanism. These primary sources were rechecked; the entire bibliography was not re-audited externally in this pass.
 
-Original run files, collection code and frozen protocols remain unchanged. The editorial patch changes the manuscript and appendix presentation, including these corrections, while retaining all original empirical table values, exact prompts, transcripts, references and figures.
+Original run files, collection code and frozen protocols remain unchanged. The editorial patch changes the manuscript and appendix presentation, including these corrections, while preserving the empirical evidence. The compact edition keeps key tables and all original figures in the paper; exhaustive tables and exact prompts/transcripts are preserved in linked repository supplements.
 
 ## Verification and reproduction
 
-Fresh local checks passed: 250 harness tests with the Anthropic SDK installed, nine claim-checker regression tests, eight handoff tests, documentation validation, and the claim ledger with zero integrity problems. The ledger retains explicitly classified historical and not-recomputable entries; passing it does not mean every literature claim was independently proved.
+The preceding academic fact-check passed: 250 harness tests with the Anthropic SDK installed, nine claim-checker regression tests, eight handoff tests, documentation validation, and the claim ledger with zero integrity problems. The ledger retains explicitly classified historical and not-recomputable entries; passing it does not mean every literature claim was independently proved.
 
 The [secondary calculation](secondary-metrics.py) uses the established scorer, 2,000-resample seeded bootstrap and exact McNemar routine. [Its output](secondary-metrics.txt) records the endpoint equivalences and all eight monitor-versus-baseline secondary contrasts. From the repository root:
 
@@ -45,6 +45,17 @@ python3 experiments/composition-gap/analyze.py \
   --baseline keyword_gate --md /tmp/provenance-keyword-contrasts.md
 ```
 
-The PDF and Word document have identical editorial content. Verification checked the full author name, 196-word abstract, all 29 references, 1,567 appendix table-cell strings, 136 exact prompt/transcript lines, four figures, source prose, template parts, embedded fonts and page margins. All 43 pages were visually reviewed; the main paper is eight pages. The [manifest](manifest.json) records the final checksums and source hashes.
+## Compact edition and data-quality checks
+
+The PDF and Word document contain the same **20-page edition**, down from 43 pages: main text 1–8, references 9–10, Appendix A 11–12, Appendix B 13–16 and Appendix C 17–20. Two new methods diagrams show the distinct study designs and the recorded seed-3000 input/output sequence. The four original figures remain unchanged. Full prompts, cell tables and transcripts are preserved in the [extended methods/results supplement](supplements/extended-methods-and-results.md), with the [extended limitations](supplements/extended-limitations.md) also retained. Paper links pin those supplements to commit `c41b43a2dd476ea78cfade54df46e28ac238cb0a`.
+
+The [data-quality check](data-quality/check.py) freshly verified frozen source/manifest/protocol hashes, unique trial keys, expected grid coverage, valid denominators, served-model metadata coverage, reported cells and the seed-3000 inputs and responses. [Its results](data-quality/results.json) confirm 1,040 valid Study 1 records and 800 Study 2 records, 799 valid. Original Study 1 turns lack per-turn served-model IDs except the rerun; the one failed Study 2 turn has no model ID. No missing outcome was imputed. These checks support the descriptive figures, not prospective or external validity.
+
+```sh
+python3 report/submission/data-quality/check.py > /tmp/swarm-paper-data-quality.json
+cmp report/submission/data-quality/results.json /tmp/swarm-paper-data-quality.json
+```
+
+Final artifact checks covered the full author name, 196-word abstract, all 29 unchanged references, all 85 compact Appendix B table-cell strings, all original main-table rows, 89 prose lines, six figures, template parts, embedded fonts and page margins. All 136 exact prompt/transcript lines are preserved in the linked supplement. All 20 pages were visually reviewed; the corrected table page was reviewed again and the other final page images matched the reviewed render byte-for-byte. The [manifest](manifest.json) records file and source hashes.
 
 Further scientific work remains: independent model/provider replication, more relay seeds with a six-call solo baseline, varied wording, forged-metadata tests, and larger asynchronous systems. The SAE intervention remains unimplemented. Software tests and replay do not replace these experiments.
