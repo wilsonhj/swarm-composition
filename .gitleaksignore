@@ -1,0 +1,13 @@
+# False positives: public bibliography identifiers in reference_checks[].key.
+# These exclusions apply only to the five exact findings in the cited commit;
+# they do not exempt the file, other revisions, or the generic-api-key rule.
+# shen2026organizations
+f29c203e7753bff2dd2839cff8214b3d027f923b:report/submission/guidelines-verification.json:generic-api-key:80
+# kothamasu2026decompbench
+f29c203e7753bff2dd2839cff8214b3d027f923b:report/submission/guidelines-verification.json:generic-api-key:89
+# mcnemar1947sampling
+f29c203e7753bff2dd2839cff8214b3d027f923b:report/submission/guidelines-verification.json:generic-api-key:103
+# fagerland2013mcnemar
+f29c203e7753bff2dd2839cff8214b3d027f923b:report/submission/guidelines-verification.json:generic-api-key:117
+# wilson1927probable
+f29c203e7753bff2dd2839cff8214b3d027f923b:report/submission/guidelines-verification.json:generic-api-key:131
