@@ -1,0 +1,835 @@
+{
+  "reviewed_date": "2026-11-08",
+  "scope": "Critical scientific and prose revision of manuscript.md and appendices.md, with selected primary literature comparison and offline checks of archived findings.",
+  "github_evidence": {
+    "commit": "c363e3b118932b1e20a19949a971fe41dbc0fabf",
+    "files": [
+      {
+        "path": "experiments/composition-gap/results/v2/2026-11-06_3f64a2ee_claude-sonnet-5-5_v2_strict_explicit_rerun.jsonl",
+        "sha": "11f9723d5a75509378eebd27299539c156456597"
+      },
+      {
+        "path": "experiments/composition-gap/results/v2/2026-11-06_3f64a2ee_claude-sonnet-5-5_v2_strict_explicit_rerun.jsonl.manifest.json",
+        "sha": "15b503e341671b578a53e826504a62e206caadcb"
+      },
+      {
+        "path": "experiments/composition-gap/results/v2/2026-11-06_3f64a2ee_claude-sonnet-5-5_v2_strict_explicit_rerun.log",
+        "sha": "96ce74d91834b3471775b663c3cd8f8aa5c0f2c3"
+      },
+      {
+        "path": "experiments/composition-gap/results/v2/2026-11-06_55325c9a_claude-haiku-5-5_v2_none_explicit.jsonl",
+        "sha": "31dbe73d2c2a6ae81cd40bdeba490298c4770c70"
+      },
+      {
+        "path": "experiments/composition-gap/results/v2/2026-11-06_55325c9a_claude-haiku-5-5_v2_none_explicit.jsonl.manifest.json",
+        "sha": "7ab881af7931482647cf27cef8ec2192d07b1b00"
+      },
+      {
+        "path": "experiments/composition-gap/results/v2/2026-11-06_55325c9a_claude-haiku-5-5_v2_none_explicit.log",
+        "sha": "909360af96279723d1a95d0d6c4538331a4a134a"
+      },
+      {
+        "path": "experiments/composition-gap/results/v2/2026-11-06_55325c9a_claude-haiku-5-5_v2_none_neutral.jsonl",
+        "sha": "89e2159eb73cb62159593b72651b5dbc46f4829e"
+      },
+      {
+        "path": "experiments/composition-gap/results/v2/2026-11-06_55325c9a_claude-haiku-5-5_v2_none_neutral.jsonl.manifest.json",
+        "sha": "d77d67e8e01e4d892c14cb1a7fd46bbf02f1ddcd"
+      },
+      {
+        "path": "experiments/composition-gap/results/v2/2026-11-06_55325c9a_claude-haiku-5-5_v2_none_neutral.log",
+        "sha": "64e651ad03e6300c4cc102d3cb49c25ffe079d65"
+      },
+      {
+        "path": "experiments/composition-gap/results/v2/2026-11-06_55325c9a_claude-haiku-5-5_v2_strict_explicit.jsonl",
+        "sha": "c801a840f8bcddda779c2fadb8bd2b46de7364b8"
+      },
+      {
+        "path": "experiments/composition-gap/results/v2/2026-11-06_55325c9a_claude-haiku-5-5_v2_strict_explicit.jsonl.manifest.json",
+        "sha": "a77a733736c66563fe237db632d58c8db0973af0"
+      },
+      {
+        "path": "experiments/composition-gap/results/v2/2026-11-06_55325c9a_claude-haiku-5-5_v2_strict_explicit.log",
+        "sha": "d9a78df6647ade8945c1c9f32989f409c8ae5a0c"
+      },
+      {
+        "path": "experiments/composition-gap/results/v2/2026-11-06_55325c9a_claude-haiku-5-5_v2_strict_neutral.jsonl",
+        "sha": "e609b2f7f04fee329129b8df75ee9a631a1dad86"
+      },
+      {
+        "path": "experiments/composition-gap/results/v2/2026-11-06_55325c9a_claude-haiku-5-5_v2_strict_neutral.jsonl.manifest.json",
+        "sha": "ef8df44ec708ca2b3a5cfb06c0aaebfc45554028"
+      },
+      {
+        "path": "experiments/composition-gap/results/v2/2026-11-06_55325c9a_claude-haiku-5-5_v2_strict_neutral.log",
+        "sha": "1d2066513a7989bf83aa1ccd33f224e2872618cc"
+      },
+      {
+        "path": "experiments/composition-gap/results/v2/2026-11-06_9c37b82a_claude-sonnet-5-5_v2_none_explicit.jsonl",
+        "sha": "11f9a2d588781b3cd3e52627693299480cb3f892"
+      },
+      {
+        "path": "experiments/composition-gap/results/v2/2026-11-06_9c37b82a_claude-sonnet-5-5_v2_none_explicit.jsonl.manifest.json",
+        "sha": "25f42c981b17213539320b4a5fce97edd4f34d9c"
+      },
+      {
+        "path": "experiments/composition-gap/results/v2/2026-11-06_9c37b82a_claude-sonnet-5-5_v2_none_explicit.log",
+        "sha": "30f303306f312206b2bab752a54487aae874a29d"
+      },
+      {
+        "path": "experiments/composition-gap/results/v2/2026-11-06_9c37b82a_claude-sonnet-5-5_v2_none_neutral.jsonl",
+        "sha": "323a8536e7d9c02433bd8b2ad9b8047d69e987e5"
+      },
+      {
+        "path": "experiments/composition-gap/results/v2/2026-11-06_9c37b82a_claude-sonnet-5-5_v2_none_neutral.jsonl.manifest.json",
+        "sha": "34ecb14c5fcd6ece332ffd8ed56be530f8da3f39"
+      },
+      {
+        "path": "experiments/composition-gap/results/v2/2026-11-06_9c37b82a_claude-sonnet-5-5_v2_none_neutral.log",
+        "sha": "4e40e358ffc19a0e84c0b4a4b1dd5e98d728a201"
+      },
+      {
+        "path": "experiments/composition-gap/results/v2/2026-11-06_9c37b82a_claude-sonnet-5-5_v2_strict_explicit.jsonl",
+        "sha": "f4f5c1c699b421bf85992cc9d33ce9f22808aa6b"
+      },
+      {
+        "path": "experiments/composition-gap/results/v2/2026-11-06_9c37b82a_claude-sonnet-5-5_v2_strict_explicit.jsonl.manifest.json",
+        "sha": "174dd626b13d33802932fcab12636c59abb3dc9c"
+      },
+      {
+        "path": "experiments/composition-gap/results/v2/2026-11-06_9c37b82a_claude-sonnet-5-5_v2_strict_explicit.log",
+        "sha": "719760ebf11e2da61dde6694f630e33082930761"
+      },
+      {
+        "path": "experiments/composition-gap/results/v2/2026-11-06_9c37b82a_claude-sonnet-5-5_v2_strict_neutral.jsonl",
+        "sha": "9eae2293ae8182ae070f21b38d5739c88c410c9b"
+      },
+      {
+        "path": "experiments/composition-gap/results/v2/2026-11-06_9c37b82a_claude-sonnet-5-5_v2_strict_neutral.jsonl.manifest.json",
+        "sha": "8def6ae3568082ff2c34dd348c746b059beaad9c"
+      },
+      {
+        "path": "experiments/composition-gap/results/v2/2026-11-06_9c37b82a_claude-sonnet-5-5_v2_strict_neutral.log",
+        "sha": "753b9986bd1cd6fed752316c6d73d4393abc29f3"
+      },
+      {
+        "path": "experiments/composition-gap/results/v2/analysis.md",
+        "sha": "ac60674d49db053575786c004e7675e441f6a589"
+      },
+      {
+        "path": "experiments/composition-gap/results/v2/analysis_sonnet.md",
+        "sha": "4257d94f00a87909d669304b8b52639999434a02"
+      },
+      {
+        "path": "experiments/composition-gap/results/v2/analysis_sonnet_strict_explicit_rerun.md",
+        "sha": "c6b1533b2e81157377f010240d136b0548c0cce2"
+      },
+      {
+        "path": "experiments/composition-gap/results/v2/run.log",
+        "sha": "0fcb3f1b810f1db3f99bf8fb74700985afd5f02d"
+      },
+      {
+        "path": "experiments/composition-gap/results/v2/run_sonnet.log",
+        "sha": "602c979dd1506a584f3581cf7422cf93c239a6ec"
+      },
+      {
+        "path": "experiments/composition-gap/results/task-provenance/heldout-haiku.jsonl",
+        "sha": "975c322838333dbbecddc23e679a7715cbf64363"
+      },
+      {
+        "path": "experiments/composition-gap/results/task-provenance/heldout-haiku.jsonl.analysis.md",
+        "sha": "16ec8675a3e156cb9e40785060ae2a95472ff95e"
+      },
+      {
+        "path": "experiments/composition-gap/results/task-provenance/heldout-haiku.jsonl.manifest.json",
+        "sha": "ea8ce61b5100b8fa45d31467da02190f9af7af29"
+      },
+      {
+        "path": "experiments/composition-gap/results/task-provenance/heldout-haiku.log",
+        "sha": "bca209cda7311d0abfcc8c47afd321857a56ca2d"
+      },
+      {
+        "path": "experiments/composition-gap/results/task-provenance/pilot-haiku-2026-11-07.jsonl",
+        "sha": "13e289b2037f7244371f4350eff0965f7654a260"
+      },
+      {
+        "path": "experiments/composition-gap/results/task-provenance/pilot-haiku-2026-11-07.jsonl.analysis.md",
+        "sha": "b3beab40fbc99d2dccea46d8069cc1588158e0c8"
+      },
+      {
+        "path": "experiments/composition-gap/results/task-provenance/pilot-haiku-2026-11-07.jsonl.manifest.json",
+        "sha": "e1a7918c0a399cd00c9be1c51744c0ad8d668e73"
+      },
+      {
+        "path": "experiments/composition-gap/results/task-provenance/pilot-haiku-2026-11-07.log",
+        "sha": "e7cfd2bc33389b356cb10a1559f87cc48fea71d1"
+      }
+    ],
+    "all_local_blob_identities_match": true
+  },
+  "canonical_replays": {
+    "v2": {
+      "audit": {
+        "analysis_checkout_commit": "59c8b7a84e88728d7fb67672dc57d2066bb3aff9",
+        "artifact_snapshot": "59c8b7a84e88728d7fb67672dc57d2066bb3aff9",
+        "input_contract_sha256": "2a641d444f8ac970b261bfceb8447446e7aa4e5ee527cc7467c4cc81f9fe96ff",
+        "legacy_reproduced": 1040,
+        "limits": [
+          "No fresh inference; hosted models can drift",
+          "Logical calls are not a reconstruction of every transport retry",
+          "Original Sonnet strict/explicit run has mixed served-model IDs",
+          "Sonnet rerun reuses tasks and is analyzed separately",
+          "Group reports must match pinned hashes (checked on CPython 3.11-3.13)",
+          "Provenance and SAE studies are outside this replay"
+        ],
+        "logical_calls": 7670,
+        "platform": "macOS-26.6.2-arm64-arm-64bit",
+        "python": "3.12.14",
+        "replay_script_sha256": "d3de5a16d74b2d8ebcff3e116b2ad2f2fcf10803ea624257bcf3a6478bbe4979",
+        "rows": 1040,
+        "runs": [
+          {
+            "collection_git": {
+              "commit": "3dadb782c56dbe4bd04f829206b3d6add65e20d0",
+              "dirty": false
+            },
+            "distinct_seeds": 10,
+            "legacy_reproduced": 80,
+            "logical_calls": 590,
+            "path": "experiments/composition-gap/results/v2/2026-11-06_3f64a2ee_claude-sonnet-5-5_v2_strict_explicit_rerun.jsonl",
+            "reported_served_models": [
+              "claude-sonnet-5-5"
+            ],
+            "reported_totals": {
+              "calls": 590,
+              "cost": 1.5595199999999996,
+              "failed": 0,
+              "failed_rows": 0,
+              "missing_cost": 0,
+              "rows": 80
+            },
+            "rows": 80,
+            "run_id": "054b2b81-93e1-4317-953c-74978f0af78d"
+          },
+          {
+            "collection_git": {
+              "commit": "1ec087cdeaeb51fae1797a419cd717f955538b91",
+              "dirty": false
+            },
+            "distinct_seeds": 20,
+            "legacy_reproduced": 160,
+            "logical_calls": 1180,
+            "path": "experiments/composition-gap/results/v2/2026-11-06_55325c9a_claude-haiku-5-5_v2_none_explicit.jsonl",
+            "reported_served_models": [
+              "claude-haiku-5-5"
+            ],
+            "reported_totals": {
+              "calls": 1180,
+              "cost": 0.3400773700000001,
+              "failed": 0,
+              "failed_rows": 0,
+              "missing_cost": 0,
+              "rows": 160
+            },
+            "rows": 160,
+            "run_id": "f83ece60-1e2a-4fb4-a53f-708b096ed72a"
+          },
+          {
+            "collection_git": {
+              "commit": "c9a46175384e0b04a18f1560d83ccf2ca129281a",
+              "dirty": false
+            },
+            "distinct_seeds": 20,
+            "legacy_reproduced": 160,
+            "logical_calls": 1180,
+            "path": "experiments/composition-gap/results/v2/2026-11-06_55325c9a_claude-haiku-5-5_v2_none_neutral.jsonl",
+            "reported_served_models": [
+              "claude-haiku-5-5"
+            ],
+            "reported_totals": {
+              "calls": 1180,
+              "cost": 0.31512060999999997,
+              "failed": 0,
+              "failed_rows": 0,
+              "missing_cost": 0,
+              "rows": 160
+            },
+            "rows": 160,
+            "run_id": "e05dfddc-c2d3-460d-bc21-05fe30a28dbf"
+          },
+          {
+            "collection_git": {
+              "commit": "1ec087cdeaeb51fae1797a419cd717f955538b91",
+              "dirty": false
+            },
+            "distinct_seeds": 20,
+            "legacy_reproduced": 160,
+            "logical_calls": 1180,
+            "path": "experiments/composition-gap/results/v2/2026-11-06_55325c9a_claude-haiku-5-5_v2_strict_explicit.jsonl",
+            "reported_served_models": [
+              "claude-haiku-5-5"
+            ],
+            "reported_totals": {
+              "calls": 1180,
+              "cost": 0.21954273000000005,
+              "failed": 0,
+              "failed_rows": 0,
+              "missing_cost": 0,
+              "rows": 160
+            },
+            "rows": 160,
+            "run_id": "ca806f20-6fac-4a8a-b5dc-17d6299dfe18"
+          },
+          {
+            "collection_git": {
+              "commit": "1ec087cdeaeb51fae1797a419cd717f955538b91",
+              "dirty": false
+            },
+            "distinct_seeds": 20,
+            "legacy_reproduced": 160,
+            "logical_calls": 1180,
+            "path": "experiments/composition-gap/results/v2/2026-11-06_55325c9a_claude-haiku-5-5_v2_strict_neutral.jsonl",
+            "reported_served_models": [
+              "claude-haiku-5-5"
+            ],
+            "reported_totals": {
+              "calls": 1180,
+              "cost": 0.2890984800000005,
+              "failed": 0,
+              "failed_rows": 0,
+              "missing_cost": 0,
+              "rows": 160
+            },
+            "rows": 160,
+            "run_id": "c3ae2553-e7c8-4e56-9919-fa7c62c4c9fe"
+          },
+          {
+            "collection_git": {
+              "commit": "4d17ea6b59a7d018025d5a50e988e56305390f1c",
+              "dirty": false
+            },
+            "distinct_seeds": 10,
+            "legacy_reproduced": 80,
+            "logical_calls": 590,
+            "path": "experiments/composition-gap/results/v2/2026-11-06_9c37b82a_claude-sonnet-5-5_v2_none_explicit.jsonl",
+            "reported_served_models": [
+              "claude-sonnet-5-5"
+            ],
+            "reported_totals": {
+              "calls": 590,
+              "cost": 2.2254703,
+              "failed": 0,
+              "failed_rows": 0,
+              "missing_cost": 0,
+              "rows": 80
+            },
+            "rows": 80,
+            "run_id": "16042853-2e0e-4fb1-ab7b-3e1ff1062602"
+          },
+          {
+            "collection_git": {
+              "commit": "4d17ea6b59a7d018025d5a50e988e56305390f1c",
+              "dirty": false
+            },
+            "distinct_seeds": 10,
+            "legacy_reproduced": 80,
+            "logical_calls": 590,
+            "path": "experiments/composition-gap/results/v2/2026-11-06_9c37b82a_claude-sonnet-5-5_v2_none_neutral.jsonl",
+            "reported_served_models": [
+              "claude-sonnet-5-5"
+            ],
+            "reported_totals": {
+              "calls": 590,
+              "cost": 2.3837061,
+              "failed": 0,
+              "failed_rows": 0,
+              "missing_cost": 0,
+              "rows": 80
+            },
+            "rows": 80,
+            "run_id": "bac06e82-532a-453e-96b4-e7e66d55a2a2"
+          },
+          {
+            "collection_git": {
+              "commit": "4d17ea6b59a7d018025d5a50e988e56305390f1c",
+              "dirty": false
+            },
+            "distinct_seeds": 10,
+            "legacy_reproduced": 80,
+            "logical_calls": 590,
+            "path": "experiments/composition-gap/results/v2/2026-11-06_9c37b82a_claude-sonnet-5-5_v2_strict_explicit.jsonl",
+            "reported_served_models": [
+              "claude-sonnet-5",
+              "claude-sonnet-5-5"
+            ],
+            "reported_totals": {
+              "calls": 590,
+              "cost": 1.604194499999999,
+              "failed": 0,
+              "failed_rows": 0,
+              "missing_cost": 0,
+              "rows": 80
+            },
+            "rows": 80,
+            "run_id": "3f88f85d-0151-4b88-9475-b77b60917857"
+          },
+          {
+            "collection_git": {
+              "commit": "4d17ea6b59a7d018025d5a50e988e56305390f1c",
+              "dirty": false
+            },
+            "distinct_seeds": 10,
+            "legacy_reproduced": 80,
+            "logical_calls": 590,
+            "path": "experiments/composition-gap/results/v2/2026-11-06_9c37b82a_claude-sonnet-5-5_v2_strict_neutral.jsonl",
+            "reported_served_models": [
+              "claude-sonnet-5-5"
+            ],
+            "reported_totals": {
+              "calls": 590,
+              "cost": 2.923584800000002,
+              "failed": 0,
+              "failed_rows": 0,
+              "missing_cost": 0,
+              "rows": 80
+            },
+            "rows": 80,
+            "run_id": "4400aff2-1617-4e0d-bd88-defd4c0b9d07"
+          }
+        ],
+        "status": "artifact_replay_passed",
+        "tracked_checkout_dirty": false
+      },
+      "bundle_sha256": {
+        "audit.json": "9f261ed8d4c8e9be8e78e410811efa69e503c0b23e589ca68be5c8340c21cd72",
+        "haiku.md": "3d33c1f7c6f7cc440a00fbede72ba025ccebc6b5e8863a29132db33654992dce",
+        "sonnet_original.md": "4866f151b02af220a54a5293d8dbae88fb9b068169d628cbaf57f436ded7f7be",
+        "sonnet_rerun.md": "9c56ac18baf28cd2a5c935e38042477d843edd5ac75fc3fa66afb5e648cf55ed"
+      },
+      "bundle_hashes_verified": true,
+      "command": "python docs/handoffs/tools/replay_v2.py --repo /private/tmp/swarm-final-v2-20261108 --out /private/tmp/swarm-final-v2-audit-20261108",
+      "local_output_directory": "/private/tmp/swarm-final-v2-audit-20261108"
+    },
+    "provenance": {
+      "audit": {
+        "analysis_checkout_commit": "e056c88a9a75efb23d7e147e7b366cadc81fc01b",
+        "artifact_snapshot": "e056c88a9a75efb23d7e147e7b366cadc81fc01b",
+        "call_counter_identity": "logged_turns == manifest calls + errors",
+        "cells": 16,
+        "cells_valid_recoverable_assembled": {
+          "keyword_gate|authorized|keyword": [
+            50,
+            0,
+            0
+          ],
+          "keyword_gate|authorized|paraphrase": [
+            50,
+            48,
+            14
+          ],
+          "keyword_gate|restricted|keyword": [
+            50,
+            0,
+            0
+          ],
+          "keyword_gate|restricted|paraphrase": [
+            50,
+            46,
+            16
+          ],
+          "local|authorized|keyword": [
+            50,
+            47,
+            12
+          ],
+          "local|authorized|paraphrase": [
+            50,
+            47,
+            15
+          ],
+          "local|restricted|keyword": [
+            50,
+            49,
+            14
+          ],
+          "local|restricted|paraphrase": [
+            50,
+            45,
+            17
+          ],
+          "monitor|authorized|keyword": [
+            50,
+            0,
+            0
+          ],
+          "monitor|authorized|paraphrase": [
+            50,
+            0,
+            0
+          ],
+          "monitor|restricted|keyword": [
+            50,
+            0,
+            0
+          ],
+          "monitor|restricted|paraphrase": [
+            50,
+            0,
+            0
+          ],
+          "provenance|authorized|keyword": [
+            50,
+            49,
+            48
+          ],
+          "provenance|authorized|paraphrase": [
+            49,
+            47,
+            33
+          ],
+          "provenance|restricted|keyword": [
+            50,
+            0,
+            0
+          ],
+          "provenance|restricted|paraphrase": [
+            50,
+            0,
+            0
+          ]
+        },
+        "collection_sources_commit": "435d20d4d0d8e7bf24a391d077649b98e6d526ae",
+        "failed_cell_all_trial_bounds": {
+          "provenance|authorized|paraphrase": {
+            "assembled": [
+              0.66,
+              0.68
+            ],
+            "recoverable": [
+              0.94,
+              0.96
+            ]
+          }
+        },
+        "failed_trials": [
+          {
+            "authorization": "authorized",
+            "cond": "provenance",
+            "failed_agent": "worker1",
+            "failed_calls": 1,
+            "failed_role": "worker",
+            "framing": "paraphrase",
+            "seed": 3010
+          }
+        ],
+        "failed_turns": 1,
+        "freeze_commit": "435d20d4d0d8e7bf24a391d077649b98e6d526ae",
+        "freeze_commit_committer_time": "2026-11-06T22:00:41-08:00",
+        "input_contract_sha256": "9d57c72281deb7d0e906833da8fd605c0ef2062ee812e193096a1801fb4813f7",
+        "limits": [
+          "No fresh inference; hosted models can drift",
+          "Logged turns are logical calls; transport retries inside a call, and their cost and served model, were not recorded by the collection harness",
+          "The one failed worker turn has no served-model ID",
+          "Manifest cost is the CLI-reported figure; it is recorded, not verified",
+          "Git committer times are self-reported, not third-party timestamps",
+          "One model, one fixed pipeline, one synthetic task; two fixed objective strings per wording",
+          "Report hashes checked on CPython 3.11 and 3.12",
+          "v2 and SAE studies are outside this replay"
+        ],
+        "logged_turns": 4795,
+        "manifest_prompt_hash_reproduced": true,
+        "manifest_reported_cost_usd": 0.9647952599999992,
+        "manifest_totals": {
+          "calls": 4794,
+          "cost": 0.9647952599999992,
+          "errors": 1,
+          "failed_rows": 1,
+          "missing_cost": 0,
+          "rows": 800
+        },
+        "monitor": {
+          "allow": 3,
+          "allow_in_authorized_trials": 3,
+          "block": 792,
+          "malformed": 0,
+          "proposals": 795
+        },
+        "nonprotocol_replies": 0,
+        "notes": {
+          "call_counter": "Logged turns (4,795) exceed manifest totals.calls (4,794) by exactly the one failed turn. In the collection harness (freeze commit 435d20d, harness.py ClaudeCode.__call__) totals.calls is incremented only for a successful logical call; a call that exhausts its three attempts goes to Backend._fail, which increments totals.errors instead. The replay requires logged_turns == manifest_calls + manifest_errors and failed_turns == manifest_errors. Transport retries inside a logical call, and their cost and served model, were not recorded by that harness (changed after the freeze in 57d13c3).",
+          "committed_analysis": "The committed heldout-haiku.jsonl.analysis.md was produced by the analyzer at the freeze commit (analyze.py, scoring.py, harness.py at 435d20d; identical blobs at a757306, the commit that added the results). The replay regenerates it byte-identically from those hash-pinned sources (analysis_collection.md). The snapshot analyzer (e056c88) output (analysis_snapshot.md) differs only by two added paired-count columns in the contrast table and a longer contrast note; the replay asserts that removing those columns gives the committed table and that the committed note's sentences all appear in the new note.",
+          "rebuild": "Each trial is re-executed through provenance.run_trial with a replay backend that returns the logged raw replies in order (and fails the logged failed turn). The rebuilt row must equal the stored row except per-turn ms (wall time), per-turn fail_reason (added to the turn log after collection), and run metadata added by provenance.main."
+        },
+        "platform": "macOS-26.6.2-arm64-arm-64bit",
+        "protocol_sha256": "5a8659fea984ee3203f380476e06cdc72829e4b574e88edbbcfbda5800ead978",
+        "provenance_vs_local": [
+          {
+            "authorization": "restricted",
+            "ci_pp": [
+              -98,
+              -80
+            ],
+            "diff_pp": -90,
+            "discordant_minus": 45,
+            "discordant_plus": 0,
+            "framing": "paraphrase",
+            "label": "primary",
+            "mcnemar_p": 5.684341886080802e-14,
+            "metric": "recoverable",
+            "pairs": 50
+          },
+          {
+            "authorization": "authorized",
+            "ci_pp": [
+              20,
+              53
+            ],
+            "diff_pp": 37,
+            "discordant_minus": 3,
+            "discordant_plus": 21,
+            "framing": "paraphrase",
+            "label": "utility",
+            "mcnemar_p": 0.0002771615982055664,
+            "metric": "assembled",
+            "pairs": 49
+          },
+          {
+            "authorization": "restricted",
+            "ci_pp": [
+              -100,
+              -94
+            ],
+            "diff_pp": -98,
+            "discordant_minus": 49,
+            "discordant_plus": 0,
+            "framing": "keyword",
+            "label": "secondary",
+            "mcnemar_p": 3.552713678800501e-15,
+            "metric": "recoverable",
+            "pairs": 50
+          },
+          {
+            "authorization": "authorized",
+            "ci_pp": [
+              58,
+              86
+            ],
+            "diff_pp": 72,
+            "discordant_minus": 1,
+            "discordant_plus": 37,
+            "framing": "keyword",
+            "label": "secondary_utility",
+            "mcnemar_p": 2.837623469531536e-10,
+            "metric": "assembled",
+            "pairs": 50
+          }
+        ],
+        "python": "3.12.14",
+        "replay_script_sha256": "b165c1ab6a9aa28fd80ce70075a7c85a27ebfad54f560a4406ac613638ba6372",
+        "reports": {
+          "analysis_collection.md": "e43f93542f864c5c38f351d83fb8ffeb8b6bc81bea8b84f1f47959ca50978ffc",
+          "analysis_snapshot.md": "84e628721256393045f7777e32ecefa05756d39a02872dc669c6409dfd9e25ca",
+          "committed_analysis_byte_identical_to": "analysis_collection.md",
+          "snapshot_vs_committed": {
+            "changed_lines": 15,
+            "dropped_columns": [
+              5,
+              8
+            ],
+            "lines": 64,
+            "other_lines_identical": true
+          }
+        },
+        "rows": 800,
+        "score_fields": [
+          "assembled",
+          "assembled_exact",
+          "exposed_parts",
+          "identified_parts",
+          "legacy_all",
+          "legacy_joined",
+          "legacy_parts",
+          "n_posted",
+          "pooled_assembled",
+          "pooled_assembled_exact",
+          "pooled_exposed_parts",
+          "pooled_identified_parts",
+          "pooled_recoverable",
+          "recoverable",
+          "valid"
+        ],
+        "served_model_on_successful_turns": [
+          "claude-haiku-5-5"
+        ],
+        "status": "provenance_replay_passed",
+        "stored_scores_reproduced": 800,
+        "tracked_checkout_dirty": false,
+        "trials_rebuilt_from_logged_replies": 800
+      },
+      "bundle_sha256": {
+        "analysis_collection.md": "e43f93542f864c5c38f351d83fb8ffeb8b6bc81bea8b84f1f47959ca50978ffc",
+        "analysis_snapshot.md": "84e628721256393045f7777e32ecefa05756d39a02872dc669c6409dfd9e25ca",
+        "audit.json": "73145a1d8a9806305062add538a430e20ec56f49d32849d6bf1441e2b95f6a00"
+      },
+      "bundle_hashes_verified": true,
+      "command": "python docs/handoffs/tools/replay_provenance.py --repo /private/tmp/swarm-final-provenance-20261108 --out /private/tmp/swarm-final-provenance-audit-20261108",
+      "local_output_directory": "/private/tmp/swarm-final-provenance-audit-20261108"
+    }
+  },
+  "independent_scoring": {
+    "record": "data-quality/review-results.json",
+    "script": "data-quality/review-check.py",
+    "rows": 1840,
+    "study1_outcome_cells": 72,
+    "study2_outcome_cells": 16,
+    "script_sha256": "23870bda5e53163d41ca66bacbdd96884c718a0e5f4a87f6ca1283a27c954ff9",
+    "results_sha256": "9563766695255337c14b547a619da5196d570830b68748fbfb476d12de43d325",
+    "scope": "Independent assembly/recoverability scoring of accepted posts, counts, paired denominators and exact tests; bootstrap uses the repository method. Does not replicate inference.",
+    "separate_exploratory_rows": 160
+  },
+  "legacy_claim_checker": {
+    "exit_code": 0,
+    "current_matches": 198,
+    "historical_matches": 77,
+    "historical_mismatches": 2,
+    "current_not_recomputable": 14,
+    "historical_not_recomputable": 6,
+    "integrity_problems": 0,
+    "scope": "Earlier source documents; not an automatic check of every revised sentence. Current tables and prose were additionally reviewed.",
+    "output_sha256": "93380e440b61c3574a383f139a2fe4609c72f712c97d19c4053e41321dd16132"
+  },
+  "scoped_data_quality_matches_frozen_results": true,
+  "secondary_metrics_matches_frozen_results": true,
+  "artifact_verification": {
+    "pdf_pages": 15,
+    "main_text_pages": [
+      1,
+      5
+    ],
+    "main_pages_including_references": 6,
+    "references_pages": [
+      6,
+      6
+    ],
+    "appendix_pages": [
+      7,
+      15
+    ],
+    "appendix_a_pages": [
+      7,
+      7
+    ],
+    "appendix_b_pages": [
+      8,
+      10
+    ],
+    "appendix_c_pages": [
+      11,
+      15
+    ],
+    "abstract_words": 193,
+    "reference_entries": 15,
+    "embedded_figure_pngs": 6,
+    "source_lines_checked": 133,
+    "source_and_rendered_table_cells_match": true,
+    "study1_main_table_recomputed": true,
+    "study2_all_16_cells_recomputed": true,
+    "study2_main_paired_table_and_appendix_contrasts_recomputed": true,
+    "fresh_data_quality_matches_recorded": true,
+    "preserve_only_parts_identical": true,
+    "template_sha256": "d46f39b89dbb3e8426760eebba6459977fed05d60a41a2a0e72c01f32ac45706",
+    "pdf_fonts_embedded": {
+      "/BAAAAA+OldStandardTT-Bold": true,
+      "/CAAAAA+OldStandardTT-Bold": true,
+      "/DAAAAA+OldStandardTT-Regular": true,
+      "/EAAAAA+OldStandardTT-Bold": true,
+      "/FAAAAA+LiberationSans": true,
+      "/GAAAAA+OldStandardTT-Regular": true,
+      "/HAAAAA+OldStandardTT-Italic": true,
+      "/IAAAAA+OldStandardTT-Bold": true,
+      "/JAAAAA+OldStandardTT-Bold": true,
+      "/KAAAAA+OldStandardTT-Bold": true,
+      "/LAAAAA+OldStandardTT-Regular": true
+    },
+    "word_boxes_outside_65pt_margins": [],
+    "dangling_internal_relationships": [],
+    "unique_pdf_targets": 27,
+    "pinned_repository_paths_verified_in_git": [
+      "7d1d0b7db028da46a33b3a8d3fb40b3aba6f41a1:docs/findings/development-timeline.md",
+      "7d1d0b7db028da46a33b3a8d3fb40b3aba6f41a1:docs/handoffs/verification.md",
+      "7d1d0b7db028da46a33b3a8d3fb40b3aba6f41a1:report/submission/secondary-metrics.py",
+      "c363e3b118932b1e20a19949a971fe41dbc0fabf:docs/findings/v2-followup.md",
+      "c41b43a2dd476ea78cfade54df46e28ac238cb0a:report/submission/data-quality/check.py",
+      "c41b43a2dd476ea78cfade54df46e28ac238cb0a:report/submission/data-quality/results.json",
+      "c41b43a2dd476ea78cfade54df46e28ac238cb0a:report/submission/supplements/extended-limitations.md",
+      "c41b43a2dd476ea78cfade54df46e28ac238cb0a:report/submission/supplements/extended-methods-and-results.md",
+      "7d1d0b7db028da46a33b3a8d3fb40b3aba6f41a1:experiments/composition-gap/results/task-provenance",
+      "7d1d0b7db028da46a33b3a8d3fb40b3aba6f41a1:experiments/composition-gap/results/v2"
+    ],
+    "external_bibliography_rechecked": true,
+    "pdf_sha256": "93a744c0311b392af33ef892e83cff78a2b07ea0fce7d0dd1c4e09fcae4ff105",
+    "docx_sha256": "38ca8a868af91b09a0d1429072c8405adf4654c36596798e4c04548d4deefeba",
+    "all_pages_visually_reviewed": true,
+    "visual_review_scope": "Final changed pages 2, 3, 5, 6, 7, 10, 12 and 15 reviewed directly; seven other PNGs pixel-identical to the previously reviewed edition",
+    "experiments_rerun": false,
+    "final_review_corrections_applied": true
+  },
+  "bibliography_current_keys": [
+    "andriushchenko2024agentharm",
+    "clopper1934confidence",
+    "efron1979bootstrap",
+    "fagerland2013mcnemar",
+    "greenblatt2024control",
+    "hammond2025multiagent",
+    "jones2024combinations",
+    "kothamasu2026decompbench",
+    "mcnemar1947sampling",
+    "mireshghallah2024confaide",
+    "russinovich2026laundering",
+    "shen2026organizations",
+    "srivastav2025safe",
+    "wilson1927probable",
+    "yuehan2025monitoring"
+  ],
+  "bibliography_published_version_updates": {
+    "jones2024combinations": [
+      "Adversaries Can Misuse Combinations of Safe Models",
+      "https://proceedings.mlr.press/v267/jones25a.html",
+      "ICML 2025"
+    ],
+    "greenblatt2024control": [
+      "AI Control: Improving Safety Despite Intentional Subversion",
+      "https://proceedings.mlr.press/v235/greenblatt24a.html",
+      "ICML 2024"
+    ],
+    "andriushchenko2024agentharm": [
+      "AgentHarm: A Benchmark for Measuring Harmfulness of LLM Agents",
+      "https://proceedings.iclr.cc/paper_files/paper/2025/hash/c493d23af93118975cdbc32cbe7323f5-Abstract-Conference.html",
+      "ICLR 2025"
+    ],
+    "yuehan2025monitoring": [
+      "Monitoring Decomposition Attacks with Lightweight Sequential Monitors",
+      "https://proceedings.iclr.cc/paper_files/paper/2026/hash/2985777c8f2152664946ed30deb77291-Abstract-Conference.html",
+      "ICLR 2026"
+    ]
+  },
+  "comparative_literature_review": "research-review.md",
+  "interpretation_limits": [
+    "No fresh model inference or independent behavioral replication.",
+    "Trusted purpose supplied to a deliberately uninformed baseline; no authenticated provenance or forged-metadata test.",
+    "Objective and contribution statement bundled; no purpose-only, contribution-only, length-matched or actor-stage ablations.",
+    "One synthetic task and one provider family; Study 2 uses one model and two fixed wording pairs.",
+    "No competitive ranking against monitoring research from one frozen monitor prompt.",
+    "Git chronology and author sprint declarations do not independently authenticate every collection or authoring event."
+  ],
+  "source_sha256": {
+    "report/submission/manuscript.md": "41c33abe9f5ad14801ef039a4110743d2cf0807cc2c2f8d6febe77c1d7c02e25",
+    "report/submission/appendices.md": "df4acf9df0be54e4d0a6beb6d9589aff8a8c1f5c996086a0b7e6263a6632b515",
+    "report/submission/references.md": "ea2101bc3364878c44ee819268f3fced2be02a682be766044760c696d7e80f52",
+    "report/submission/research-review.md": "e5e178d248b8ac474b8fac78bc958779f7f8ce6a09c84c5ba65fd767f4370fec",
+    "docs/research/references.bib": "09f1b3d4b5999d988f3bcd365aefa2c87b08059f5b0f1db370e9585b36e222cc"
+  },
+  "model_experiments_rerun": false,
+  "global_submission_made": false,
+  "final_corrections_record": "final-corrections-verification.json"
+}

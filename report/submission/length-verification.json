@@ -1,0 +1,74 @@
+{
+  "pdf_pages": 15,
+  "main_text_pages": [
+    1,
+    5
+  ],
+  "main_pages_including_references": 6,
+  "references_pages": [
+    6,
+    6
+  ],
+  "appendix_pages": [
+    7,
+    15
+  ],
+  "appendix_a_pages": [
+    7,
+    7
+  ],
+  "appendix_b_pages": [
+    8,
+    10
+  ],
+  "appendix_c_pages": [
+    11,
+    15
+  ],
+  "abstract_words": 193,
+  "reference_entries": 15,
+  "embedded_figure_pngs": 6,
+  "source_lines_checked": 133,
+  "source_and_rendered_table_cells_match": true,
+  "study1_main_table_recomputed": true,
+  "study2_all_16_cells_recomputed": true,
+  "study2_main_paired_table_and_appendix_contrasts_recomputed": true,
+  "fresh_data_quality_matches_recorded": true,
+  "preserve_only_parts_identical": true,
+  "template_sha256": "d46f39b89dbb3e8426760eebba6459977fed05d60a41a2a0e72c01f32ac45706",
+  "pdf_fonts_embedded": {
+    "/BAAAAA+OldStandardTT-Bold": true,
+    "/CAAAAA+OldStandardTT-Bold": true,
+    "/DAAAAA+OldStandardTT-Regular": true,
+    "/EAAAAA+OldStandardTT-Bold": true,
+    "/FAAAAA+LiberationSans": true,
+    "/GAAAAA+OldStandardTT-Regular": true,
+    "/HAAAAA+OldStandardTT-Italic": true,
+    "/IAAAAA+OldStandardTT-Bold": true,
+    "/JAAAAA+OldStandardTT-Bold": true,
+    "/KAAAAA+OldStandardTT-Bold": true,
+    "/LAAAAA+OldStandardTT-Regular": true
+  },
+  "word_boxes_outside_65pt_margins": [],
+  "dangling_internal_relationships": [],
+  "unique_pdf_targets": 27,
+  "pinned_repository_paths_verified_in_git": [
+    "7d1d0b7db028da46a33b3a8d3fb40b3aba6f41a1:docs/findings/development-timeline.md",
+    "7d1d0b7db028da46a33b3a8d3fb40b3aba6f41a1:docs/handoffs/verification.md",
+    "7d1d0b7db028da46a33b3a8d3fb40b3aba6f41a1:report/submission/secondary-metrics.py",
+    "c363e3b118932b1e20a19949a971fe41dbc0fabf:docs/findings/v2-followup.md",
+    "c41b43a2dd476ea78cfade54df46e28ac238cb0a:report/submission/data-quality/check.py",
+    "c41b43a2dd476ea78cfade54df46e28ac238cb0a:report/submission/data-quality/results.json",
+    "c41b43a2dd476ea78cfade54df46e28ac238cb0a:report/submission/supplements/extended-limitations.md",
+    "c41b43a2dd476ea78cfade54df46e28ac238cb0a:report/submission/supplements/extended-methods-and-results.md",
+    "7d1d0b7db028da46a33b3a8d3fb40b3aba6f41a1:experiments/composition-gap/results/task-provenance",
+    "7d1d0b7db028da46a33b3a8d3fb40b3aba6f41a1:experiments/composition-gap/results/v2"
+  ],
+  "external_bibliography_rechecked": true,
+  "pdf_sha256": "93a744c0311b392af33ef892e83cff78a2b07ea0fce7d0dd1c4e09fcae4ff105",
+  "docx_sha256": "38ca8a868af91b09a0d1429072c8405adf4654c36596798e4c04548d4deefeba",
+  "all_pages_visually_reviewed": true,
+  "visual_review_scope": "Final changed pages 2, 3, 5, 6, 7, 10, 12 and 15 reviewed directly; seven other PNGs pixel-identical to the previously reviewed edition",
+  "experiments_rerun": false,
+  "final_review_corrections_applied": true
+}

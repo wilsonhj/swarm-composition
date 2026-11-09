@@ -1,0 +1,338 @@
+{
+  "date": "2026-11-08",
+  "scope": "Final paper corrections, fresh offline evidence checks, artifact QA and submission-document requirements; not behavioral replication or platform submission.",
+  "all_requested_paper_corrections_applied": true,
+  "exploratory_extension": {
+    "record": "data-quality/review-results.json",
+    "rows": 160,
+    "logged_calls": 720,
+    "kept_separate_from_confirmatory": true,
+    "four_manifests_mark_dirty": true,
+    "two_explicit_turns_list_both_sonnet_ids": true,
+    "strict_assembly_relay_explicit_neutral": [
+      4,
+      2
+    ],
+    "strict_assembly_solo_explicit_neutral": [
+      0,
+      8
+    ],
+    "denominator_each": 10
+  },
+  "bibliography_names": {
+    "rendered": [
+      "Chen, Y.-H.",
+      "Wagner III, L. T."
+    ],
+    "sources": [
+      "https://github.com/YuehHanChen",
+      "https://arxiv.org/abs/2604.10290"
+    ],
+    "generated_bibliography_and_export_checked": true
+  },
+  "provenance": {
+    "initial_commit": "e227aa9",
+    "initial_pilot_files": {
+      "experiments/composition-gap/results/pilot/frame_explicit.jsonl": {
+        "sha256_at_scaffold": "82a628e713221047326c6290f6903a1849656c42f93944db4935c3f39ddec619",
+        "rows": 24,
+        "fields": [
+          "all_disclosed",
+          "board",
+          "cond",
+          "framing",
+          "joined",
+          "model",
+          "n",
+          "parts_disclosed",
+          "policy",
+          "seed"
+        ]
+      },
+      "experiments/composition-gap/results/pilot/frame_hinted.jsonl": {
+        "sha256_at_scaffold": "3da942f98fd6151d257edd4f4145f051a2a59dc915404e13101dde4d789d4164",
+        "rows": 24,
+        "fields": [
+          "all_disclosed",
+          "board",
+          "cond",
+          "framing",
+          "joined",
+          "model",
+          "n",
+          "parts_disclosed",
+          "policy",
+          "seed"
+        ]
+      },
+      "experiments/composition-gap/results/pilot/frame_neutral.jsonl": {
+        "sha256_at_scaffold": "3bea2dc3c74ef8da374ef8b6a9907d12f7a5e510ea559a74a861b31635c26b65",
+        "rows": 24,
+        "fields": [
+          "all_disclosed",
+          "board",
+          "cond",
+          "framing",
+          "joined",
+          "model",
+          "n",
+          "parts_disclosed",
+          "policy",
+          "seed"
+        ]
+      },
+      "experiments/composition-gap/results/pilot/pilot.jsonl": {
+        "sha256_at_scaffold": "09bf9c6461e080d689fcaf82c5aa4621696375b2539a63b420790672c306d6de",
+        "rows": 8,
+        "fields": [
+          "board",
+          "completed",
+          "cond",
+          "model",
+          "seed"
+        ]
+      },
+      "experiments/composition-gap/results/pilot/pilot2.jsonl": {
+        "sha256_at_scaffold": "ef3f824e3b4a423d6c1fd467dbdc77ae4988d2d6ff69bb2270b429ec6915a5f0",
+        "rows": 24,
+        "fields": [
+          "all_disclosed",
+          "board",
+          "cond",
+          "joined",
+          "model",
+          "n",
+          "parts_disclosed",
+          "seed"
+        ]
+      },
+      "experiments/composition-gap/results/pilot/relay2_haiku.jsonl": {
+        "sha256_at_scaffold": "d23d56f00c0d383765e2f1b85b94dca561266759f35eed20da54dbf34f853993",
+        "rows": 20,
+        "fields": [
+          "all_disclosed",
+          "board",
+          "cond",
+          "coord_final_raw",
+          "framing",
+          "joined",
+          "model",
+          "parts_disclosed",
+          "policy",
+          "request_names_secret",
+          "requested",
+          "seed"
+        ]
+      },
+      "experiments/composition-gap/results/pilot/relay2_sonnet.jsonl": {
+        "sha256_at_scaffold": "4fe7c629877aeda141e37fbda1198dfbe331630584990c20f0fd154665b22578",
+        "rows": 10,
+        "fields": [
+          "all_disclosed",
+          "board",
+          "cond",
+          "coord_final_raw",
+          "framing",
+          "joined",
+          "model",
+          "parts_disclosed",
+          "policy",
+          "request_names_secret",
+          "requested",
+          "seed"
+        ]
+      },
+      "experiments/composition-gap/results/pilot/strict_haiku.jsonl": {
+        "sha256_at_scaffold": "5fd8102545a6acc9dbf524c7c5c2daab86628e03a7ec3a51e1be3bd0854580e0",
+        "rows": 24,
+        "fields": [
+          "all_disclosed",
+          "board",
+          "cond",
+          "joined",
+          "model",
+          "n",
+          "parts_disclosed",
+          "policy",
+          "seed"
+        ]
+      },
+      "experiments/composition-gap/results/pilot/strict_sonnet.jsonl": {
+        "sha256_at_scaffold": "daa33e4ffec6ef4701e456d94f4037832b5bd04b3742ae4a29cb64383139bbb3",
+        "rows": 24,
+        "fields": [
+          "all_disclosed",
+          "board",
+          "cond",
+          "joined",
+          "model",
+          "n",
+          "parts_disclosed",
+          "policy",
+          "seed"
+        ]
+      },
+      "experiments/composition-gap/results/pilot/superseded/relay_haiku.jsonl": {
+        "sha256_at_scaffold": "4bbe6162fb331ff6b8d019cce5a15b746f67cddd16ccd9adabaf08a18f34bd03",
+        "rows": 20,
+        "fields": [
+          "all_disclosed",
+          "board",
+          "cond",
+          "framing",
+          "joined",
+          "model",
+          "parts_disclosed",
+          "policy",
+          "request_names_secret",
+          "requested",
+          "seed"
+        ]
+      },
+      "experiments/composition-gap/results/pilot/superseded/relay_sonnet.jsonl": {
+        "sha256_at_scaffold": "1ac39bdb16c42afa9cb53c2469a203646d4ad41c8d0823446b59eb8f191dbd88",
+        "rows": 10,
+        "fields": [
+          "all_disclosed",
+          "board",
+          "cond",
+          "framing",
+          "joined",
+          "model",
+          "parts_disclosed",
+          "policy",
+          "request_names_secret",
+          "requested",
+          "seed"
+        ]
+      }
+    },
+    "execution_timestamp_fields_absent": true,
+    "scope": "No execution timestamp fields in the eleven stored initial pilot files; absence is not proof of pre-sprint creation. Author confirmed sprint timing.",
+    "stopped_v1_run_log_sha256": "d08f2d0ceee82cbaaa4fee79368dfd1d1f3b46cf61e79485346df94e0eb515de"
+  },
+  "wording_checks": [
+    "Stored raw replies and reconstructed inputs",
+    "Separate claim ledger covers earlier source documents",
+    "Stopped exploratory v1 full run",
+    "Author confirms sprint timing; eleven initial pilot files lack execution timestamps"
+  ],
+  "fresh_checks": {
+    "canonical_replay_statuses": {
+      "v2": "artifact_replay_passed",
+      "provenance": "provenance_replay_passed"
+    },
+    "independently_rescored_confirmatory_records": 1840,
+    "independently_rescored_exploratory_records": 160,
+    "claim_ledger_integrity_problems": 0,
+    "claim_regression_tests_passed": 9,
+    "documentation_check_exit": 0,
+    "secondary_metrics_match_recorded": true,
+    "scoped_data_quality_matches_recorded": true
+  },
+  "artifact_verification": {
+    "pdf_pages": 15,
+    "main_text_pages": [
+      1,
+      5
+    ],
+    "main_pages_including_references": 6,
+    "references_pages": [
+      6,
+      6
+    ],
+    "appendix_pages": [
+      7,
+      15
+    ],
+    "appendix_a_pages": [
+      7,
+      7
+    ],
+    "appendix_b_pages": [
+      8,
+      10
+    ],
+    "appendix_c_pages": [
+      11,
+      15
+    ],
+    "abstract_words": 193,
+    "reference_entries": 15,
+    "embedded_figure_pngs": 6,
+    "source_lines_checked": 133,
+    "source_and_rendered_table_cells_match": true,
+    "study1_main_table_recomputed": true,
+    "study2_all_16_cells_recomputed": true,
+    "study2_main_paired_table_and_appendix_contrasts_recomputed": true,
+    "fresh_data_quality_matches_recorded": true,
+    "preserve_only_parts_identical": true,
+    "template_sha256": "d46f39b89dbb3e8426760eebba6459977fed05d60a41a2a0e72c01f32ac45706",
+    "pdf_fonts_embedded": {
+      "/BAAAAA+OldStandardTT-Bold": true,
+      "/CAAAAA+OldStandardTT-Bold": true,
+      "/DAAAAA+OldStandardTT-Regular": true,
+      "/EAAAAA+OldStandardTT-Bold": true,
+      "/FAAAAA+LiberationSans": true,
+      "/GAAAAA+OldStandardTT-Regular": true,
+      "/HAAAAA+OldStandardTT-Italic": true,
+      "/IAAAAA+OldStandardTT-Bold": true,
+      "/JAAAAA+OldStandardTT-Bold": true,
+      "/KAAAAA+OldStandardTT-Bold": true,
+      "/LAAAAA+OldStandardTT-Regular": true
+    },
+    "word_boxes_outside_65pt_margins": [],
+    "dangling_internal_relationships": [],
+    "unique_pdf_targets": 27,
+    "pinned_repository_paths_verified_in_git": [
+      "7d1d0b7db028da46a33b3a8d3fb40b3aba6f41a1:docs/findings/development-timeline.md",
+      "7d1d0b7db028da46a33b3a8d3fb40b3aba6f41a1:docs/handoffs/verification.md",
+      "7d1d0b7db028da46a33b3a8d3fb40b3aba6f41a1:report/submission/secondary-metrics.py",
+      "c363e3b118932b1e20a19949a971fe41dbc0fabf:docs/findings/v2-followup.md",
+      "c41b43a2dd476ea78cfade54df46e28ac238cb0a:report/submission/data-quality/check.py",
+      "c41b43a2dd476ea78cfade54df46e28ac238cb0a:report/submission/data-quality/results.json",
+      "c41b43a2dd476ea78cfade54df46e28ac238cb0a:report/submission/supplements/extended-limitations.md",
+      "c41b43a2dd476ea78cfade54df46e28ac238cb0a:report/submission/supplements/extended-methods-and-results.md",
+      "7d1d0b7db028da46a33b3a8d3fb40b3aba6f41a1:experiments/composition-gap/results/task-provenance",
+      "7d1d0b7db028da46a33b3a8d3fb40b3aba6f41a1:experiments/composition-gap/results/v2"
+    ],
+    "external_bibliography_rechecked": true,
+    "pdf_sha256": "93a744c0311b392af33ef892e83cff78a2b07ea0fce7d0dd1c4e09fcae4ff105",
+    "docx_sha256": "38ca8a868af91b09a0d1429072c8405adf4654c36596798e4c04548d4deefeba",
+    "all_pages_visually_reviewed": true,
+    "visual_review_scope": "Final changed pages 2, 3, 5, 6, 7, 10, 12 and 15 reviewed directly; seven other PNGs pixel-identical to the previously reviewed edition",
+    "experiments_rerun": false,
+    "final_review_corrections_applied": true
+  },
+  "changed_pages_reviewed": [
+    2,
+    3,
+    5,
+    6,
+    7,
+    10,
+    12,
+    15
+  ],
+  "other_pages_pixel_identical_to_reviewed_edition": [
+    1,
+    4,
+    8,
+    9,
+    11,
+    13,
+    14
+  ],
+  "live_guidelines_url": "https://apartresearch.com/sprints/swarm-alignment-2026#guidelines",
+  "author_confirmed_at_most_two_projects": true,
+  "global_submission_made": false,
+  "source_sha256": {
+    "report/submission/manuscript.md": "41c33abe9f5ad14801ef039a4110743d2cf0807cc2c2f8d6febe77c1d7c02e25",
+    "report/submission/appendices.md": "df4acf9df0be54e4d0a6beb6d9589aff8a8c1f5c996086a0b7e6263a6632b515",
+    "report/submission/references.md": "ea2101bc3364878c44ee819268f3fced2be02a682be766044760c696d7e80f52",
+    "report/submission/research-review.md": "e5e178d248b8ac474b8fac78bc958779f7f8ce6a09c84c5ba65fd767f4370fec",
+    "docs/research/references.bib": "09f1b3d4b5999d988f3bcd365aefa2c87b08059f5b0f1db370e9585b36e222cc"
+  },
+  "review_check_script_sha256": "23870bda5e53163d41ca66bacbdd96884c718a0e5f4a87f6ca1283a27c954ff9",
+  "review_results_sha256": "9563766695255337c14b547a619da5196d570830b68748fbfb476d12de43d325"
+}

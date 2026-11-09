@@ -1,0 +1,154 @@
+{
+  "checked_date": "2026-11-08",
+  "guidelines_url": "https://apartresearch.com/sprints/swarm-alignment-2026#guidelines",
+  "paper_document_requirements": "passed",
+  "global_submission_made": false,
+  "two_project_limit_confirmation": "Author confirmed on November 8, 2026: Yes—one or two projects",
+  "main_text_pages": 5,
+  "references_pages": 1,
+  "appendix_pages": 9,
+  "total_pages": 15,
+  "abstract_words": 193,
+  "pdf_bytes": 2056231,
+  "pdf_sha256": "93a744c0311b392af33ef892e83cff78a2b07ea0fce7d0dd1c4e09fcae4ff105",
+  "docx_sha256": "38ca8a868af91b09a0d1429072c8405adf4654c36596798e4c04548d4deefeba",
+  "live_template_url": "https://docs.google.com/document/d/1_1_27EyZriMlc8n8EBE2YScaeyMjm-8xjR097nmHXAE/copy?usp=sharing",
+  "live_template_download_sha256": "f4c719ece9833cd2158707213b17f633a6e397de453880191e2adff4c0e8de3a",
+  "live_template_internal_parts_identical_to_retained": true,
+  "live_template_parts_checked": 15,
+  "required_appendix_page": 7,
+  "explicit_dual_use_assessment_restored": true,
+  "ai_usage_and_author_responsibility_present": true,
+  "prior_work_disclosure": "Author confirms no pre-sprint assets; paper now explicitly notes that eleven initial pilot files lack execution timestamps and records do not independently date every asset.",
+  "reference_checks": [
+    {
+      "key": "clopper1934confidence",
+      "title": "THE USE OF CONFIDENCE OR FIDUCIAL LIMITS ILLUSTRATED IN THE CASE OF THE BINOMIAL",
+      "source": "https://api.crossref.org/works/10.1093/biomet/26.4.404",
+      "title_matches_bibliography": true,
+      "scope": "Source identity and title; author/year checked where displayed. Not an exhaustive re-analysis of every literature claim."
+    },
+    {
+      "key": "srivastav2025safe",
+      "title": "Safe in Isolation, Dangerous Together: Agent-Driven Multi-Turn Decomposition Jailbreaks on LLMs",
+      "source": "https://aclanthology.org/2025.realm-1.13",
+      "title_matches_bibliography": true,
+      "scope": "Source identity and title; author/year checked where displayed. Not an exhaustive re-analysis of every literature claim."
+    },
+    {
+      "key": "greenblatt2024control",
+      "title": "AI Control: Improving Safety Despite Intentional Subversion",
+      "source": "https://proceedings.mlr.press/v235/greenblatt24a.html",
+      "title_matches_bibliography": true,
+      "scope": "Published conference identity, title, author list and publication year checked against the official proceedings.",
+      "publication": "ICML 2024"
+    },
+    {
+      "key": "jones2024combinations",
+      "title": "Adversaries Can Misuse Combinations of Safe Models",
+      "source": "https://proceedings.mlr.press/v267/jones25a.html",
+      "title_matches_bibliography": true,
+      "scope": "Published conference identity, title, author list and publication year checked against the official proceedings.",
+      "publication": "ICML 2025"
+    },
+    {
+      "key": "andriushchenko2024agentharm",
+      "title": "AgentHarm: A Benchmark for Measuring Harmfulness of LLM Agents",
+      "source": "https://proceedings.iclr.cc/paper_files/paper/2025/hash/c493d23af93118975cdbc32cbe7323f5-Abstract-Conference.html",
+      "title_matches_bibliography": true,
+      "scope": "Published conference identity, title, author list and publication year checked against the official proceedings.",
+      "publication": "ICLR 2025"
+    },
+    {
+      "key": "hammond2025multiagent",
+      "title": "Multi-Agent Risks from Advanced AI",
+      "source": "https://arxiv.org/abs/2502.14143",
+      "title_matches_bibliography": true,
+      "scope": "Source identity and title; author/year checked where displayed. Not an exhaustive re-analysis of every literature claim."
+    },
+    {
+      "key": "yuehan2025monitoring",
+      "title": "Monitoring Decomposition Attacks with Lightweight Sequential Monitors",
+      "source": "https://proceedings.iclr.cc/paper_files/paper/2026/hash/2985777c8f2152664946ed30deb77291-Abstract-Conference.html",
+      "title_matches_bibliography": true,
+      "scope": "Published conference identity, title, author list and publication year checked against the official proceedings.",
+      "publication": "ICLR 2026",
+      "author_name_correction": "Chen, Y.-H.",
+      "author_identity_source": "https://github.com/YuehHanChen"
+    },
+    {
+      "key": "shen2026organizations",
+      "title": "AI Organizations are More Effective but Less Aligned than Individual Agents",
+      "source": "https://arxiv.org/abs/2604.10290",
+      "title_matches_bibliography": true,
+      "scope": "Source identity and title; author/year checked where displayed. Not an exhaustive re-analysis of every literature claim.",
+      "author_name_correction": "Wagner III, L. T.",
+      "author_identity_source": "https://arxiv.org/abs/2604.10290"
+    },
+    {
+      "key": "kothamasu2026decompbench",
+      "title": "Hidden in Plain Sight: Benchmarking Agent Safety Against Decomposition Attacks with DECOMPBENCH",
+      "source": "https://arxiv.org/abs/2606.13994",
+      "title_matches_bibliography": true,
+      "scope": "Source identity and title; author/year checked where displayed. Not an exhaustive re-analysis of every literature claim."
+    },
+    {
+      "key": "russinovich2026laundering",
+      "title": "Divide, Consult, Conquer: Capability Laundering Through Aligned LLMs",
+      "source": "https://arxiv.org/abs/2609.15383",
+      "title_matches_bibliography": true,
+      "scope": "Source identity and title; author/year checked where displayed. Not an exhaustive re-analysis of every literature claim."
+    },
+    {
+      "key": "mcnemar1947sampling",
+      "title": "Note on the Sampling Error of the Difference Between Correlated Proportions or Percentages",
+      "source": "https://api.crossref.org/works/10.1007/BF02295996",
+      "title_matches_bibliography": true,
+      "scope": "Source identity and title; author/year checked where displayed. Not an exhaustive re-analysis of every literature claim."
+    },
+    {
+      "key": "efron1979bootstrap",
+      "title": "Bootstrap Methods: Another Look at the Jackknife",
+      "source": "https://api.crossref.org/works/10.1214/aos/1176344552",
+      "title_matches_bibliography": true,
+      "scope": "Source identity and title; author/year checked where displayed. Not an exhaustive re-analysis of every literature claim."
+    },
+    {
+      "key": "fagerland2013mcnemar",
+      "title": "The McNemar test for binary matched-pairs data: mid-p and asymptotic are better than exact conditional",
+      "source": "https://link.springer.com/article/10.1186/1471-2288-13-91",
+      "title_matches_bibliography": true,
+      "scope": "Source identity and title; author/year checked where displayed. Not an exhaustive re-analysis of every literature claim."
+    },
+    {
+      "key": "mireshghallah2024confaide",
+      "title": "Can LLMs Keep a Secret? Testing Privacy Implications of Language Models via Contextual Integrity Theory",
+      "source": "https://proceedings.iclr.cc/paper_files/paper/2024/hash/08305d8b2ddab98932c163ea73df065f-Abstract-Conference.html",
+      "title_matches_bibliography": true,
+      "scope": "Source identity and title; author/year checked where displayed. Not an exhaustive re-analysis of every literature claim."
+    },
+    {
+      "key": "wilson1927probable",
+      "title": "Probable Inference, the Law of Succession, and Statistical Inference",
+      "source": "https://api.crossref.org/works/10.2307/2276774",
+      "title_matches_bibliography": true,
+      "scope": "Source identity and title; author/year checked where displayed. Not an exhaustive re-analysis of every literature claim."
+    }
+  ],
+  "reference_audit_limits": "Primary page identity and title verification plus publisher-deposited metadata; not independent replication or full literature-claim verification. Direct requests encountered publisher challenges and GitHub timeouts; authoritative alternatives/connector confirmed resource identities.",
+  "public_repository_and_pinned_evidence_verified": true,
+  "scoped_data_quality_freshly_rerun": true,
+  "data_quality_exactly_matches_saved": true,
+  "model_experiments_rerun": false,
+  "deadline_aoe": "2026-11-08T23:59:00-12:00",
+  "deadline_utc": "2026-11-09T11:59:00+00:00",
+  "deadline_los_angeles": "2026-11-09T03:59:00-08:00",
+  "judging_scope": "Document requirements are satisfied; novelty, soundness and clarity remain judge assessments.",
+  "two_project_limit_confirmation_scope": "Sole listed author declaration; not a platform-wide account audit",
+  "all_current_15_reference_identities_and_titles_matched": true,
+  "layout_and_scientific_revision": "research-review-verification.json",
+  "current_edition_all_pages_visually_reviewed": true,
+  "guidelines_and_template_check_scope": "Live Guidelines rechecked for final pass; linked template URL unchanged. Google copy link required authentication, so retained template from earlier verified download used. All preserve-only package parts match.",
+  "final_corrections_record": "final-corrections-verification.json",
+  "final_review_corrections_applied": true
+}

@@ -4,10 +4,10 @@ Submission drafts for the Swarm Alignment Hackathon (Apart Research + AI Alignme
 
 ## Current paper
 
-[Read the PDF](submission/who-knows-the-goal.pdf) or [edit the Word document](submission/who-knows-the-goal.docx). The November 7 edition lists **Hirokazu James Wilson** as author and includes the plain-language editorial revision. The compact edition is 20 pages total, including its eight-page main paper, references and appendices, with six figures explaining methods and results. [Edition notes, checksums and editorial diff](submission/README.md) accompany the files.
+[Read the PDF](submission/who-knows-the-goal.pdf) or [edit the Word document](submission/who-knows-the-goal.docx). The November 8 edition lists **Hirokazu James Wilson**, Independent researcher, as author. It is 15 pages: five of main text, one of references and nine of appendices, including supporting graphs and diagrams. All six figures remain, with fifteen selected references. The [critical scientific review](submission/research-review.md) documents the fact-check, editorial changes and comparison with recent academic work. [Current manuscript, edition notes and verification](submission/README.md) accompany the files.
 
 ## Files
-- `draft.md`: working report covering two separate studies: the completed v2 Haiku/Sonnet measurements and the task-provenance study (development pilot plus the completed held-out Haiku run, never pooled with v2). This source predates the editorial revision in `submission/`; the accompanying patch records the prose changes. SAE work is an unimplemented proposal only.
+- `draft.md`: working report covering two separate studies: the completed v2 Haiku/Sonnet measurements and the task-provenance study (development pilot plus the completed held-out Haiku run, never pooled with v2). This source predates the editorial revisions. The current shorter paper is in `submission/manuscript.md` and `submission/appendices.md`; `submission/editorial.patch` records an earlier edition. SAE work is an unimplemented proposal only.
 - `figures/`: figure scripts and rendered images for the report.
 - `references.md`: rendered references (generated from `../docs/research/references.bib` by `tools/render_refs.py`).
 - `tools/render_refs.py`: script that renders `references.md`.

@@ -124,7 +124,7 @@ Backend setup: [Claude Code](docs/dev/claude-code-cli.md), [OpenRouter](docs/dev
 **Paper:** [PDF](report/submission/who-knows-the-goal.pdf) · [Editable Word document](report/submission/who-knows-the-goal.docx). Author: **Hirokazu James Wilson**. [Edition and verification notes](report/submission/README.md).
 
 - [Raw data and manifests](experiments/composition-gap/results/task-provenance/) · [saved analysis](experiments/composition-gap/results/task-provenance/heldout-haiku.jsonl.analysis.md)
-- [Research report](report/draft.md) · [limitations](report/appendix-limitations-dual-use.md) · [related work](docs/research/related-work.md)
+- [Current manuscript](report/submission/manuscript.md) · [appendices and limitations](report/submission/appendices.md) · [references](report/submission/references.md) · [earlier working draft](report/draft.md)
 - [Reproduction and audit notes](docs/handoffs/verification.md) · [claim ledger](report/claim-ledger.csv), checked with `python3 report/tools/check_claims.py --quiet`
 - [Contributing](CONTRIBUTING.md) · `make test` for offline tests · [hackathon logistics](docs/hackathon/)
 

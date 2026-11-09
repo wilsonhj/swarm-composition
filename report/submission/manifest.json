@@ -1,7 +1,7 @@
 {
   "title": "Who Knows the Goal? Local Context, Task Provenance, and Restricted Assembly When Work Is Split Across Agents",
   "author": "Hirokazu James Wilson",
-  "edition_date": "2026-11-07",
+  "edition_date": "2026-11-08",
   "base_source_commit": "d3322d34a5e7fb7e9b4b180d10983b435dc7ab73",
   "editorial_patch": "editorial.patch",
   "editorial_patch_sha256": "c98fe5a5ab177b641bc097b718ce33a94e26eb4c9db49b34619ce10d7511d6cc",
@@ -15,21 +15,11 @@
     "report/figures/fig4_provenance_heldout.png": "4c9c665d20c071556ba42a7edc5abaaab1730be804d7707452667f7a99838a4e",
     "report/figures/fig5_provenance_design.png": "2fcea4c0f83454f7486fd8b5f31752940b6fdb724a819892d39df99c55a2f71b"
   },
-  "editorial_source_sha256": {
-    "report/draft.md": "410fbac123cb221839d0924914898d8349f3f6f8333926922315466bec1a8930",
-    "report/references.md": "c2619e95a5335089ac6bd3d69e8485b3ec7fbe3bd4880b7f917518f636698721",
-    "report/appendix-limitations-dual-use.md": "5b34a7f2f5dbe8167ddc87bd68d369ed0dfff4425eb8838863a973aa12e05888",
-    "report/appendix-b.md": "6db2be0742aa80acf7810a9279b3b234ded76d5cf37df260feb96b42b924188b",
-    "report/figures/fig1_topologies.png": "75a4b94b0bb9a52d5169df337ce0d5e812f4b59452b44a49c500daed7cad7150",
-    "report/figures/fig2_v2_heatmap.png": "1830898d32b8a56dee0c0f8d2cbedde233c6160e36e5f1a696449756428172bf",
-    "report/figures/fig4_provenance_heldout.png": "4c9c665d20c071556ba42a7edc5abaaab1730be804d7707452667f7a99838a4e",
-    "report/figures/fig5_provenance_design.png": "2fcea4c0f83454f7486fd8b5f31752940b6fdb724a819892d39df99c55a2f71b"
-  },
   "template_sha256": "d46f39b89dbb3e8426760eebba6459977fed05d60a41a2a0e72c01f32ac45706",
   "files": {
     "README.md": {
-      "bytes": 2563,
-      "sha256": "3cce302cb4394643e2e36b076bd4aec8aacbeb04c99e0452b76cf66838ae99f2"
+      "bytes": 4707,
+      "sha256": "c61dedc84ccc5f428db1d17e3b3ac9a5080a6838c20cf20a23be252ebcc464f6"
     },
     "data-quality/check.py": {
       "bytes": 6326,
@@ -84,74 +74,61 @@
       "sha256": "0d6059db2235504443815ba8c70738debac6a761c362faa3cbaad551c59308fc"
     },
     "who-knows-the-goal.docx": {
-      "bytes": 2220986,
-      "sha256": "692e0900a7ef63144fd3cc23a089605c6009fb3e388b5b232c96cfedc989a054"
+      "bytes": 2213941,
+      "sha256": "38ca8a868af91b09a0d1429072c8405adf4654c36596798e4c04548d4deefeba"
     },
     "who-knows-the-goal.pdf": {
-      "bytes": 2115196,
-      "sha256": "48298cd617c2a62d41ed20c1d96d36bbb7ef70a5be7d1205652342256b4c8478"
+      "bytes": 2056231,
+      "sha256": "93a744c0311b392af33ef892e83cff78a2b07ea0fce7d0dd1c4e09fcae4ff105"
+    },
+    "manuscript.md": {
+      "bytes": 14847,
+      "sha256": "41c33abe9f5ad14801ef039a4110743d2cf0807cc2c2f8d6febe77c1d7c02e25"
+    },
+    "appendices.md": {
+      "bytes": 18673,
+      "sha256": "df4acf9df0be54e4d0a6beb6d9589aff8a8c1f5c996086a0b7e6263a6632b515"
+    },
+    "length-verification.json": {
+      "bytes": 2839,
+      "sha256": "e1172aa2d4337c2f0b7ecbdc5705f3f0ed92e7438a947a88405afee83da165e8"
+    },
+    "guidelines-check.md": {
+      "bytes": 6834,
+      "sha256": "a1599f27bdcc9874dfbf4abee4604830042745741a9c9e7d04645f6dfceea8a0"
+    },
+    "guidelines-verification.json": {
+      "bytes": 9103,
+      "sha256": "95284a0348e00d9aa582f04103b5183993e828db6e4c2fa7c0d0973a94996c86"
+    },
+    "references.md": {
+      "bytes": 4946,
+      "sha256": "ea2101bc3364878c44ee819268f3fced2be02a682be766044760c696d7e80f52"
+    },
+    "research-review.md": {
+      "bytes": 14778,
+      "sha256": "e5e178d248b8ac474b8fac78bc958779f7f8ce6a09c84c5ba65fd767f4370fec"
+    },
+    "research-review-verification.json": {
+      "bytes": 33832,
+      "sha256": "b1259a0e639b640f518026e53728606ab410f637f28310651835d56b36bb2c80"
+    },
+    "data-quality/review-check.py": {
+      "bytes": 8399,
+      "sha256": "23870bda5e53163d41ca66bacbdd96884c718a0e5f4a87f6ca1283a27c954ff9"
+    },
+    "data-quality/review-results.json": {
+      "bytes": 18693,
+      "sha256": "9563766695255337c14b547a619da5196d570830b68748fbfb476d12de43d325"
+    },
+    "final-corrections-verification.json": {
+      "bytes": 11063,
+      "sha256": "29c8ab69392c7558c63c408e31987ee77f7899d81fe461ab0934960ce6e0766f"
     }
-  },
-  "verification": {
-    "pdf_pages": 20,
-    "main_pages": 8,
-    "references_pages": [
-      9,
-      10
-    ],
-    "appendix_a_pages": [
-      11,
-      12
-    ],
-    "appendix_b_pages": [
-      13,
-      16
-    ],
-    "appendix_c_pages": [
-      17,
-      20
-    ],
-    "abstract_words": 196,
-    "reference_entries": 29,
-    "appendix_b_table_cells_checked": 85,
-    "appendix_b_cells_missing": [],
-    "fenced_source_lines_checked": 0,
-    "fenced_source_lines_missing": [],
-    "embedded_figure_pngs": 6,
-    "preserve_only_parts_identical": true,
-    "dangling_internal_relationships": [],
-    "word_boxes_outside_65pt_margins": [],
-    "supplement_fenced_lines_preserved": 136,
-    "all_baseline_main_table_rows_retained": true
   },
   "all_pages_visually_reviewed": true,
-  "editorial_prose_lines_checked": 89,
-  "hyperlinks": {
-    "unique_pdf_targets": 43,
-    "unchanged_from_prior_edition": 35,
-    "new_targets": [
-      "https://github.com/wilsonhj/swarm-composition/blob/7d1d0b7db028da46a33b3a8d3fb40b3aba6f41a1/docs/handoffs/verification.md",
-      "https://github.com/wilsonhj/swarm-composition/blob/7d1d0b7db028da46a33b3a8d3fb40b3aba6f41a1/report/submission/secondary-metrics.py",
-      "https://github.com/wilsonhj/swarm-composition/blob/c41b43a2dd476ea78cfade54df46e28ac238cb0a/report/submission/data-quality/check.py",
-      "https://github.com/wilsonhj/swarm-composition/blob/c41b43a2dd476ea78cfade54df46e28ac238cb0a/report/submission/data-quality/results.json",
-      "https://github.com/wilsonhj/swarm-composition/blob/c41b43a2dd476ea78cfade54df46e28ac238cb0a/report/submission/supplements/extended-limitations.md",
-      "https://github.com/wilsonhj/swarm-composition/blob/c41b43a2dd476ea78cfade54df46e28ac238cb0a/report/submission/supplements/extended-methods-and-results.md",
-      "https://github.com/wilsonhj/swarm-composition/tree/7d1d0b7db028da46a33b3a8d3fb40b3aba6f41a1/experiments/composition-gap/results/task-provenance",
-      "https://github.com/wilsonhj/swarm-composition/tree/7d1d0b7db028da46a33b3a8d3fb40b3aba6f41a1/experiments/composition-gap/results/v2"
-    ],
-    "removed_targets": [
-      "https://github.com/wilsonhj/swarm-composition/blob/main/docs/handoffs/verification.md#provenance-held-out-replay"
-    ],
-    "pinned_repository_paths_verified_in_git": true,
-    "external_bibliography_rechecked_in_this_layout_pass": false,
-    "prior_link_audit": {
-      "http_200_or_206": 34,
-      "http_403": 2,
-      "scope": "Previous 36-link edition; not a reachability claim for new supplement links."
-    }
-  },
   "experiments_rerun": false,
-  "edition": "Compact illustrated edition and scoped data-quality review",
+  "edition": "Final corrected submission: five main pages, one reference page and nine appendix pages",
   "scientific_checks": {
     "study1_rows": 1040,
     "study1_logged_calls": 7670,
@@ -170,15 +147,13 @@
     "claim_ledger_integrity_problems": 0,
     "fresh_model_replication": false,
     "scoped_data_quality_freshly_rerun": true,
-    "prior_harness_test_scope": "Preceding academic review, unchanged experimental code; current GitHub CI is recorded on the PR."
+    "prior_harness_test_scope": "Preceding academic review, unchanged experimental code; current GitHub CI is recorded on the PR.",
+    "independent_direct_scoring_rows": 1840,
+    "fresh_pinned_replays_passed": 2,
+    "github_result_blobs_matched": 40,
+    "current_paired_tables_recomputed": true,
+    "independent_exploratory_extension_rows": 160
   },
-  "appendix_b_changes": [
-    "Concise operational methods and seed-3000 worked input",
-    "Relay counts and paired comparisons retained",
-    "Complete 16-cell Study 2 counts printed once",
-    "Four secondary monitor-versus-gate contrasts retained",
-    "Exact prompt/transcript lines and exhaustive tables relocated intact to pinned repository supplements"
-  ],
   "supplement_commit": "c41b43a2dd476ea78cfade54df46e28ac238cb0a",
   "new_figure_source_paths": [
     "figures/study-overview.svg",
@@ -316,5 +291,450 @@
       "changed_page_visually_reviewed": 11,
       "other_19_pages_pixel_identical_to_prior_reviewed_render": true
     }
+  },
+  "previous_editions": [
+    {
+      "edition": "Compact illustrated edition and scoped data-quality review",
+      "edition_date": "2026-11-07",
+      "pdf_sha256": "48298cd617c2a62d41ed20c1d96d36bbb7ef70a5be7d1205652342256b4c8478",
+      "docx_sha256": "692e0900a7ef63144fd3cc23a089605c6009fb3e388b5b232c96cfedc989a054",
+      "verification": {
+        "pdf_pages": 20,
+        "main_pages": 8,
+        "references_pages": [
+          9,
+          10
+        ],
+        "appendix_a_pages": [
+          11,
+          12
+        ],
+        "appendix_b_pages": [
+          13,
+          16
+        ],
+        "appendix_c_pages": [
+          17,
+          20
+        ],
+        "abstract_words": 196,
+        "reference_entries": 29,
+        "appendix_b_table_cells_checked": 85,
+        "appendix_b_cells_missing": [],
+        "fenced_source_lines_checked": 0,
+        "fenced_source_lines_missing": [],
+        "embedded_figure_pngs": 6,
+        "preserve_only_parts_identical": true,
+        "dangling_internal_relationships": [],
+        "word_boxes_outside_65pt_margins": [],
+        "supplement_fenced_lines_preserved": 136,
+        "all_baseline_main_table_rows_retained": true
+      },
+      "hyperlinks": {
+        "unique_pdf_targets": 43,
+        "unchanged_from_prior_edition": 35,
+        "new_targets": [
+          "https://github.com/wilsonhj/swarm-composition/blob/7d1d0b7db028da46a33b3a8d3fb40b3aba6f41a1/docs/handoffs/verification.md",
+          "https://github.com/wilsonhj/swarm-composition/blob/7d1d0b7db028da46a33b3a8d3fb40b3aba6f41a1/report/submission/secondary-metrics.py",
+          "https://github.com/wilsonhj/swarm-composition/blob/c41b43a2dd476ea78cfade54df46e28ac238cb0a/report/submission/data-quality/check.py",
+          "https://github.com/wilsonhj/swarm-composition/blob/c41b43a2dd476ea78cfade54df46e28ac238cb0a/report/submission/data-quality/results.json",
+          "https://github.com/wilsonhj/swarm-composition/blob/c41b43a2dd476ea78cfade54df46e28ac238cb0a/report/submission/supplements/extended-limitations.md",
+          "https://github.com/wilsonhj/swarm-composition/blob/c41b43a2dd476ea78cfade54df46e28ac238cb0a/report/submission/supplements/extended-methods-and-results.md",
+          "https://github.com/wilsonhj/swarm-composition/tree/7d1d0b7db028da46a33b3a8d3fb40b3aba6f41a1/experiments/composition-gap/results/task-provenance",
+          "https://github.com/wilsonhj/swarm-composition/tree/7d1d0b7db028da46a33b3a8d3fb40b3aba6f41a1/experiments/composition-gap/results/v2"
+        ],
+        "removed_targets": [
+          "https://github.com/wilsonhj/swarm-composition/blob/main/docs/handoffs/verification.md#provenance-held-out-replay"
+        ],
+        "pinned_repository_paths_verified_in_git": true,
+        "external_bibliography_rechecked_in_this_layout_pass": false,
+        "prior_link_audit": {
+          "http_200_or_206": 34,
+          "http_403": 2,
+          "scope": "Previous 36-link edition; not a reachability claim for new supplement links."
+        }
+      },
+      "editorial_prose_lines_checked": 89,
+      "appendix_b_changes": [
+        "Concise operational methods and seed-3000 worked input",
+        "Relay counts and paired comparisons retained",
+        "Complete 16-cell Study 2 counts printed once",
+        "Four secondary monitor-versus-gate contrasts retained",
+        "Exact prompt/transcript lines and exhaustive tables relocated intact to pinned repository supplements"
+      ],
+      "editorial_source_sha256": {
+        "report/draft.md": "410fbac123cb221839d0924914898d8349f3f6f8333926922315466bec1a8930",
+        "report/references.md": "c2619e95a5335089ac6bd3d69e8485b3ec7fbe3bd4880b7f917518f636698721",
+        "report/appendix-limitations-dual-use.md": "5b34a7f2f5dbe8167ddc87bd68d369ed0dfff4425eb8838863a973aa12e05888",
+        "report/appendix-b.md": "6db2be0742aa80acf7810a9279b3b234ded76d5cf37df260feb96b42b924188b",
+        "report/figures/fig1_topologies.png": "75a4b94b0bb9a52d5169df337ce0d5e812f4b59452b44a49c500daed7cad7150",
+        "report/figures/fig2_v2_heatmap.png": "1830898d32b8a56dee0c0f8d2cbedde233c6160e36e5f1a696449756428172bf",
+        "report/figures/fig4_provenance_heldout.png": "4c9c665d20c071556ba42a7edc5abaaab1730be804d7707452667f7a99838a4e",
+        "report/figures/fig5_provenance_design.png": "2fcea4c0f83454f7486fd8b5f31752940b6fdb724a819892d39df99c55a2f71b"
+      }
+    },
+    {
+      "edition": "Concise paper with seven pages including references and nine appendix pages",
+      "edition_date": "2026-11-08",
+      "verification": {
+        "pdf_pages": 16,
+        "main_text_pages": [
+          1,
+          5
+        ],
+        "main_pages_including_references": 7,
+        "references_pages": [
+          6,
+          7
+        ],
+        "appendix_pages": [
+          8,
+          16
+        ],
+        "appendix_a_pages": [
+          8,
+          8
+        ],
+        "appendix_b_pages": [
+          9,
+          11
+        ],
+        "appendix_c_pages": [
+          12,
+          16
+        ],
+        "abstract_words": 196,
+        "reference_entries": 29,
+        "embedded_figure_pngs": 6,
+        "source_lines_checked": 129,
+        "source_and_rendered_table_cells_match": true,
+        "study1_main_table_recomputed": true,
+        "study2_all_16_cells_recomputed": true,
+        "fresh_data_quality_matches_recorded": true,
+        "preserve_only_parts_identical": true,
+        "pdf_fonts_embedded": {
+          "/BAAAAA+OldStandardTT-Bold": true,
+          "/CAAAAA+OldStandardTT-Bold": true,
+          "/DAAAAA+OldStandardTT-Regular": true,
+          "/EAAAAA+OldStandardTT-Bold": true,
+          "/FAAAAA+LiberationSans": true,
+          "/GAAAAA+OldStandardTT-Regular": true,
+          "/HAAAAA+OldStandardTT-Italic": true,
+          "/IAAAAA+OldStandardTT-Bold": true,
+          "/JAAAAA+OldStandardTT-Bold": true,
+          "/KAAAAA+OldStandardTT-Bold": true,
+          "/LAAAAA+OldStandardTT-Regular": true
+        },
+        "word_boxes_outside_65pt_margins": [],
+        "dangling_internal_relationships": [],
+        "all_pages_visually_reviewed": true,
+        "visual_review_scope": "Page 8 reviewed after dual-use clarification; all other 15 final PNGs pixel-identical to the fully reviewed 16-page edition",
+        "main_pages": 5,
+        "appendix_page_count": 9
+      },
+      "hyperlinks": {
+        "unique_pdf_targets": 40,
+        "pinned_repository_paths_verified_in_git": true,
+        "pinned_repository_paths_count": 9,
+        "external_bibliography_rechecked_in_this_layout_pass": true,
+        "scope": "Primary page identity and title verification plus publisher-deposited metadata; not independent replication or full literature-claim verification. Direct requests encountered publisher challenges and GitHub timeouts; authoritative alternatives/connector confirmed resource identities.",
+        "reference_identity_count": 29
+      },
+      "length_revision": {
+        "date": "2026-11-08",
+        "prior_pdf_pages": 20,
+        "pdf_pages": 16,
+        "main_text_pages": 5,
+        "references_pages": 2,
+        "main_including_references": 7,
+        "supporting_appendix_pages": 9,
+        "main_limit": 8,
+        "appendix_limit": 10,
+        "body_font_and_margins_unchanged": true,
+        "primary_estimates_and_caveats_retained": true,
+        "six_original_figures_and_29_references_retained": true,
+        "no_new_model_trials": true,
+        "fresh_scoped_data_quality_check": "Exact match to report/submission/data-quality/results.json",
+        "verification_record": "length-verification.json",
+        "source_files": [
+          "manuscript.md",
+          "appendices.md"
+        ],
+        "local_build": "output/pdf/build/length-revision-20261108/build_report.py",
+        "historical_patch_applies_to_this_edition": false
+      },
+      "editorial_source_sha256": {
+        "report/submission/manuscript.md": "5626e4445ef13d8f99577e5be867cbc08f2c4edf57cf4bb889e4d9d3aacfadea",
+        "report/submission/appendices.md": "ebb57c4dedcc3099aec258fb4fa779d7baf23fd99e041e0660c7d96bce2e8d6b",
+        "report/references.md": "c2619e95a5335089ac6bd3d69e8485b3ec7fbe3bd4880b7f917518f636698721"
+      },
+      "pdf_sha256": "9c83bdbacd8243c4bbd081182609ab307345f8ab45e46fe94b18151d1b71b031",
+      "docx_sha256": "af92555845fd8b8c1f2851b6c70e2d71f8bb556e0d2f1d0c7e3d258845b12043"
+    },
+    {
+      "edition": "Scientific and prose revision: five main pages, one reference page and nine appendix pages",
+      "edition_date": "2026-11-08",
+      "verification": {
+        "pdf_pages": 15,
+        "main_text_pages": [
+          1,
+          5
+        ],
+        "main_pages_including_references": 6,
+        "references_pages": [
+          6,
+          6
+        ],
+        "appendix_pages": [
+          7,
+          15
+        ],
+        "appendix_a_pages": [
+          7,
+          7
+        ],
+        "appendix_b_pages": [
+          8,
+          10
+        ],
+        "appendix_c_pages": [
+          11,
+          15
+        ],
+        "abstract_words": 193,
+        "reference_entries": 15,
+        "embedded_figure_pngs": 6,
+        "source_lines_checked": 132,
+        "source_and_rendered_table_cells_match": true,
+        "study1_main_table_recomputed": true,
+        "study2_all_16_cells_recomputed": true,
+        "study2_main_paired_table_and_appendix_contrasts_recomputed": true,
+        "fresh_data_quality_matches_recorded": true,
+        "preserve_only_parts_identical": true,
+        "template_sha256": "d46f39b89dbb3e8426760eebba6459977fed05d60a41a2a0e72c01f32ac45706",
+        "pdf_fonts_embedded": {
+          "/BAAAAA+OldStandardTT-Bold": true,
+          "/CAAAAA+OldStandardTT-Bold": true,
+          "/DAAAAA+OldStandardTT-Regular": true,
+          "/EAAAAA+OldStandardTT-Bold": true,
+          "/FAAAAA+LiberationSans": true,
+          "/GAAAAA+OldStandardTT-Regular": true,
+          "/HAAAAA+OldStandardTT-Italic": true,
+          "/IAAAAA+OldStandardTT-Bold": true,
+          "/JAAAAA+OldStandardTT-Bold": true,
+          "/KAAAAA+OldStandardTT-Bold": true,
+          "/LAAAAA+OldStandardTT-Regular": true
+        },
+        "word_boxes_outside_65pt_margins": [],
+        "dangling_internal_relationships": [],
+        "unique_pdf_targets": 26,
+        "pinned_repository_paths_verified_in_git": [
+          "7d1d0b7db028da46a33b3a8d3fb40b3aba6f41a1:docs/findings/development-timeline.md",
+          "7d1d0b7db028da46a33b3a8d3fb40b3aba6f41a1:docs/handoffs/verification.md",
+          "7d1d0b7db028da46a33b3a8d3fb40b3aba6f41a1:report/submission/secondary-metrics.py",
+          "c41b43a2dd476ea78cfade54df46e28ac238cb0a:report/submission/data-quality/check.py",
+          "c41b43a2dd476ea78cfade54df46e28ac238cb0a:report/submission/data-quality/results.json",
+          "c41b43a2dd476ea78cfade54df46e28ac238cb0a:report/submission/supplements/extended-limitations.md",
+          "c41b43a2dd476ea78cfade54df46e28ac238cb0a:report/submission/supplements/extended-methods-and-results.md",
+          "7d1d0b7db028da46a33b3a8d3fb40b3aba6f41a1:experiments/composition-gap/results/task-provenance",
+          "7d1d0b7db028da46a33b3a8d3fb40b3aba6f41a1:experiments/composition-gap/results/v2"
+        ],
+        "external_bibliography_rechecked": true,
+        "pdf_sha256": "a448f26cbe49bccac6f74d872d532073a99fb649b244b0fb645bb9d535afed2b",
+        "docx_sha256": "6bc759bdd7994ddfef4011e79e55d5aa1874b18d32e22438f87b9785dc9d55e2",
+        "all_pages_visually_reviewed": true,
+        "visual_review_scope": "Final pages 4 and 5 reviewed directly; other 13 final PNGs pixel-identical to the reviewed preceding render",
+        "experiments_rerun": false,
+        "main_pages": 5,
+        "appendix_page_count": 9
+      },
+      "hyperlinks": {
+        "unique_pdf_targets": 27,
+        "pinned_repository_paths_verified_in_git": true,
+        "pinned_repository_paths_count": 10,
+        "external_bibliography_rechecked_in_this_layout_pass": true,
+        "reference_identity_count": 15,
+        "scope": "Primary page identity and title verification plus publisher-deposited metadata; not independent replication or full literature-claim verification. Direct requests encountered publisher challenges and GitHub timeouts; authoritative alternatives/connector confirmed resource identities."
+      },
+      "length_revision": {
+        "date": "2026-11-08",
+        "prior_pdf_pages": 15,
+        "pdf_pages": 15,
+        "main_text_pages": 5,
+        "references_pages": 1,
+        "main_including_references": 6,
+        "supporting_appendix_pages": 9,
+        "main_limit": 8,
+        "author_appendix_limit": 10,
+        "body_font_and_margins_unchanged": true,
+        "six_original_figures_retained": true,
+        "selected_references": 15,
+        "abstract_words": 193,
+        "no_new_model_trials": true,
+        "verification_record": "length-verification.json",
+        "source_files": [
+          "manuscript.md",
+          "appendices.md",
+          "references.md"
+        ],
+        "local_build": "output/pdf/build/final-corrections-20261108/build_report.py",
+        "historical_patch_applies_to_this_edition": false
+      },
+      "editorial_source_sha256": {
+        "report/submission/manuscript.md": "41c33abe9f5ad14801ef039a4110743d2cf0807cc2c2f8d6febe77c1d7c02e25",
+        "report/submission/appendices.md": "c0d6e74b97fe5de185d421815b5cbbc0c5bc2843653613820cc69d2fabc20da9",
+        "report/submission/references.md": "1160181f4a18892aa580b767825b9042295c2f4c1407f45ddd1978f4ed55298d",
+        "docs/research/references.bib": "178f2fa52b90893f8ec53d9b4e31e874a3a816be30d4e304db8d6aba6b9661a9"
+      },
+      "pdf_sha256": "a448f26cbe49bccac6f74d872d532073a99fb649b244b0fb645bb9d535afed2b",
+      "docx_sha256": "6bc759bdd7994ddfef4011e79e55d5aa1874b18d32e22438f87b9785dc9d55e2"
+    }
+  ],
+  "source_provenance_note": "base_source_commit, base_source_sha256 and editorial.patch describe the historical editorial workflow. Current prose is in manuscript.md and appendices.md, with selected bibliography in references.md. Earlier editions and the broader reference list remain available; current source hashes follow.",
+  "editorial_source_sha256": {
+    "report/submission/manuscript.md": "41c33abe9f5ad14801ef039a4110743d2cf0807cc2c2f8d6febe77c1d7c02e25",
+    "report/submission/appendices.md": "df4acf9df0be54e4d0a6beb6d9589aff8a8c1f5c996086a0b7e6263a6632b515",
+    "report/submission/references.md": "ea2101bc3364878c44ee819268f3fced2be02a682be766044760c696d7e80f52",
+    "docs/research/references.bib": "09f1b3d4b5999d988f3bcd365aefa2c87b08059f5b0f1db370e9585b36e222cc"
+  },
+  "verification": {
+    "pdf_pages": 15,
+    "main_text_pages": [
+      1,
+      5
+    ],
+    "main_pages_including_references": 6,
+    "references_pages": [
+      6,
+      6
+    ],
+    "appendix_pages": [
+      7,
+      15
+    ],
+    "appendix_a_pages": [
+      7,
+      7
+    ],
+    "appendix_b_pages": [
+      8,
+      10
+    ],
+    "appendix_c_pages": [
+      11,
+      15
+    ],
+    "abstract_words": 193,
+    "reference_entries": 15,
+    "embedded_figure_pngs": 6,
+    "source_lines_checked": 133,
+    "source_and_rendered_table_cells_match": true,
+    "study1_main_table_recomputed": true,
+    "study2_all_16_cells_recomputed": true,
+    "study2_main_paired_table_and_appendix_contrasts_recomputed": true,
+    "fresh_data_quality_matches_recorded": true,
+    "preserve_only_parts_identical": true,
+    "template_sha256": "d46f39b89dbb3e8426760eebba6459977fed05d60a41a2a0e72c01f32ac45706",
+    "pdf_fonts_embedded": {
+      "/BAAAAA+OldStandardTT-Bold": true,
+      "/CAAAAA+OldStandardTT-Bold": true,
+      "/DAAAAA+OldStandardTT-Regular": true,
+      "/EAAAAA+OldStandardTT-Bold": true,
+      "/FAAAAA+LiberationSans": true,
+      "/GAAAAA+OldStandardTT-Regular": true,
+      "/HAAAAA+OldStandardTT-Italic": true,
+      "/IAAAAA+OldStandardTT-Bold": true,
+      "/JAAAAA+OldStandardTT-Bold": true,
+      "/KAAAAA+OldStandardTT-Bold": true,
+      "/LAAAAA+OldStandardTT-Regular": true
+    },
+    "word_boxes_outside_65pt_margins": [],
+    "dangling_internal_relationships": [],
+    "unique_pdf_targets": 27,
+    "pinned_repository_paths_verified_in_git": [
+      "7d1d0b7db028da46a33b3a8d3fb40b3aba6f41a1:docs/findings/development-timeline.md",
+      "7d1d0b7db028da46a33b3a8d3fb40b3aba6f41a1:docs/handoffs/verification.md",
+      "7d1d0b7db028da46a33b3a8d3fb40b3aba6f41a1:report/submission/secondary-metrics.py",
+      "c363e3b118932b1e20a19949a971fe41dbc0fabf:docs/findings/v2-followup.md",
+      "c41b43a2dd476ea78cfade54df46e28ac238cb0a:report/submission/data-quality/check.py",
+      "c41b43a2dd476ea78cfade54df46e28ac238cb0a:report/submission/data-quality/results.json",
+      "c41b43a2dd476ea78cfade54df46e28ac238cb0a:report/submission/supplements/extended-limitations.md",
+      "c41b43a2dd476ea78cfade54df46e28ac238cb0a:report/submission/supplements/extended-methods-and-results.md",
+      "7d1d0b7db028da46a33b3a8d3fb40b3aba6f41a1:experiments/composition-gap/results/task-provenance",
+      "7d1d0b7db028da46a33b3a8d3fb40b3aba6f41a1:experiments/composition-gap/results/v2"
+    ],
+    "external_bibliography_rechecked": true,
+    "pdf_sha256": "93a744c0311b392af33ef892e83cff78a2b07ea0fce7d0dd1c4e09fcae4ff105",
+    "docx_sha256": "38ca8a868af91b09a0d1429072c8405adf4654c36596798e4c04548d4deefeba",
+    "all_pages_visually_reviewed": true,
+    "visual_review_scope": "Final changed pages 2, 3, 5, 6, 7, 10, 12 and 15 reviewed directly; seven other PNGs pixel-identical to the previously reviewed edition",
+    "experiments_rerun": false,
+    "final_review_corrections_applied": true,
+    "main_pages": 5,
+    "appendix_page_count": 9
+  },
+  "hyperlinks": {
+    "unique_pdf_targets": 27,
+    "pinned_repository_paths_verified_in_git": true,
+    "pinned_repository_paths_count": 10,
+    "external_bibliography_rechecked_in_this_layout_pass": true,
+    "reference_identity_count": 15,
+    "scope": "Primary page identity and title verification plus publisher-deposited metadata; not independent replication or full literature-claim verification. Direct requests encountered publisher challenges and GitHub timeouts; authoritative alternatives/connector confirmed resource identities."
+  },
+  "length_revision": {
+    "date": "2026-11-08",
+    "prior_pdf_pages": 15,
+    "pdf_pages": 15,
+    "main_text_pages": 5,
+    "references_pages": 1,
+    "main_including_references": 6,
+    "supporting_appendix_pages": 9,
+    "main_limit": 8,
+    "author_appendix_limit": 10,
+    "body_font_and_margins_unchanged": true,
+    "six_original_figures_retained": true,
+    "selected_references": 15,
+    "abstract_words": 193,
+    "no_new_model_trials": true,
+    "verification_record": "length-verification.json",
+    "source_files": [
+      "manuscript.md",
+      "appendices.md",
+      "references.md"
+    ],
+    "local_build": "output/pdf/build/final-corrections-20261108/build_report.py",
+    "historical_patch_applies_to_this_edition": false
+  },
+  "global_guidelines_check": {
+    "date": "2026-11-08",
+    "result": "Checked document requirements and author-declared project limit satisfied; final review corrections applied; platform upload remains outstanding",
+    "record": "guidelines-verification.json",
+    "human_readable": "guidelines-check.md",
+    "template_live_download_matches_all_internal_parts": true,
+    "dual_use_clarification_page": 7,
+    "total_pages": 15,
+    "author_project_limit_confirmed": true
+  },
+  "research_review": {
+    "date": "2026-11-08",
+    "review": "research-review.md",
+    "verification": "research-review-verification.json",
+    "independently_rescored_rows": 1840,
+    "github_result_blobs_matched": 40,
+    "canonical_replays": "Both pass on fresh clean pinned worktrees",
+    "changes": [
+      "Clarify trusted-purpose intervention and threats not tested",
+      "Use complete-pair denominators in Table 2",
+      "Clarify authorized and overall pilot-monitor denominators",
+      "Synthesize related work and update four published citations",
+      "Shorten prose and focus conclusion on supported findings"
+    ],
+    "new_experiments": false
+  },
+  "final_corrections": {
+    "date": "2026-11-08",
+    "record": "final-corrections-verification.json",
+    "all_four_requested_correction_groups_applied": true,
+    "no_new_model_trials": true
   }
 }
