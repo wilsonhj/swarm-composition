@@ -2164,30 +2164,30 @@ WORKTREE_CLAIMS = [
       "the verified-model rerun gave 1 of 10)", "v2-sonnet+rerun", FV2, "7/30; 4 seeds; rerun 1/10",
       c_conclusion_relay, src=W),
     # ---------------- README.md (working tree)
-    C("WR01", RD, 71, "Haiku 5.5 via Claude Code, seeds 3000–3049, **800 trials (16 cells × 50)**. The protocol was "
+    C("WR01", RD, 73, "Haiku 5.5 via Claude Code, seeds 3000–3049, **800 trials (16 cells × 50)**. The protocol was "
       "frozen at `435d20d`", "task-provenance", FHO,
       "435d20d; claude-haiku-5-5; 3000-3049", c_readme_freeze_heldout, src=W),
-    C("WR03", RD, 80, "solo Haiku assembled the answer in **19/20** neutral-wording trials and **0/20** "
+    C("WR03", RD, 82, "solo Haiku assembled the answer in **19/20** neutral-wording trials and **0/20** "
       "explicit-wording trials. In strict/explicit trials, five- and twelve-attempt solo baselines were also 0/20; "
       "the uninformed relay assembled in 1/20", "v2-haiku", FV2,
       "solo/k5/k12 0/0/0 of 20; relay_uninformed 1/20; strict/neutral solo 19/20",
       c_readme_haiku_se, src=W),
-    C("WR04", RD, 71, "The protocol was frozen at `435d20d` before held-out collection", "task-provenance",
+    C("WR04", RD, 73, "The protocol was frozen at `435d20d` before held-out collection", "task-provenance",
       FHO, "freeze commit precedes collection start", c_freeze_before_collection, src=W),
-    C("WR05", RD, 78, "−90 percentage points (95% bootstrap interval: −98 to −80)",
+    C("WR05", RD, 80, "−90 percentage points (95% bootstrap interval: −98 to −80)",
       "task-provenance", FHO, "-90pp [-98,-80]",
       lambda: c_ho_contrast_part("restricted", "paraphrase", "recoverable", 0), src=W),
-    C("WR06", RD, 76, "| Authorized task: answer assembled | 15/50 | 33/49 |", "task-provenance", FHO,
+    C("WR06", RD, 78, "| Authorized task: answer assembled | 15/50 | 33/49 |", "task-provenance", FHO,
       "15/50->33/49", lambda: c_ho_contrast_part("authorized", "paraphrase", "assembled", 1),
       src=W),
-    C("WR07", RD, 78, "The monitor blocked 792 of 795 proposals and completed **0/50 authorized tasks in each wording**",
+    C("WR07", RD, 80, "The monitor blocked 792 of 795 proposals and completed **0/50 authorized tasks in each wording**",
       "task-provenance", FHO, "BLOCK 792/795; authorized asm 0/50, 0/50", c_ho_monitor_short, src=W),
-    C("WR08", RD, 71, "800 trials (16 cells × 50)", "task-provenance", FHO, "16 cells x 50; 800 trials", c_ho_cells16,
+    C("WR08", RD, 73, "800 trials (16 cells × 50)", "task-provenance", FHO, "16 cells x 50; 800 trials", c_ho_cells16,
       src=W),
-    C("WR09", RD, 78, "One backend error in the authorized/provenance condition is excluded from valid-only rates",
+    C("WR09", RD, 80, "One backend error in the authorized/provenance condition is excluded from valid-only rates",
       "task-provenance", FHO,
       "1 failed trial (seed 3010 paraphrase/authorized/provenance)", lambda: c_ho_meta("failed"), src=W),
-    C("WR17", RD, 75, "| Restricted task: answer recoverable | 45/50 | 0/50 |", "task-provenance", FHO,
+    C("WR17", RD, 77, "| Restricted task: answer recoverable | 45/50 | 0/50 |", "task-provenance", FHO,
       "45/50->0/50", lambda: c_ho_contrast_part("restricted", "paraphrase", "recoverable", 1), src=W),
     # ---------------- report/video-script.md (working tree)
     C("WV01", VS, 3, "Narration is 429 words", "script", "script_metadata", "429 words; segments match", c_video_words,

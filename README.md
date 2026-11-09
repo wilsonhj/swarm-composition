@@ -6,6 +6,8 @@ Agents look up four words and combine them into a pretend vault passphrase. This
 
 **Finding:** sharing the overall purpose reduced restricted disclosure while improving authorized completion. Wording alone also strongly changed whether a single agent refused.
 
+**Final paper (November 8, 2026):** [Read the PDF](report/submission/who-knows-the-goal.pdf) · [Editable Word document](report/submission/who-knows-the-goal.docx). Author: **Hirokazu James Wilson**. [Edition and verification notes](report/submission/README.md).
+
 ## What goes in, and what comes out?
 
 | Input | What it controls |
@@ -120,8 +122,6 @@ This uses subscription model calls. Reruns require a new output filename. Seeds 
 Backend setup: [Claude Code](docs/dev/claude-code-cli.md), [OpenRouter](docs/dev/openrouter.md), [Anthropic API](docs/dev/anthropic-api.md). For OpenRouter, check `make credits` and set `--max-usd` (estimated threshold, not a hard cap). Never commit keys.
 
 ## Where can I check the evidence or contribute?
-
-**Paper:** [PDF](report/submission/who-knows-the-goal.pdf) · [Editable Word document](report/submission/who-knows-the-goal.docx). Author: **Hirokazu James Wilson**. [Edition and verification notes](report/submission/README.md).
 
 - [Raw data and manifests](experiments/composition-gap/results/task-provenance/) · [saved analysis](experiments/composition-gap/results/task-provenance/heldout-haiku.jsonl.analysis.md)
 - [Current manuscript](report/submission/manuscript.md) · [appendices and limitations](report/submission/appendices.md) · [references](report/submission/references.md) · [earlier working draft](report/draft.md)
